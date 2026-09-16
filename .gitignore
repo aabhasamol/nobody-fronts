@@ -1,0 +1,17 @@
+# secrets and metered-call state — never commit
+.env
+.gnani_budget.json
+cache/
+# audio the demo produces or that you record
+*.wav
+*.mp3
+*.m4a
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# editors / os
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,202 @@
+
+====================================================================================================
+PATH: book
+====================================================================================================
+[Sat 10:00] GROUP          agent    Hi all — Sayan Das added me to plan Goa, October. Goa, 02 Oct–06 Oct, around ₹20,000 a head. I'll message each
+[Sat 10:00]   sys          system   Loaded per member: Sayan — Kolkata, ceiling ₹40,000, 2 past trips; Aabhas — Kolkata, ceiling ₹45,000, 2 past t
+[Sat 10:00] DM→Sayan       agent    Hi Sayan — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Sun 20 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Sat 10:00] DM→Aabhas      agent    Hi Aabhas — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Sun 20 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Sat 10:00] DM→Aditi       agent    Hi Aditi — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Sun 20 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Sat 10:00] DM→Riya        agent    Hi Riya — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Sun 20 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Sat 10:00] DM→Karan       agent    Hi Karan — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Sun 20 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Sat 10:00] DM→Sayan       Sayan Das Yes. ₹20k. No hostels.
+[Sat 10:00] DM→Sayan       agent    Got it, Sayan. I'll come back to the group with two options.
+[Sat 10:00] DM→Aabhas      Aabhas Amol In. ₹22k.
+[Sat 10:00] DM→Aabhas      agent    Got it, Aabhas. I'll come back to the group with two options.
+[Sat 10:00] DM→Aditi       Aditi Rao Yes, ₹18k, not a hostel.
+[Sat 10:00] DM→Aditi       agent    Got it, Aditi. I'll come back to the group with two options.
+[Sun 10:00]   sys          system   Riya did not reply; default applied.
+[Sun 10:00]   sys          system   Karan did not reply; default applied.
+[Sun 10:00] RAIL logistics logistics Quoted 3 stays and legs for 5 travellers; binding ceiling ₹18,000/head; must-haves: ['no hostels']
+[Sun 10:00] RAIL voice     voice    Called Palm Grove Villas, Morjim (0832629772) in hi-IN: MISMATCH. Room as pictured: No — the sea-view rooms ar
+[Sun 10:00]   sys          system   Dropped Palm Grove Villas, Morjim after the call (No — the sea-view rooms are under renovation; only garden-fa
+[Sun 10:00] RAIL voice     voice    Called Cabana by the Cove, Anjuna (0832661750) in hi-IN: VERIFIED. Room as pictured: Yes, all rooms as listed,
+[Sun 10:00] RAIL voice     voice    Called Sea Breeze Beach Resort, Candolim (0832652445) in hi-IN: VERIFIED. Room as pictured: Yes, all rooms as 
+[Sun 10:00] GROUP          agent    Hotel calls done. Cabana by the Cove, Anjuna: verified — refund: Full refund up to 72 hours before check-in. |
+[Sun 10:00] GROUP          agent    Two options for Goa, October. Both hotels phone-verified today. Per-head from your own city:
+                                  
+                                  Lean  ← default — Cabana by the Cove, Anjuna, 4 nights
+                                     Sayan (Kolkata): ₹19,400
+                                     Aabhas (Kolkata): ₹19,400
+                                     Aditi (Bengaluru): ₹14,400
+                                     Riya (Delhi): ₹19,000
+                                     Karan (Mumbai): ₹13,400
+                                  
+                                  Comfort — Sea Breeze Beach Resort, Candolim, 4 nights
+                                     Sayan (Kolkata): ₹24,200
+                                     Aabhas (Kolkata): ₹24,200
+                                     Aditi (Bengaluru): ₹15,200
+                                     Riya (Delhi): ₹24,800
+                                     Karan (Mumbai): ₹14,800
+                                  
+                                  I'll DM each of you a UPI request for your own share of the default. Approve it and your money is blocked, not
+[Sun 10:00] RAIL payments  payments OT mandate otsub_b0be353e created for Sayan: ₹21,400 block (share ₹19,400 + re-booking headroom), 4d validity 
+[Sun 10:00] DM→Sayan       agent    Sayan, your share of Lean is ₹19,400 (Cabana by the Cove, Anjuna + flights from Kolkata). Approve the UPI requ
+[Sun 10:00] RAIL payments  payments OT mandate otsub_424da4ea created for Aabhas: ₹21,400 block (share ₹19,400 + re-booking headroom), 4d validity
+[Sun 10:00] DM→Aabhas      agent    Aabhas, your share of Lean is ₹19,400 (Cabana by the Cove, Anjuna + flights from Kolkata). Approve the UPI req
+[Sun 10:00] RAIL payments  payments OT mandate otsub_f10c49f2 created for Aditi: ₹15,900 block (share ₹14,400 + re-booking headroom), 4d validity 
+[Sun 10:00] DM→Aditi       agent    Aditi, your share of Lean is ₹14,400 (Cabana by the Cove, Anjuna + flights from Bengaluru). Approve the UPI re
+[Sun 10:00] RAIL payments  payments OT mandate otsub_7278a7b0 created for Riya: ₹20,900 block (share ₹19,000 + re-booking headroom), 4d validity —
+[Sun 10:00] DM→Riya        agent    Riya, your share of Lean is ₹19,000 (Cabana by the Cove, Anjuna + flights from Delhi). Approve the UPI request
+[Sun 10:00] RAIL payments  payments OT mandate otsub_cc33b79e created for Karan: ₹14,800 block (share ₹13,400 + re-booking headroom), 4d validity 
+[Sun 10:00] DM→Karan       agent    Karan, your share of Lean is ₹13,400 (Cabana by the Cove, Anjuna + flights from Mumbai). Approve the UPI reque
+[Sun 10:00] RAIL payments  payments Sayan approved: mandate otsub_b0be353e ACTIVE — ₹21,400 blocked
+[Sun 10:00] GROUP          agent    Sayan is in (1/4).
+[Sun 10:00] RAIL payments  payments Aabhas approved: mandate otsub_424da4ea ACTIVE — ₹21,400 blocked
+[Sun 10:00] GROUP          agent    Aabhas is in (2/4).
+[Sun 10:00] RAIL payments  payments Aditi approved: mandate otsub_f10c49f2 ACTIVE — ₹15,900 blocked
+[Sun 10:00] GROUP          agent    Aditi is in (3/4).
+[Sun 10:00] RAIL payments  payments Riya approved: mandate otsub_7278a7b0 ACTIVE — ₹20,900 blocked
+[Sun 10:00] GROUP          agent    Riya is in (4/4).
+[Tue 10:00] RAIL payments  payments Presentation on otsub_b0be353e: ₹19,400 debited (₹2,000 headroom left on the mandate)
+[Tue 10:00] RAIL payments  payments Presentation on otsub_424da4ea: ₹19,400 debited (₹2,000 headroom left on the mandate)
+[Tue 10:00] RAIL payments  payments Presentation on otsub_f10c49f2: ₹14,400 debited (₹1,500 headroom left on the mandate)
+[Tue 10:00] RAIL payments  payments Presentation on otsub_7278a7b0: ₹19,000 debited (₹1,900 headroom left on the mandate)
+[Tue 10:00] RAIL payments  payments Mandate otsub_cc33b79e released — Karan did not commit
+[Tue 10:00] RAIL logistics logistics Stay confirmed HTL150631 for 4 guests
+[Tue 10:00] RAIL logistics logistics Ticketed Sayan: IndiGo Kolkata→Goa EGZDPC, IndiGo Goa→Kolkata F54ERF
+[Tue 10:00] DM→Sayan       agent    Your confirmations for Goa, October:
+                                   • IndiGo Kolkata→Goa 02 Oct 19:00 — PNR EGZDPC
+                                   • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR F54ERF
+                                   • Cabana by the Cove, Anjuna, 4 nights — ref HTL150631
+                                  Charged: ₹19,400 via UPI mandate.
+[Tue 10:00] RAIL logistics logistics Ticketed Aabhas: IndiGo Kolkata→Goa 5DHQD3, IndiGo Goa→Kolkata DQCJU4
+[Tue 10:00] DM→Aabhas      agent    Your confirmations for Goa, October:
+                                   • IndiGo Kolkata→Goa 02 Oct 19:00 — PNR 5DHQD3
+                                   • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR DQCJU4
+                                   • Cabana by the Cove, Anjuna, 4 nights — ref HTL150631
+                                  Charged: ₹19,400 via UPI mandate.
+[Tue 10:00] RAIL logistics logistics Ticketed Aditi: Akasa Bengaluru→Goa KHVMGN, Akasa Goa→Bengaluru ZGEDP9
+[Tue 10:00] DM→Aditi       agent    Your confirmations for Goa, October:
+                                   • Akasa Bengaluru→Goa 02 Oct 12:00 — PNR KHVMGN
+                                   • Akasa Goa→Bengaluru 06 Oct 12:00 — PNR ZGEDP9
+                                   • Cabana by the Cove, Anjuna, 4 nights — ref HTL150631
+                                  Charged: ₹14,400 via UPI mandate.
+[Tue 10:00] RAIL logistics logistics Ticketed Riya: Akasa Delhi→Goa 5W77ZV, Akasa Goa→Delhi RMRFV9
+[Tue 10:00] DM→Riya        agent    Your confirmations for Goa, October:
+                                   • Akasa Delhi→Goa 02 Oct 20:00 — PNR 5W77ZV
+                                   • Akasa Goa→Delhi 06 Oct 20:00 — PNR RMRFV9
+                                   • Cabana by the Cove, Anjuna, 4 nights — ref HTL150631
+                                  Charged: ₹19,000 via UPI mandate.
+[Tue 10:00] GROUP          agent    Booked. Cabana by the Cove, Anjuna (HTL150631) for Sayan, Aabhas, Aditi, Riya. Flights ticketed from each city
+[Tue 10:00] RAIL logistics logistics Carrier cancelled IndiGo Kolkata→Goa PNR 5DHQD3
+[Tue 10:00] RAIL logistics logistics Re-booked IndiGo 06:00 PNR X6UEH4 at ₹6,400 (cap headroom ₹7,900)
+[Tue 10:00] GROUP          agent    Aabhas's IndiGo 19:00 was cancelled by the carrier. Re-booked on IndiGo 06:00 within the amount already author
+[Tue 10:00] DM→Aabhas      agent    New PNR X6UEH4 — IndiGo Kolkata→Goa 02 Oct 06:00.
+
+FINAL STATE: BOOKED   blocked=0   captured=₹72,200
+
+====================================================================================================
+PATH: lapse
+====================================================================================================
+[Tue 10:00] GROUP          agent    Hi all — Sayan Das added me to plan Goa, October. Goa, 02 Oct–06 Oct, around ₹20,000 a head. I'll message each
+[Tue 10:00]   sys          system   Loaded per member: Sayan — Kolkata, ceiling ₹40,000, 2 past trips; Aabhas — Kolkata, ceiling ₹45,000, 2 past t
+[Tue 10:00] DM→Sayan       agent    Hi Sayan — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Wed 23 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Tue 10:00] DM→Aabhas      agent    Hi Aabhas — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Wed 23 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Tue 10:00] DM→Aditi       agent    Hi Aditi — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Wed 23 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Tue 10:00] DM→Riya        agent    Hi Riya — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Wed 23 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Tue 10:00] DM→Karan       agent    Hi Karan — three quick things for Goa, October, just to me, not the group:
+                                  1. Can you do 02–06 Oct? If not, which dates?
+                                  2. Your ceiling for the whole trip (flights + stay), per head?
+                                  3. Anything non-negotiable — no hostels, direct flights, veg food?
+                                  Reply by Wed 23 Sep, 10:00. If I don't hear back I'll assume yes to the dates and ₹20,000 as your ceiling.
+[Tue 10:00] DM→Sayan       Sayan Das Yes. ₹20k. No hostels.
+[Tue 10:00] DM→Sayan       agent    Got it, Sayan. I'll come back to the group with two options.
+[Tue 10:00] DM→Aabhas      Aabhas Amol In. ₹22k.
+[Tue 10:00] DM→Aabhas      agent    Got it, Aabhas. I'll come back to the group with two options.
+[Tue 10:00] DM→Aditi       Aditi Rao Yes, ₹18k, not a hostel.
+[Tue 10:00] DM→Aditi       agent    Got it, Aditi. I'll come back to the group with two options.
+[Wed 10:00]   sys          system   Riya did not reply; default applied.
+[Wed 10:00]   sys          system   Karan did not reply; default applied.
+[Wed 10:00] RAIL logistics logistics Quoted 3 stays and legs for 5 travellers; binding ceiling ₹18,000/head; must-haves: ['no hostels']
+[Wed 10:00] RAIL voice     voice    Called Palm Grove Villas, Morjim (0832629772) in hi-IN: MISMATCH. Room as pictured: No — the sea-view rooms ar
+[Wed 10:00]   sys          system   Dropped Palm Grove Villas, Morjim after the call (No — the sea-view rooms are under renovation; only garden-fa
+[Wed 10:00] RAIL voice     voice    Called Cabana by the Cove, Anjuna (0832661750) in hi-IN: VERIFIED. Room as pictured: Yes, all rooms as listed,
+[Wed 10:00] RAIL voice     voice    Called Sea Breeze Beach Resort, Candolim (0832652445) in hi-IN: VERIFIED. Room as pictured: Yes, all rooms as 
+[Wed 10:00] GROUP          agent    Hotel calls done. Cabana by the Cove, Anjuna: verified — refund: Full refund up to 72 hours before check-in. |
+[Wed 10:00] GROUP          agent    Two options for Goa, October. Both hotels phone-verified today. Per-head from your own city:
+                                  
+                                  Lean  ← default — Cabana by the Cove, Anjuna, 4 nights
+                                     Sayan (Kolkata): ₹19,400
+                                     Aabhas (Kolkata): ₹19,400
+                                     Aditi (Bengaluru): ₹14,400
+                                     Riya (Delhi): ₹19,000
+                                     Karan (Mumbai): ₹13,400
+                                  
+                                  Comfort — Sea Breeze Beach Resort, Candolim, 4 nights
+                                     Sayan (Kolkata): ₹24,200
+                                     Aabhas (Kolkata): ₹24,200
+                                     Aditi (Bengaluru): ₹15,200
+                                     Riya (Delhi): ₹24,800
+                                     Karan (Mumbai): ₹14,800
+                                  
+                                  I'll DM each of you a UPI request for your own share of the default. Approve it and your money is blocked, not
+[Wed 10:00] RAIL payments  payments OT mandate otsub_ba8137aa created for Sayan: ₹21,400 block (share ₹19,400 + re-booking headroom), 4d validity 
+[Wed 10:00] DM→Sayan       agent    Sayan, your share of Lean is ₹19,400 (Cabana by the Cove, Anjuna + flights from Kolkata). Approve the UPI requ
+[Wed 10:00] RAIL payments  payments OT mandate otsub_106e4343 created for Aabhas: ₹21,400 block (share ₹19,400 + re-booking headroom), 4d validity
+[Wed 10:00] DM→Aabhas      agent    Aabhas, your share of Lean is ₹19,400 (Cabana by the Cove, Anjuna + flights from Kolkata). Approve the UPI req
+[Wed 10:00] RAIL payments  payments OT mandate otsub_86b742b2 created for Aditi: ₹15,900 block (share ₹14,400 + re-booking headroom), 4d validity 
+[Wed 10:00] DM→Aditi       agent    Aditi, your share of Lean is ₹14,400 (Cabana by the Cove, Anjuna + flights from Bengaluru). Approve the UPI re
+[Wed 10:00] RAIL payments  payments OT mandate otsub_40e25ed4 created for Riya: ₹20,900 block (share ₹19,000 + re-booking headroom), 4d validity —
+[Wed 10:00] DM→Riya        agent    Riya, your share of Lean is ₹19,000 (Cabana by the Cove, Anjuna + flights from Delhi). Approve the UPI request
+[Wed 10:00] RAIL payments  payments OT mandate otsub_64febc5d created for Karan: ₹14,800 block (share ₹13,400 + re-booking headroom), 4d validity 
+[Wed 10:00] DM→Karan       agent    Karan, your share of Lean is ₹13,400 (Cabana by the Cove, Anjuna + flights from Mumbai). Approve the UPI reque
+[Wed 10:00] RAIL payments  payments Sayan approved: mandate otsub_ba8137aa ACTIVE — ₹21,400 blocked
+[Wed 10:00] GROUP          agent    Sayan is in (1/4).
+[Wed 10:00] RAIL payments  payments Aabhas approved: mandate otsub_106e4343 ACTIVE — ₹21,400 blocked
+[Wed 10:00] GROUP          agent    Aabhas is in (2/4).
+[Fri 10:00] RAIL payments  payments Mandate otsub_ba8137aa released — nothing charged
+[Fri 10:00] RAIL payments  payments Mandate otsub_106e4343 released — nothing charged
+[Fri 10:00] RAIL payments  payments Mandate otsub_86b742b2 released — nothing charged
+[Fri 10:00] RAIL payments  payments Mandate otsub_40e25ed4 released — nothing charged
+[Fri 10:00] RAIL payments  payments Mandate otsub_64febc5d released — nothing charged
+[Fri 10:00] GROUP          agent    Deadline passed with 2 of 4 needed. No money moved — every block has been released. Sayan, I've sent you who d
+[Fri 10:00] DM→Sayan       agent    Didn't commit by the deadline: Aditi Rao, Riya Sen, Karan Mehta. Options: re-run with the other bundle as defa
+
+FINAL STATE: LAPSED   blocked=0   captured=₹0
