@@ -12,6 +12,22 @@ def new_id(prefix: str) -> str:
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
 
 
+def inr(n: int) -> str:
+    """Indian grouping: 1,00,000 not 100,000. No symbol; callers add ₹."""
+    n = int(round(n))
+    sign, n = ("-" if n < 0 else ""), abs(n)
+    s = str(n)
+    if len(s) <= 3:
+        return sign + s
+    head, tail = s[:-3], s[-3:]
+    parts = []
+    while len(head) > 2:
+        parts.insert(0, head[-2:]); head = head[:-2]
+    if head:
+        parts.insert(0, head)
+    return sign + ",".join(parts) + "," + tail
+
+
 class TripState(str, Enum):
     INITIATED = "INITIATED"        # organiser named destination, dates, occasion, budget and overshoot
     GATHERING = "GATHERING"        # private DMs out: start city, return city, dates, must-haves
@@ -48,11 +64,13 @@ class Member(BaseModel):
 
 
 class Constraint(BaseModel):
-    """One member's private answers to the gathering DM. Silence = home city both ways, stated dates."""
+    """One member's private answers to the gathering DM. Silence = home city both ways, stated dates, one head."""
     member_id: str
     available: bool = True
     start_city: str = ""
     return_city: str = ""
+    party: int = 1                           # how many people this member is paying for, themselves included
+    party_names: list[str] = Field(default_factory=list)
     earliest: Optional[date] = None
     latest: Optional[date] = None
     budget: Optional[int] = None             # INR per head, all-in: the most this member will pay for the trip
@@ -70,10 +88,15 @@ class Leg(BaseModel):
     destination: str
     depart: datetime
     arrive: datetime
-    price: int                               # INR per head, live
-    quoted: Optional[int] = None             # INR per head at the time of the vote (fares move)
+    price: int                               # INR per seat, live
+    seats: int = 1                           # the payer's party travels together
+    quoted: Optional[int] = None             # INR per seat at the time of the vote (fares move)
     pnr: Optional[str] = None
     status: str = "QUOTED"                   # QUOTED / BOOKED / CANCELLED / REBOOKED
+
+    @property
+    def total(self) -> int:
+        return self.price * self.seats
 
 
 class CallRecord(BaseModel):
@@ -125,10 +148,11 @@ class Stay(BaseModel):
 
 
 class Plan(BaseModel):
-    """One itinerary: the shared trip (stays) plus each traveller's own travel, priced per head."""
+    """One itinerary: the shared trip (stays) plus each payer's own travel, priced per head and per payer."""
     id: str = Field(default_factory=lambda: new_id("plan"))
     version: int                             # 1 = first plan, 2 and 3 = revisions
-    travellers: list[str]                    # member ids the stay is split among
+    travellers: list[str]                    # member (payer) ids the plan is for
+    parties: dict[str, int] = Field(default_factory=dict)   # payer id → heads they pay for
     legs: list[Leg]                          # out + back per traveller, searched separately
     stays: list[Stay]                        # one or more; the occasion decides
     start: date
@@ -138,25 +162,39 @@ class Plan(BaseModel):
     def nights(self) -> int:
         return (self.end - self.start).days
 
+    def party(self, member_id: str) -> int:
+        return self.parties.get(member_id, 1)
+
+    def heads(self) -> int:
+        """People travelling: every payer's party added up."""
+        return sum(self.party(t) for t in self.travellers)
+
     def legs_for(self, member_id: str) -> list[Leg]:
         return [l for l in self.legs if l.member_id == member_id]
 
     def travel(self, member_id: str) -> int:
+        """Travel per head for this payer's people (their legs are priced per seat)."""
         return sum(l.price for l in self.legs_for(member_id))
 
     def stay_share(self) -> int:
-        return sum(s.per_head(len(self.travellers)) for s in self.stays)
+        """The stay per head, split among everyone travelling."""
+        return sum(s.per_head(self.heads()) for s in self.stays)
 
     def per_head(self, member_id: str) -> int:
+        """All-in for one of this payer's people."""
         return self.travel(member_id) + self.stay_share()
+
+    def share(self, member_id: str) -> int:
+        """What this payer owes: per head × the people they pay for."""
+        return self.per_head(member_id) * self.party(member_id)
 
     def total(self) -> int:
         """What the group pays in, all shares together."""
-        return sum(self.per_head(t) for t in self.travellers)
+        return sum(self.share(t) for t in self.travellers)
 
     def stay_total(self, s: Stay) -> int:
         """What the supplier is owed for this stay: rooms × rate × nights."""
-        return s.rooms_for(len(self.travellers)) * s.rate_per_room_night * s.nights
+        return s.rooms_for(self.heads()) * s.rate_per_room_night * s.nights
 
 
 class Vote(BaseModel):
@@ -172,13 +210,18 @@ class Vote(BaseModel):
 # capture (partial allowed) and the merchant releases the rest; the customer cannot revoke it from their UPI app.
 # UPI Reserve Pay takes multiple debits against one reserved amount. A card pre-authorisation lives 5–7 days and
 # takes one capture. None of them can be undone by the member alone: they ask Quorum, and Quorum releases.
+# The member chooses between a UPI mandate (nothing moves until booking) and a payment link. On the link a card
+# is a hold (pre-authorisation, captured only at booking); any method that cannot hold pays now, and that money
+# sits in Quorum's pool until booking, refunded if the trip does not happen — the float is Quorum's (see FLOAT_RATE).
 INSTRUMENTS = {
-    "UPI_RESERVE": dict(label="UPI Reserve Pay", multi_debit=True, max_validity_days=60, max_amount=100_000,
+    "UPI_RESERVE": dict(label="UPI Reserve Pay", multi_debit=True, prepaid=False, max_validity_days=60, max_amount=100_000,
                         note="block once in the bank account, debit more than once inside the block: the headroom stays live"),
-    "UPI_OTM": dict(label="UPI one-time mandate", multi_debit=False, max_validity_days=60, max_amount=100_000,
+    "UPI_OTM": dict(label="UPI one-time mandate", multi_debit=False, prepaid=False, max_validity_days=60, max_amount=100_000,
                     note="block once, one capture (partial allowed); the uncaptured balance is released"),
-    "CARD_PREAUTH": dict(label="credit card hold", multi_debit=False, max_validity_days=7, max_amount=None,
+    "CARD_PREAUTH": dict(label="credit card hold", multi_debit=False, prepaid=False, max_validity_days=7, max_amount=None,
                          note="pre-authorisation on the card, one capture within 5–7 days; the rest of the hold is released at capture"),
+    "PREPAID": dict(label="payment link, paid now", multi_debit=True, prepaid=True, max_validity_days=None, max_amount=None,
+                    note="the money moves to Quorum's account at once and is refunded if the trip does not happen; the headroom is cash, so a re-booking needs no tap"),
 }
 
 
@@ -199,6 +242,10 @@ class Authorisation(BaseModel):
     @property
     def multi_debit(self) -> bool:
         return bool(self.instrument and INSTRUMENTS[self.instrument]["multi_debit"])
+
+    @property
+    def prepaid(self) -> bool:
+        return bool(self.instrument and INSTRUMENTS[self.instrument]["prepaid"])
 
     def headroom(self) -> int:
         """What can still be debited without a new approval. A single-capture instrument has none once captured."""
@@ -290,10 +337,17 @@ class Trip(BaseModel):
         c = self.constraints.get(member_id)
         return c.budget if c and c.budget else self.budget
 
+    def party(self, member_id: str) -> int:
+        c = self.constraints.get(member_id)
+        return c.party if c else 1
+
+    def heads(self, member_ids: list[str]) -> int:
+        return sum(self.party(m) for m in member_ids)
+
     def set_budget(self, member_ids: list[str]) -> None:
-        """The trip's budget is set by the people who are in: their number × the lowest ceiling among them."""
+        """The trip's budget is set by the payers who are in: the heads they pay for × the lowest per-head ceiling."""
         self.budget_floor = min(self.ceiling(m) for m in member_ids) if member_ids else None
-        self.total_budget = len(member_ids) * self.budget_floor if member_ids else None
+        self.total_budget = self.heads(member_ids) * self.budget_floor if member_ids else None
 
     def majority(self) -> int:
         return len(self.members) // 2 + 1

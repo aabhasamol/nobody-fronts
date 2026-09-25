@@ -53,6 +53,13 @@ negative — `pay_supplier` refuses — so nobody fronts, Quorum included. The o
 path; pooling in a friend's account would lose block-then-debit, hit UPI limits, and move the trust problem
 rather than remove it.
 
+Two more things the pool does. A **payer may pay for several heads** (a family): their share is per head × their
+party, their legs carry that many seats, and the budget is heads × the lowest per-head ceiling. And when a
+member pays a **link with a method that cannot hold** (UPI intent, netbanking, a wallet), the money arrives at
+once and waits in the pool until booking, refunded in full if the trip lapses; the spare above their share is
+cash headroom, so a re-booking needs no tap. That prepaid **float is Quorum's**: the engine prices it at a
+liquid-fund rate in the rail log (`FLOAT_RATE`) as an idea, gains and losses both Quorum's, not a promise.
+
 ### The ask
 
 A **group order with escrow**: N blocks (card holds, UPI mandates, Reserve Pay) bound to **one** merchant

@@ -26,8 +26,8 @@ TRIP = WEDDING
 REPLIES = {
     "Sayan":  dict(start_city="Kolkata", return_city="Kolkata", budget=24000, must_haves=["no hostels"],
                    text="Kolkata both ways. Dates fine. Up to 24k. No hostels please."),
-    "Aabhas": dict(start_city="Kolkata", return_city="Kolkata", budget=25000, must_haves=[],
-                   text="Kolkata and back. All dates work. 25k is fine."),
+    "Aabhas": dict(start_city="Kolkata", return_city="Kolkata", budget=25000, party=2, party_names=["Aabhas", "Meera"],
+                   must_haves=[], text="Two of us — Meera's coming. Kolkata and back. All dates work. 25k a head is fine."),
     "Aditi":  dict(start_city="Bengaluru", return_city="Mumbai", budget=20000, must_haves=["no hostels"],
                    text="I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel."),
     "Riya":   dict(start_city="Delhi", return_city="Delhi", budget=23000, must_haves=[],

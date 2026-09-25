@@ -64,7 +64,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 import httpx
 from ..clock import clock
-from ..models import Member, Authorisation, AuthStatus, Payout, INSTRUMENTS
+from ..models import Member, Authorisation, AuthStatus, Payout, INSTRUMENTS, inr
 from .base import PaymentsRail, CaptureFailed
 
 
@@ -151,12 +151,16 @@ class PineLabsPayments(PaymentsRail):
         status = str(d.get("status") or d.get("payment_link_status") or "").upper()
         auth.order_ref = d.get("order_id") or auth.order_ref
         method = str(d.get("payment_method") or (d.get("payments") or [{}])[0].get("payment_method") or "").upper()
-        if method.startswith("CARD") or "EMI" in method:
+        if status in ("PROCESSED", "PAID", "CAPTURED", "SUCCESS") and auth.captured_amount == 0:
+            auth.instrument = "PREPAID"                        # a method that cannot hold paid at once: it is in the pool
+            self._pool += auth.amount
+        elif method.startswith("CARD") or "EMI" in method:
             auth.instrument = "CARD_PREAUTH"
             auth.expires_at = min(auth.expires_at, clock.now() + timedelta(days=7)) if auth.expires_at else None
         elif method.startswith("UPI"):
             auth.instrument = "UPI_OTM"                        # Reserve Pay needs its own flow; see module docstring
-        if status in ("AUTHORIZED", "ACTIVE", "PAID_PENDING_CAPTURE") and auth.status == AuthStatus.PENDING:
+        if status in ("AUTHORIZED", "ACTIVE", "PAID_PENDING_CAPTURE", "PROCESSED", "PAID", "CAPTURED", "SUCCESS") \
+                and auth.status == AuthStatus.PENDING:
             auth.status = AuthStatus.BLOCKED
         elif status in ("EXPIRED",) and auth.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
             auth.status = AuthStatus.EXPIRED
@@ -182,6 +186,10 @@ class PineLabsPayments(PaymentsRail):
         assert auth.captured_amount + amount <= auth.amount, "debit above the authorised cap"
         assert auth.multi_debit or auth.captured_amount == 0, f"{auth.instrument} allows one capture"
         assert auth.order_ref, "no order behind this block yet — refresh first"
+        if auth.prepaid:                                       # already paid in full; keep what is owed, refund the rest later
+            auth.status = AuthStatus.CAPTURED
+            auth.captured_amount += amount
+            return auth
         r = self.http.post(f"{self.base}/api/pay/v1/orders/{auth.order_ref}/capture", headers=self._headers(),   # [verify]
                            json={"merchant_capture_reference": f"cap-{uuid.uuid4().hex[:10]}",
                                  "capture_amount": {"value": amount * 100, "currency": "INR"}})
@@ -219,7 +227,7 @@ class PineLabsPayments(PaymentsRail):
         """Payouts API: IMPS/NEFT/UPI to a registered beneficiary — a homestay, a driver, a local vendor. Airlines
         and listed hotels are paid through a B2B travel wallet topped up from the settlement account instead.
         Until beneficiaries are registered this records the instruction so the ledger stays honest. [verify]"""
-        assert amount <= self._pool, f"pool ₹{self._pool:,} cannot cover ₹{amount:,} to {supplier}"
+        assert amount <= self._pool, f"pool ₹{inr(self._pool)} cannot cover ₹{inr(amount)} to {supplier}"
         self._pool -= amount
         p = Payout(supplier=supplier, amount=amount, purpose=purpose, reference=reference,
                    method="INSTRUCTED", status="INSTRUCTED", at=clock.now())

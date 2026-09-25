@@ -87,6 +87,8 @@ class GatherIn(BaseModel):
     return_city: Optional[str] = None
     available: bool = True
     budget: Optional[int] = None             # this member's own ceiling, per head all-in
+    party: int = 1                           # how many people they are paying for, themselves included
+    party_names: list[str] = []
     must_haves: list[str] = []
     text: Optional[str] = None
 
@@ -279,6 +281,8 @@ def _view(trip_id: str) -> dict:
     d["in_members"] = [m.id for m in t.in_members()]
     d["blocked_count"] = len(t.blocked())
     d["per_head"] = {p.id: {mid: p.per_head(mid) for mid in p.travellers} for p in t.plans}
+    d["shares"] = {p.id: {mid: p.share(mid) for mid in p.travellers} for p in t.plans}
+    d["heads"] = {p.id: p.heads() for p in t.plans}
     d["totals"] = {p.id: p.total() for p in t.plans}
     d["pool"] = payments.pool()
     d["ceilings"] = {m.id: t.ceiling(m.id) for m in t.members}

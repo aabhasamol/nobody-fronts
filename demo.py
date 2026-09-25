@@ -3,8 +3,10 @@
     python demo.py
 
   1. wedding   — phone-only homestay (no answer → retry → confirmed at the call's rate), vote passes 4–1,
-                 the four who are in set the budget and the stay re-splits for them; two block by UPI Reserve
-                 Pay, one holds a credit card, one holds a card with 3-month EMI; fares move inside the cap;
+                 the four payers who are in (five heads: Aabhas pays for Meera too) set the budget and the stay
+                 re-splits for them; one blocks by UPI Reserve Pay, one holds a credit card for two seats with
+                 3-month EMI, one pays the link outright (the money sits in the pool), one holds a card; fares
+                 move inside the cap;
                  everything books and the pool pays every supplier. Then a cancelled flight re-booked from the
                  carrier's refund alone (late arrival → the homestay gets a call), and a second cancellation for
                  the card-holder whose hold was used up at capture → text → no reply → escalation call → a fresh
@@ -58,9 +60,10 @@ def run_wedding(fail_capture_for=None):
     if fail_capture_for:
         payments.fail_capture_for.add(riya.id)
     logistics.drift["Delhi"] = 1.04                            # fares moved a little since the vote
-    engine.member_approves(t, sayan.id, "UPI_RESERVE")
-    engine.member_approves(t, aabhas.id, "CARD_PREAUTH", emi_months=3)
-    engine.member_approves(t, aditi.id, "UPI_RESERVE")
+    engine.member_approves(t, aditi.id, "PREPAID")               # paid the link with a method that can't hold: in the pool now
+    clock.advance(24); engine.tick(t)                            # a day passes: the others get one nudge, Aditi's money earns
+    engine.member_approves(t, sayan.id, "UPI_RESERVE")           # blocked in his account, headroom stays live
+    engine.member_approves(t, aabhas.id, "CARD_PREAUTH", emi_months=3)   # card hold for two seats, EMI at capture
     engine.member_approves(t, riya.id, "CARD_PREAUTH")
     n = show(t, n)
     if fail_capture_for:

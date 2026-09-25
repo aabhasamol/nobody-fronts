@@ -156,7 +156,7 @@ function render() {
   $('groupActions').innerHTML = (ga.length > 1 ? '' : '<small>the group hears from the agent only at kickoff, the tally, the booking and a disruption &nbsp;</small>') + ga.join('');
 
   // ---- DMs
-  $('tabs').innerHTML = trip.members.map(x => `<button class="${x.id===current?'on':''}" onclick="current='${x.id}';render()">${first(x)}${x.id===trip.organiser_id?' ★':''}${trip.in_members.includes(x.id)?' ✓':''}</button>`).join('');
+  $('tabs').innerHTML = trip.members.map(x => { const c = trip.constraints[x.id]; return `<button class="${x.id===current?'on':''}" onclick="current='${x.id}';render()">${first(x)}${c && c.party > 1 ? ' +' + (c.party - 1) : ''}${x.id===trip.organiser_id?' ★':''}${trip.in_members.includes(x.id)?' ✓':''}</button>`; }).join('');
   $('dm').innerHTML = trip.events.filter(e => e.channel === 'dm:' + current).map(msgHtml).join('') || '<small>nothing yet</small>';
   $('dm').scrollTop = 1e9;
   const me = member(current), da = [];
@@ -172,6 +172,7 @@ function render() {
     da.push(btn(`Approve UPI block ${inr(auth.amount)}`, `m('approve', {via: 'UPI_RESERVE'})`, 'primary'));
     da.push(btn(`Hold ${inr(auth.amount)} on credit card`, `m('approve', {via: 'CARD_PREAUTH'})`));
     if (emi) da.push(btn(`Card, ${emi[0]}-month EMI (${inr(emi[1])}/mo)`, `m('approve', {via: 'CARD_PREAUTH', emi_months: ${emi[0]}})`));
+    da.push(btn(`Pay ${inr(auth.amount)} now via link`, `m('approve', {via: 'PREPAID'})`, 'quiet'));
   }
   if (trip.state === 'AUTHORISING' && auth && auth.status === 'BLOCKED') da.push(btn('Ask Quorum to release my block', `m('withdraw')`, 'quiet'));
   if (top && top.status === 'PENDING') da.push(btn(`Approve top-up ${inr(top.amount)}${auth && auth.instrument === 'CARD_PREAUTH' ? ' (card tap)' : ''}`, `m('approve', {via: '${auth && auth.instrument ? auth.instrument : 'UPI_RESERVE'}'})`, 'primary'));
@@ -183,14 +184,14 @@ function render() {
   const deadline = trip.state === 'GATHERING' ? trip.gather_deadline : trip.state === 'VOTING' ? trip.vote_deadline : trip.state === 'AUTHORISING' ? trip.auth_deadline : null;
   $('kv').innerHTML = `<b>Organiser</b><span>${esc(org.name)} — never pays for anyone</span>
     <b>Occasion</b><span>${trip.occasion} · ${trip.destination}${trip.venue ? ' · venue ' + trip.venue : ''} · ${trip.start} → ${trip.end}</span>
-    <b>Budget</b><span>proposal built to ${inr(trip.budget)} a head +${Math.round(trip.overshoot*100)}% = ${inr(trip.limit)}${trip.total_budget ? ` · set by the ${trip.in_members.length} who are in: ${trip.in_members.length} × ${inr(trip.budget_floor)} (lowest ceiling) = <b style="color:var(--ink)">${inr(trip.total_budget)}</b>` : ' · after the vote: yes-voters × their lowest ceiling'}</span>
+    <b>Budget</b><span>proposal built to ${inr(trip.budget)} a head +${Math.round(trip.overshoot*100)}% = ${inr(trip.limit)}${trip.total_budget ? ` · set by the ${trip.in_members.length} payers who are in (${plan ? trip.heads[plan.id] : '?'} heads): ${plan ? trip.heads[plan.id] : '?'} × ${inr(trip.budget_floor)} (lowest ceiling) = <b style="color:var(--ink)">${inr(trip.total_budget)}</b>` : ' · after the vote: heads of the yes-voters × their lowest ceiling'}</span>
     <b>Pool</b><span>${inr(trip.pool)} in Quorum's account · ${trip.payouts.length} payout${trip.payouts.length===1?'':'s'} to suppliers · the organiser is never in the money path</span>
     <b>Deadline</b><span>${deadline ? fmt(deadline) : '—'}</span>
     <b>In</b><span>${trip.in_members.length ? trip.in_members.map(id => first(member(id))).join(', ') : '—'} · ${trip.blocked_count} blocked · majority ${trip.majority} of ${trip.members.length}</span>
     <b>Calls</b><span>${trip.events.filter(e => e.priority === 'P0').length} placed — P0 only: a phone-only stay, a late arrival there, or a member who didn't answer a disruption text</span>`;
 
   $('plans').innerHTML = trip.plans.length ? `<div class="h3">Plans (each member's all-in · their ceiling)</div><table><tr><th>v</th><th>Stay</th>${trip.members.map(x=>'<th>'+first(x)+'<br><small>≤ '+inr(trip.ceilings[x.id])+'</small></th>').join('')}<th>Total</th></tr>` +
-    trip.plans.map(p => `<tr><td class="${p===plan?'current':''}">v${p.version}${p.note ? '<br><small>'+esc(p.note)+'</small>' : ''}</td><td>${p.stays.map(s => `${esc(s.name)}<br><small>${s.nights}n · ${inr(s.rate_per_room_night)}/room · ${Math.ceil(p.travellers.length/2)} twin rooms${s.phone_only ? ' · phone-only' + (s.hold_until ? ', held till ' + fmt(s.hold_until) : '') : ' · listed'}${s.booking_ref ? ' · ' + s.booking_ref : ''}</small>`).join('<br>')}</td>${trip.members.map(x => { const v = trip.per_head[p.id][x.id]; return '<td' + (v != null && v > trip.ceilings[x.id] ? ' style="color:var(--red)"' : '') + '>' + (v != null ? inr(v) : '—') + '</td>'; }).join('')}<td>${inr(trip.totals[p.id])}</td></tr>`).join('') + '</table>' : '';
+    trip.plans.map(p => `<tr><td class="${p===plan?'current':''}">v${p.version}${p.note ? '<br><small>'+esc(p.note)+'</small>' : ''}</td><td>${p.stays.map(s => `${esc(s.name)}<br><small>${s.nights}n · ${inr(s.rate_per_room_night)}/room · ${Math.ceil(trip.heads[p.id]/2)} twin rooms for ${trip.heads[p.id]}${s.phone_only ? ' · phone-only' + (s.hold_until ? ', held till ' + fmt(s.hold_until) : '') : ' · listed'}${s.booking_ref ? ' · ' + s.booking_ref : ''}</small>`).join('<br>')}</td>${trip.members.map(x => { const v = trip.per_head[p.id][x.id], k = (p.parties || {})[x.id] || 1; return '<td' + (v != null && v > trip.ceilings[x.id] ? ' style="color:var(--red)"' : '') + '>' + (v != null ? inr(v) + (k > 1 ? `<br><small>×${k} = ${inr(trip.shares[p.id][x.id])}</small>` : '') : '—') + '</td>'; }).join('')}<td>${inr(trip.totals[p.id])}</td></tr>`).join('') + '</table>' : '';
 
   if (plan && (trip.state === 'VOTING' || Object.keys(trip.votes).length)) {
     const v = Object.values(trip.votes), yes = v.filter(x=>x.yes).length, no = v.length - yes;

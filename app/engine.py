@@ -24,7 +24,7 @@ from typing import Optional
 from . import messages as M
 from .clock import clock
 from .models import (Trip, Member, Constraint, Plan, Leg, Stay, Vote, Authorisation, AuthStatus, Decision,
-                     TripState, Event, CallRecord, INSTRUMENTS)
+                     TripState, Event, CallRecord, INSTRUMENTS, inr)
 from .rails.base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 GATHER_WINDOW_H = 24         # how long members get to answer the private DM
@@ -36,6 +36,7 @@ FUNCTION_HOUR = 18           # wedding / offsite: arrive before the first functi
 LATE_ARRIVAL_HOUR = 20       # a re-booked arrival at or after this hour gets the phone-only stay a call
 PRICE_WORDS = ("expensive", "cheap", "budget", "cost", "price", "₹", "money", "afford", "pricey", "over")
 CALL_LANGUAGE = "hi-IN"
+FLOAT_RATE = 0.065           # idea: money prepaid through a link sits with Quorum until booking; priced at a liquid-fund rate
 
 # Calls are for P0 things only. A P0 is: the other side cannot be reached any other way in time, and what
 # they say changes what the agent does next. These three are the whole list; everything else is a text.
@@ -90,8 +91,10 @@ class Engine:
 
     def gather(self, trip: Trip, member_id: str, start_city: Optional[str] = None, return_city: Optional[str] = None,
                available: bool = True, must_haves: Optional[list[str]] = None, earliest: Optional[date] = None,
-               latest: Optional[date] = None, budget: Optional[int] = None, text: Optional[str] = None) -> None:
+               latest: Optional[date] = None, budget: Optional[int] = None, party: int = 1,
+               party_names: Optional[list[str]] = None, text: Optional[str] = None) -> None:
         assert trip.state == TripState.GATHERING, f"cannot gather in {trip.state}"
+        assert party >= 1, "a payer pays for at least themselves"
         m = trip.member(member_id)
         if text:
             self._say(trip, f"dm:{m.id}", text, actor=m.name)
@@ -100,8 +103,8 @@ class Engine:
         trip.constraints[member_id] = Constraint(member_id=member_id, available=available, start_city=start_city,
                                                  return_city=return_city, must_haves=must_haves or [],
                                                  earliest=earliest, latest=latest, budget=budget or trip.budget,
-                                                 replied_at=clock.now())
-        self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, start_city, return_city, available, trip.ceiling(m.id)), priority="P2")
+                                                 party=party, party_names=party_names or [], replied_at=clock.now())
+        self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, trip.constraints[member_id]), priority="P2")
         if all(mm.id in trip.constraints for mm in trip.members):
             self.plan(trip)
 
@@ -113,7 +116,7 @@ class Engine:
             if m.id not in trip.constraints:
                 trip.constraints[m.id] = Constraint(member_id=m.id, start_city=m.home_city, return_city=m.home_city,
                                                     budget=trip.budget, defaulted=True)
-                self._sys(trip, f"{m.first} did not reply; default applied ({m.home_city} both ways, ₹{trip.budget:,} ceiling).")
+                self._sys(trip, f"{m.first} did not reply; default applied ({m.home_city} both ways, ₹{inr(trip.budget)} ceiling).")
         self.plan(trip)
 
     # ------------------------------------------------------------------ 2. plan: trip side + travel side
@@ -161,13 +164,14 @@ class Engine:
         self._rail(trip, "logistics",
                    f"{len(ranked)} stays quoted in {trip.destination}, {nights} nights "
                    f"({sum(s.phone_only for s in ranked)} phone-only); legs for {len(travellers)} travellers, "
-                   f"out and back searched separately; limit ₹{trip.limit():,}/head all-in; "
+                   f"out and back searched separately; limit ₹{inr(trip.limit())}/head all-in; "
                    f"must-haves: {', '.join(must) or 'none'}" + (f"; {note}" if note else ""))
         best: Optional[tuple[Plan, list[Member]]] = None
         for s in ranked:
             if s.phone_only and not self._supplier_call(trip, s, len(travellers), start, nights):
                 continue
             p = Plan(version=len(trip.plans) + 1, travellers=[m.id for m in travellers],
+                     parties={m.id: trip.party(m.id) for m in travellers},
                      legs=self._legs_for(trip, travellers, start, end), stays=[s], start=start, end=end, note=note)
             ok, over = self._fit(trip, p)
             if ok:
@@ -223,7 +227,7 @@ class Engine:
             out = self._pick_leg(self.logistics.search_legs(c.start_city, trip.destination, start), trip.occasion, True)
             back = self._pick_leg(self.logistics.search_legs(trip.destination, c.return_city, end), trip.occasion, False)
             for l in (out, back):
-                legs.append(l.model_copy(update={"member_id": m.id, "quoted": l.price}))
+                legs.append(l.model_copy(update={"member_id": m.id, "quoted": l.price, "seats": trip.party(m.id)}))
         return legs
 
     def _supplier_call(self, trip: Trip, stay: Stay, party: int, check_in: date, nights: int) -> bool:
@@ -235,7 +239,7 @@ class Engine:
                              f"Called {stay.name} ({stay.phone}), {CALL_LANGUAGE}, attempt {attempt}")
             stay.calls.append(rec)
             if rec.disposition == "CONFIRMED":
-                rate = f"₹{rec.rate_per_room_night:,}/night" if rec.rate_per_room_night else "rate not caught"
+                rate = f"₹{inr(rec.rate_per_room_night)}/night" if rec.rate_per_room_night else "rate not caught"
                 hold = f"held till {rec.hold_until:%a %d %b %H:%M}" if rec.hold_until else "no hold agreed"
                 self._rail(trip, "voice", f"  {rec.rooms} twin rooms at {rate}, refund: {rec.refund_terms or '?'}, {hold}")
             if rec.disposition != "NO_ANSWER":
@@ -246,8 +250,8 @@ class Engine:
                             f"{len([c for c in stay.calls if c.purpose == 'AVAILABILITY'])} call(s); moving to the next stay.")
             return False
         if rec.rate_per_room_night and rec.rate_per_room_night != stay.rate_per_room_night:
-            self._sys(trip, f"{stay.name} quoted ₹{rec.rate_per_room_night:,}/room/night on the call, not the "
-                            f"₹{stay.rate_per_room_night:,} we had. Using the call's price.")
+            self._sys(trip, f"{stay.name} quoted ₹{inr(rec.rate_per_room_night)}/room/night on the call, not the "
+                            f"₹{inr(stay.rate_per_room_night)} we had. Using the call's price.")
             stay.rate_per_room_night = rec.rate_per_room_night
         stay.hold_until = rec.hold_until or (clock.now() + timedelta(hours=48))
         return True
@@ -338,12 +342,12 @@ class Engine:
         """The people who are in set the budget; the plan is re-sized for exactly them and must fit it."""
         p = trip.plan()
         ins = trip.in_members()
-        old = {t: p.per_head(t) for t in p.travellers}
+        old = {t: p.share(t) for t in p.travellers}
         trip.set_budget([m.id for m in ins])
         changes = self._retarget(trip, p, [m.id for m in ins])   # the stay now splits among those who are in
-        self._rail(trip, "logistics", f"Budget set by the {len(ins)} who are in: {len(ins)} × ₹{trip.budget_floor:,} "
-                                      f"(lowest ceiling) = ₹{trip.total_budget:,}; plan re-sized for {len(ins)} comes to "
-                                      f"₹{p.total():,}" + (f" ({'; '.join(changes)})" if changes else ""))
+        self._rail(trip, "logistics", f"Budget set by the {len(ins)} payers who are in, {p.heads()} heads: {p.heads()} × "
+                                      f"₹{inr(trip.budget_floor)} (lowest ceiling) = ₹{inr(trip.total_budget)}; plan re-sized for "
+                                      f"{p.heads()} comes to ₹{inr(p.total())}" + (f" ({'; '.join(changes)})" if changes else ""))
         if p.total() > trip.total_budget:
             self._say(trip, "group", intro)
             return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
@@ -353,12 +357,12 @@ class Engine:
         trip.reminded = []
         validity_days = max(1, (trip.auth_deadline - clock.now()).days + 2)
         for m in ins:
-            share = p.per_head(m.id)
+            share = p.share(m.id)
             cap = ceil100(share * (1 + trip.overshoot))
             auth = self.payments.create_block(m, cap, validity_days, reference=p.id)
             trip.authorisations[m.id] = auth
-            self._rail(trip, "payments", f"Block {auth.rail_ref} created for {m.first}: ₹{cap:,} "
-                                         f"(share ₹{share:,} × {1 + trip.overshoot:.2f}), {validity_days}d validity, "
+            self._rail(trip, "payments", f"Block {auth.rail_ref} created for {m.first}: ₹{inr(cap)} "
+                                         f"(share ₹{inr(share)} × {1 + trip.overshoot:.2f}), {validity_days}d validity, "
                                          f"UPI Reserve Pay or card pre-auth at the member's choice — PENDING")
             self._say(trip, f"dm:{m.id}", M.dm_authorise(trip, m, p, share, cap, old.get(m.id, share),
                                                          self.payments.emi_offers(cap)))
@@ -386,13 +390,13 @@ class Engine:
         top = trip.top_ups.get(member_id)
         if top is not None and top.status == AuthStatus.PENDING:
             self._approve(top, via, emi_months)
-            self._rail(trip, "payments", f"{m.first} approved top-up {top.rail_ref} ({self._instrument_line(top)}) — ₹{top.amount:,} blocked")
+            self._rail(trip, "payments", f"{m.first} approved top-up {top.rail_ref} ({self._instrument_line(top)}) — ₹{inr(top.amount)} blocked")
             self._complete_top_up(trip, m)
             return top
         assert trip.state == TripState.AUTHORISING, f"cannot approve in {trip.state}"
         auth = self._approve(trip.authorisations[member_id], via, emi_months)
         self._rail(trip, "payments", f"{m.first} approved: {auth.rail_ref} ACTIVE on {self._instrument_line(auth)} — "
-                                     f"₹{auth.amount:,} blocked ({len(trip.blocked())}/{len(trip.in_members())} in)")
+                                     f"₹{inr(auth.amount)} blocked ({len(trip.blocked())}/{len(trip.in_members())} in)")
         self._say(trip, f"dm:{m.id}", M.dm_authorise_ack(m, auth), priority="P2")
         self._maybe_book(trip)
         return auth
@@ -419,7 +423,7 @@ class Engine:
     def _drop(self, trip: Trip, who: list[Member], why: str) -> None:
         """Yes-voters who did not authorise drop out; the plan is re-priced for the rest."""
         p = trip.plan()
-        old = {t: p.per_head(t) for t in p.travellers}
+        old = {t: p.share(t) for t in p.travellers}
         for m in who:
             a = trip.authorisations.get(m.id)
             if a and a.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
@@ -432,16 +436,16 @@ class Engine:
             return self.lapse(trip, M.why_nobody_left(trip))
         trip.set_budget([m.id for m in ins])
         changes = self._retarget(trip, p, [m.id for m in ins])
-        self._rail(trip, "logistics", f"Re-priced for {len(ins)}: ₹{p.total():,} against a budget of {len(ins)} × "
-                                      f"₹{trip.budget_floor:,} = ₹{trip.total_budget:,}" + (f" ({'; '.join(changes)})" if changes else ""))
-        over = [m for m in ins if p.per_head(m.id) > trip.authorisations[m.id].amount]
+        self._rail(trip, "logistics", f"Re-priced for {p.heads()} heads: ₹{inr(p.total())} against a budget of {p.heads()} × "
+                                      f"₹{inr(trip.budget_floor)} = ₹{inr(trip.total_budget)}" + (f" ({'; '.join(changes)})" if changes else ""))
+        over = [m for m in ins if p.share(m.id) > trip.authorisations[m.id].amount]
         if over:
             return self._back_to_group(trip, ins, M.why_reprice_over(trip, who, over))
         if p.total() > trip.total_budget:
             return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
         for m in ins:
-            if p.per_head(m.id) != old[m.id]:
-                self._say(trip, f"dm:{m.id}", M.dm_repriced(trip, m, old[m.id], p.per_head(m.id), who))
+            if p.share(m.id) != old[m.id]:
+                self._say(trip, f"dm:{m.id}", M.dm_repriced(trip, m, old[m.id], p.share(m.id), who))
         self._maybe_book(trip)
 
     def _back_to_group(self, trip: Trip, travellers: list[Member], why: str) -> None:
@@ -459,13 +463,14 @@ class Engine:
         """Re-size the plan for a different set of people: their legs go, and every shared item is re-sized for
         the new headcount (rooms today; the same hook is where a car or a group activity would re-size).
         Returns one line per thing that changed."""
-        before = len(p.travellers)
+        before = p.heads()
         p.travellers = travellers
+        p.parties = {t: trip.party(t) for t in travellers}
         p.legs = [l for l in p.legs if l.member_id in travellers]
         changes = []
         for s in p.stays:
-            if s.rooms_for(before) != s.rooms_for(len(travellers)):
-                changes.append(f"{s.rooms_for(len(travellers))} twin rooms at {s.name} instead of {s.rooms_for(before)}")
+            if s.rooms_for(before) != s.rooms_for(p.heads()):
+                changes.append(f"{s.rooms_for(p.heads())} twin rooms at {s.name} for {p.heads()} instead of {s.rooms_for(before)}")
         return changes
 
     def _maybe_book(self, trip: Trip) -> None:
@@ -531,11 +536,11 @@ class Engine:
                 same = next((o for o in live if o.carrier == l.carrier and o.depart == l.depart), None)
                 if same and same.price != l.price:
                     l.price = same.price
-            moved = sum(l.price - (l.quoted or l.price) for l in p.legs_for(m.id))
-            share, cap = p.per_head(m.id), self._cap(trip, m.id)
+            moved = sum((l.price - (l.quoted or l.price)) * l.seats for l in p.legs_for(m.id))
+            share, cap = p.share(m.id), self._cap(trip, m.id)
             if moved:
-                self._rail(trip, "logistics", f"Live fares for {m.first}: {'+' if moved > 0 else ''}₹{moved:,} vs the vote; "
-                                              f"share ₹{share:,} is {'inside' if share <= cap else 'over'} the ₹{cap:,} authorised")
+                self._rail(trip, "logistics", f"Live fares for {m.first}: {'+' if moved > 0 else ''}₹{inr(moved)} vs the vote; "
+                                              f"share ₹{inr(share)} is {'inside' if share <= cap else 'over'} the ₹{inr(cap)} authorised")
             if share > cap:
                 short[m.id] = share - cap
         return short
@@ -547,7 +552,7 @@ class Engine:
         trip.top_ups[m.id] = top
         if kind == "TOP_UP":
             trip.pending[m.id] = Decision(member_id=m.id, kind="TOP_UP", leg_id=leg_id, shortfall=need, asked_at=clock.now())
-        self._rail(trip, "payments", f"Top-up block {top.rail_ref} for {m.first}: ₹{cap:,} — PENDING")
+        self._rail(trip, "payments", f"Top-up block {top.rail_ref} for {m.first}: ₹{inr(cap)} — PENDING")
         self._say(trip, f"dm:{m.id}", M.dm_topup_request(trip, m, cap, why, trip.authorisations[m.id].instrument))
 
     def _complete_top_up(self, trip: Trip, m: Member) -> None:
@@ -569,7 +574,7 @@ class Engine:
         Pine Labs for: on any failure, refund everyone already debited and stop."""
         done: list[Member] = []
         for m in ins:
-            share = p.per_head(m.id)
+            share = p.share(m.id)
             try:
                 first, rest = self._present(trip, m.id, share)
             except CaptureFailed as e:
@@ -579,7 +584,7 @@ class Engine:
                         if a and a.captured_amount:
                             amt = a.captured_amount
                             self.payments.refund(a)
-                            self._rail(trip, "payments", f"Refunded ₹{amt:,} to {c.first} ({a.rail_ref})")
+                            self._rail(trip, "payments", f"Refunded ₹{inr(amt)} to {c.first} ({a.rail_ref})")
                 for o in ins:
                     for a in (trip.authorisations[o.id], trip.top_ups.get(o.id)):
                         if a and a.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
@@ -590,12 +595,15 @@ class Engine:
                 return False
             done.append(m)
             a = trip.authorisations[m.id]
-            line = f"Debited ₹{first:,} on {a.rail_ref} ({INSTRUMENTS[a.instrument]['label']})"
-            line += f" + ₹{rest:,} on top-up {trip.top_ups[m.id].rail_ref}" if rest else ""
-            if a.multi_debit:
-                line += f"; ₹{self._headroom(trip, m.id):,} headroom stays live for a re-booking"
+            line = f"Debited ₹{inr(first)} on {a.rail_ref} ({INSTRUMENTS[a.instrument]['label']})"
+            line += f" + ₹{inr(rest)} on top-up {trip.top_ups[m.id].rail_ref}" if rest else ""
+            if a.prepaid:
+                line += (f"; it was already in the pool — ₹{inr(self._headroom(trip, m.id))} of {m.first}'s prepayment stays "
+                         f"there for a re-booking and comes back after the trip")
+            elif a.multi_debit:
+                line += f"; ₹{inr(self._headroom(trip, m.id))} headroom stays live for a re-booking"
             else:
-                line += f"; the remaining ₹{a.amount - first:,} of the hold is released — one capture per {INSTRUMENTS[a.instrument]['label']}"
+                line += f"; the remaining ₹{inr(a.amount - first)} of the hold is released — one capture per {INSTRUMENTS[a.instrument]['label']}"
             if a.emi_months:
                 line += f"; {m.first} pays the issuer in {a.emi_months} instalments, Quorum is settled in full"
             self._rail(trip, "payments", line)
@@ -605,11 +613,11 @@ class Engine:
         """Quorum pays a supplier from the pool. Never more than is in it: Quorum does not front either."""
         pay = self.payments.pay_supplier(supplier, amount, purpose, reference)
         trip.payouts.append(pay)
-        self._rail(trip, "payments", f"Paid {supplier} ₹{amount:,} from the pool ({pay.method.lower().replace('_', ' ')}, "
-                                     f"{reference}) — pool now ₹{self.payments.pool():,}")
+        self._rail(trip, "payments", f"Paid {supplier} ₹{inr(amount)} from the pool ({pay.method.lower().replace('_', ' ')}, "
+                                     f"{reference}) — pool now ₹{inr(self.payments.pool())}")
 
     def _book_inventory(self, trip: Trip, p: Plan, ins: list[Member]) -> None:
-        self._rail(trip, "payments", f"Pool (Quorum's account) holds ₹{self.payments.pool():,} for this trip; paying suppliers")
+        self._rail(trip, "payments", f"Pool (Quorum's account) holds ₹{inr(self.payments.pool())} for this trip; paying suppliers")
         for s in p.stays:
             self.logistics.book_stay(s, ins)
             self._rail(trip, "logistics", f"Stay confirmed {s.booking_ref}: {s.name}, {s.rooms_for(len(ins))} twin rooms × "
@@ -618,13 +626,19 @@ class Engine:
         for m in ins:
             for l in p.legs_for(m.id):
                 self.logistics.book_leg(l, m)
-                self._pay(trip, l.carrier, l.price, "LEG", l.pnr)
-            self._rail(trip, "logistics", f"Ticketed {m.first}: " + ", ".join(
-                f"{l.carrier} {l.origin}→{l.destination} {l.pnr}" for l in p.legs_for(m.id)))
+                self._pay(trip, l.carrier, l.total, "LEG", l.pnr)
+            self._rail(trip, "logistics", f"Ticketed {m.first}" + (f" ×{p.party(m.id)}" if p.party(m.id) > 1 else "") + ": " +
+                       ", ".join(f"{l.carrier} {l.origin}→{l.destination} {l.pnr}" for l in p.legs_for(m.id)))
             self._say(trip, f"dm:{m.id}", M.dm_confirmation(trip, m, p))
+        prepaid = [(m, trip.authorisations[m.id]) for m in ins if trip.authorisations[m.id].prepaid]
+        if prepaid and hasattr(self.payments, "float_days"):
+            held = sum(a.amount * self.payments.float_days(a) for _, a in prepaid)
+            self._rail(trip, "payments", f"(idea) Float: {', '.join(f'{m.first} ₹{inr(a.amount)} × {self.payments.float_days(a)}d' for m, a in prepaid)} "
+                                         f"prepaid sat with Quorum before booking — at {FLOAT_RATE:.1%} p.a. that is ≈ ₹{held * FLOAT_RATE / 365:,.0f}, "
+                                         f"Quorum's to keep and Quorum's to lose")
         left = self.payments.pool()
         if left:
-            self._rail(trip, "payments", f"₹{left:,} of rounding stays in the pool for this trip")
+            self._rail(trip, "payments", f"₹{inr(left)} stays in the pool for this trip (prepaid headroom and rounding)")
         trip.state = TripState.BOOKED
         self._say(trip, "group", M.booked_group(trip, p))
 
@@ -660,19 +674,20 @@ class Engine:
         m = trip.member(leg.member_id)
         self.logistics.cancel_leg(leg)
         self._rail(trip, "logistics", f"Carrier cancelled {M.leg_desc(leg)} PNR {leg.pnr}")
-        self._rail(trip, "payments", f"{leg.carrier} refunds ₹{leg.price:,} for {leg.pnr} into the pool — "
-                                     f"pool now ₹{self.payments.receive_refund(leg.carrier, leg.price, leg.pnr):,}")
-        options = sorted([o for o in self.logistics.search_legs(leg.origin, leg.destination, leg.depart.date())
+        self._rail(trip, "payments", f"{leg.carrier} refunds ₹{inr(leg.total)} for {leg.pnr} ({leg.seats} seat{'s' if leg.seats > 1 else ''}) "
+                                     f"into the pool — pool now ₹{inr(self.payments.receive_refund(leg.carrier, leg.total, leg.pnr))}")
+        options = sorted([o.model_copy(update={"seats": leg.seats})
+                          for o in self.logistics.search_legs(leg.origin, leg.destination, leg.depart.date())
                           if o.carrier != leg.carrier or o.depart != leg.depart], key=lambda o: o.price)
-        budget = self._headroom(trip, m.id) + leg.price          # unused cap + the cancelled fare coming back
-        affordable = [o for o in options if o.price <= budget]
+        budget = self._headroom(trip, m.id) + leg.total          # unused cap + the cancelled fare coming back
+        affordable = [o for o in options if o.total <= budget]
         if affordable:
             new = self._pick_leg(affordable, trip.occasion, outbound=(leg.destination == trip.destination))
             self._rebook(trip, m, leg, new)
             return
         top2 = options[:2]
         trip.pending[m.id] = Decision(member_id=m.id, kind="REBOOK", leg_id=leg.id, options=top2,
-                                      shortfall=top2[0].price - budget, asked_at=clock.now())
+                                      shortfall=top2[0].total - budget, asked_at=clock.now())
         self._say(trip, f"dm:{m.id}", M.dm_disruption_options(trip, m, leg, top2, budget, ESCALATE_AFTER_MIN,
                                                                trip.authorisations[m.id]))
         self._say(trip, "group", M.disruption_escalate(m))
@@ -688,7 +703,7 @@ class Engine:
         d.choice = option
         if via == "dm":
             self._say(trip, f"dm:{m.id}", str(option), actor=m.name)
-        need = new.price - (self._headroom(trip, m.id) + leg.price)
+        need = new.total - (self._headroom(trip, m.id) + leg.total)
         if need <= 0:
             del trip.pending[m.id]
             self._rebook(trip, m, leg, new)
@@ -697,20 +712,21 @@ class Engine:
 
     def _rebook(self, trip: Trip, m: Member, leg: Leg, new: Leg) -> None:
         p = trip.plan()
-        new = new.model_copy(update={"member_id": m.id, "quoted": leg.price})
+        new = new.model_copy(update={"member_id": m.id, "quoted": leg.price, "seats": leg.seats})
         self.logistics.book_leg(new, m)
         new.status = "REBOOKED"
         p.legs = [new if l.id == leg.id else l for l in p.legs]
-        extra = new.price - leg.price
+        extra = new.total - leg.total
         if extra > 0:
             first, rest = self._present(trip, m.id, extra)
-            funding = f"₹{leg.price:,} refund + ₹{first:,} headroom" + (f" + ₹{rest:,} top-up" if rest else "")
+            funding = f"₹{inr(leg.total)} refund + ₹{inr(first)} headroom" + (f" + ₹{inr(rest)} top-up" if rest else "")
         elif extra < 0:
-            funding = f"₹{leg.price:,} refund covers it; ₹{-extra:,} stays in the pool for {m.first}"
+            funding = f"₹{inr(leg.total)} refund covers it; ₹{inr(-extra)} stays in the pool for {m.first}"
         else:
             funding = "same fare"
-        self._rail(trip, "logistics", f"Re-booked {M.leg_desc(new)} PNR {new.pnr} at ₹{new.price:,} ({funding})")
-        self._pay(trip, new.carrier, new.price, "REBOOK", new.pnr)
+        seats = f" × {new.seats} seats" if new.seats > 1 else ""
+        self._rail(trip, "logistics", f"Re-booked {M.leg_desc(new)} PNR {new.pnr} at ₹{inr(new.price)}{seats} ({funding})")
+        self._pay(trip, new.carrier, new.total, "REBOOK", new.pnr)
         late_stay: Optional[Stay] = None
         if leg.destination == trip.destination and (new.arrive.hour >= LATE_ARRIVAL_HOUR or new.arrive.date() > leg.arrive.date()):
             for s in p.stays:
@@ -746,7 +762,7 @@ class Engine:
         m = trip.member(member_id)
         if member_id not in p.travellers:
             return
-        old = {t: p.per_head(t) for t in p.travellers}
+        old = {t: p.share(t) for t in p.travellers}
         self._retarget(trip, p, [t for t in p.travellers if t != member_id])
         trip.dropped.append(member_id)
         self._say(trip, f"dm:{m.id}", M.dm_exit_ack(trip, m, p))

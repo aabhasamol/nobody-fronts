@@ -29,7 +29,13 @@ real fares), not wider. Do not add features the loop does not need.
 * The pool is Quorum's merchant account. Captures settle into it, `Engine._pay` pays suppliers from it, a
   carrier's refund comes back into it, and `PaymentsRail.pay_supplier` must refuse to take it negative. The
   organiser is never in the money path; neither is Quorum's own money.
-* The yes-voters set the budget: `Trip.set_budget` = their number × the lowest ceiling among them. Before
+* A member is a payer; `Constraint.party` is how many heads they pay for. `Plan.per_head` is one of their
+  people, `Plan.share` is what they owe, legs carry `seats`. Votes and majority stay per payer.
+* Blocks come in four instruments (`models.INSTRUMENTS`): UPI Reserve Pay (multi-debit), UPI OTM (one
+  capture), a card hold (one capture, 7 days) and a prepaid link (money in the pool now, refunded on lapse).
+  Only the engine's `_headroom` needs to know the difference. The prepaid float is priced in the rail log at
+  `FLOAT_RATE` as an idea; nothing invests anything.
+* The yes-voters set the budget: `Trip.set_budget` = the heads they pay for × the lowest ceiling among them. Before
   the vote the proposal is held to the organiser's rough figure + overshoot per head; after it, the total is
   the rule (`Engine._fit`). Re-sizing for whoever is in happens in `Engine._retarget`: rooms today; a car or
   a group activity would re-size in the same place.

@@ -68,6 +68,14 @@ KP's points are still in it: trip and travel are planned separately, and the occ
    their budget and their caps, it goes ahead. If not, it goes back to the group.
 7. **The money pools in Quorum's account.** Quorum is the merchant of record: the mandates settle into its
    account and it pays every supplier from there. The organiser is never in the money path.
+8. **A member is a payer, not necessarily one traveller.** Gathering asks privately how many people they are
+   paying for (three families of 3, 4 and 5 = three payers, twelve heads). Rooms, seats, shares and the budget
+   (heads × lowest per-head ceiling) follow the head count; the vote is one per payer.
+9. **Two ways to block, the payer's choice:** a UPI mandate (nothing moves until booking; Reserve Pay keeps
+   the headroom live), or a payment link — a credit card is only held (one capture at booking, EMI if they
+   like), and any method that can't hold pays now, the money waiting in Quorum's account and refunded in full
+   if the trip doesn't happen. The float on prepaid money is Quorum's, gains and losses (an idea, not a
+   promise).
 
 ---
 
@@ -205,11 +213,11 @@ extension of its supplier contracts. Alternative: ixigo, for trains.
 * **Organiser, in the WhatsApp group:** adds Quorum as a contact and sends one message with destination,
   dates, occasion, budget per head and maximum overshoot (e.g. "Goa, 2–6 Oct, leisure, 20k, 10 %"). Later
   commands: `revise`, `raise budget to 22k`, `close trip`.
-* **Members, in private WhatsApp DMs:** answer the gathering questions (text or voice note), receive the
-  itinerary with their own cost, and vote yes/no with a reason. Nobody sees anyone else's vote or reason,
-  only the tally.
-* **Members, in their own UPI app:** approving the mandate is the "I'm in". No card, and no transfer to the
-  organiser: the money settles into Quorum's account and Quorum pays the suppliers.
+* **Members, in private WhatsApp DMs:** answer the gathering questions (text or voice note) — including how
+  many people they're paying for — receive the itinerary with their own cost, and vote yes/no with a reason.
+  Nobody sees anyone else's vote, reason or party, only the tally.
+* **Members, in their UPI app or on a payment link:** approving the mandate, or holding a card, is the "I'm
+  in". No transfer to the organiser: the money settles into Quorum's account and Quorum pays the suppliers.
 * **The group chat:** gets four posts: kickoff, the tally, the booking confirmation with tickets, and any
   disruption.
 * **Phone:** members get a call only in a live disruption that needs their choice within minutes. Stays

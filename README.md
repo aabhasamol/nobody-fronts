@@ -12,10 +12,16 @@ this code is what they describe.
 ## The flow, in one line
 
 The organiser gives a **rough budget** and a **maximum overshoot** → the agent builds **one itinerary inside
-that budget** → **each member votes on it privately**, and only the tally reaches the group → **the yes-voters
-set the trip's budget** (their number × the lowest ceiling among them) and the plan is **re-sized for exactly
-them** and must fit → **each blocks their own share × (1 + overshoot)**, by UPI mandate or a credit-card hold
-with EMI if they like → the agent **captures each share into Quorum's account and pays every supplier from it**.
+that budget** → **each payer votes on it privately**, and only the tally reaches the group → **the yes-voters
+set the trip's budget** (the heads they pay for × the lowest per-head ceiling among them) and the plan is
+**re-sized for exactly those heads** and must fit → **each payer blocks their own share × (1 + overshoot)**, by
+UPI mandate or a payment link (a card is held, EMI if they like; anything that can't hold pays now into the
+pool) → the agent **captures each share into Quorum's account and pays every supplier from it**.
+
+A member in the group is a **payer**, not necessarily one traveller: three families of three, four and five
+are three payers and twelve heads. Gathering asks each payer privately how many people they are paying
+for; rooms, seats, shares, the budget and the mandates all follow the head count, while the vote stays one
+per payer.
 
 Trip and travel are planned separately: the stay is shared and the occasion decides what it optimises
 (a wedding ranks stays by distance to the venue and lands you before the first function; a leisure trip
@@ -49,10 +55,10 @@ shows the wall: three debits refunded, nothing booked.
 | State | What happens | Rail |
 |---|---|---|
 | INITIATED | Organiser adds Quorum to the group: destination, dates, occasion, rough budget per head, maximum overshoot | — |
-| GATHERING | Private DM to each member: start city, return city, dates they can't do, their own ceiling, must-haves. Reply deadline; silence = home city both ways at the organiser's figure | — |
+| GATHERING | Private DM to each member: how many people they're paying for (names help), start city, return city, dates they can't do, their own per-head ceiling, must-haves. Reply deadline; silence = just them, home city both ways, at the organiser's figure | — |
 | PLANNING | Trip side: stays ranked by the occasion's priority; stays with no online inventory get a **supplier call** (availability, group rate, refund terms, 48-hour hold; retry once; the call's price wins). Travel side: per member, out and back, searched separately. Total must fit budget × (1 + overshoot) per head | logistics, **voice** |
 | VOTING | One itinerary DM'd to each member: their legs, the stay split, their all-in against their own ceiling, what they'd authorise. Yes/no with a reason, privately. One reminder text. Majority of members ⇒ passes; else up to two revisions built from the reasons; then the organiser decides | — |
-| AUTHORISING | The yes-voters set the budget: their number × the lowest ceiling among them. The plan is re-sized for exactly them (rooms re-split; the same hook is where a car or an activity would re-size) and must fit that budget, else it goes back to the group as a revision. Then every yes-voter approves a UPI one-time mandate for share × (1 + overshoot). Nothing charged. Yes-voters who don't approve drop out and the rest are re-sized and re-checked: inside ⇒ proceed, over ⇒ back to the group | **payments** |
+| AUTHORISING | The yes-voters set the budget: the heads they pay for × the lowest per-head ceiling among them. The plan is re-sized for exactly those heads (rooms re-split, seats per payer; the same hook is where a car or an activity would re-size) and must fit that budget, else it goes back to the group as a revision. Then every yes-voter blocks share × (1 + overshoot) their way: a UPI mandate (Reserve Pay keeps the headroom live; an OTM takes one capture), or a payment link (a card is held for one capture, EMI tenures quoted; a method that can't hold pays now and the money waits in the pool, refunded if the trip lapses). Yes-voters who don't block drop out and the rest are re-sized and re-checked: inside ⇒ proceed, over ⇒ back to the group. Nobody can revoke from their own app; they ask Quorum, which releases | **payments** |
 | BOOKING | Re-price at live fares (inside the cap: absorbed, shown on the receipt; over: only that member is asked to top up). Re-hold an expired phone hold. Debit every share into **the pool, Quorum's merchant account**; **one failure refunds the rest and stops**. Book legs and stays and **pay each supplier from the pool**, logged per booking. The pool can never go negative: nobody fronts, Quorum included | payments, logistics, voice |
 | BOOKED | Tickets and vouchers in DMs; the group gets one post. A cancelled leg's refund comes back into the pool and the re-booked ticket is paid from it, inside the member's cap (a late arrival gets the phone-only stay a call); if every alternative is over the cap: a text with options, then an **escalation call** after 20 minutes, then a top-up from that member | logistics, voice, payments |
 | LAPSED / CLOSED | Nothing booked, nothing charged | — |
@@ -94,8 +100,10 @@ git-ignored.
 
 Short version — full argument in `docs/rails.md` and `docs/round2-answers.md` §4:
 
-* **Pine Labs.** Quorum is the merchant of record: members' blocks (card holds, UPI mandates, Reserve Pay)
-  settle into Quorum's account, the pool, and Quorum pays suppliers from it. The ask is a **group order with
+* **Pine Labs.** Quorum is the merchant of record: members' blocks (card holds, UPI mandates, Reserve Pay,
+  prepaid links) settle into Quorum's account, the pool, and Quorum pays suppliers from it. Money prepaid
+  through a link sits with Quorum until booking; the float is Quorum's to earn on and Quorum's to lose on,
+  logged as an estimate in the rail log and marked as the idea it is. The ask is a **group order with
   escrow**: N blocks bound to one order, a shared expiry, an **atomic capture** into a per-order escrow, and
   settlement to the suppliers only when the order is secured. Pine Labs already has the two halves: split
   settlement holds one payer's money and releases it on a call, and P3P lets an agent spend inside one

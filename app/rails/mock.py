@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 import math
 import random
 from ..clock import clock
-from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, INSTRUMENTS, new_id
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, INSTRUMENTS, new_id, inr
 from .base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 
@@ -48,7 +48,7 @@ class MockVoice(VoiceRail):
             hold_until=hold_until,
             transcript=(f"[agent, {language}] Namaskar, Quorum se bol raha hoon, {party_size} logon ka group, "
                         f"{check_in:%d %b} se {nights} raat. {rooms} twin rooms milenge?\n"
-                        f"[{stay.name}] Haan, {rooms} rooms hain. ₹{rate:,} per room per night, breakfast included.\n"
+                        f"[{stay.name}] Haan, {rooms} rooms hain. ₹{inr(rate)} per room per night, breakfast included.\n"
                         f"[agent] Twin sharing theek hai? Cancel karein toh refund?\n"
                         f"[{stay.name}] Twin theek hai. 72 ghante pehle tak full refund.\n"
                         f"[agent] 48 ghante hold kar sakte hain? Group vote ke baad confirm karenge.\n"
@@ -98,10 +98,13 @@ class MockPayments(PaymentsRail):
         assert via in INSTRUMENTS, f"unknown instrument {via}"
         assert emi_months is None or via == "CARD_PREAUTH", "EMI is a card thing"
         limit = INSTRUMENTS[via]["max_amount"]
-        assert limit is None or auth.amount <= limit, f"a {INSTRUMENTS[via]['label']} blocks at most ₹{limit:,}"
+        assert limit is None or auth.amount <= limit, f"a {INSTRUMENTS[via]['label']} blocks at most ₹{inr(limit)}"
         row = self.ledger[auth.rail_ref]
         row["status"], row["instrument"] = "ACTIVE", via
         auth.instrument, auth.emi_months = via, emi_months
+        if INSTRUMENTS[via]["prepaid"]:                        # the link took the money now: it sits in the pool
+            row["status"], row["prepaid_at"] = "PAID", clock.now()
+            self._pool += auth.amount
         cap = INSTRUMENTS[via]["max_validity_days"]
         if cap is not None:                                    # a card hold lives 5–7 days whatever we asked for
             row["expires"] = min(row["expires"], clock.now() + timedelta(days=cap))
@@ -114,8 +117,8 @@ class MockPayments(PaymentsRail):
 
     def refresh(self, auth: Authorisation) -> Authorisation:
         row = self.ledger[auth.rail_ref]
-        if row["status"] == "ACTIVE" and auth.status == AuthStatus.PENDING:
-            auth.status = AuthStatus.BLOCKED
+        if row["status"] in ("ACTIVE", "PAID") and auth.status == AuthStatus.PENDING:
+            auth.status = AuthStatus.BLOCKED                   # PAID: a prepaid link, the money is already in the pool
         elif clock.now() > row["expires"] and auth.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
             auth.status = AuthStatus.EXPIRED
             row["status"] = "EXPIRED"
@@ -123,7 +126,7 @@ class MockPayments(PaymentsRail):
 
     def capture(self, auth: Authorisation, amount: int) -> Authorisation:
         row = self.ledger[auth.rail_ref]
-        assert row["status"] in ("ACTIVE", "SUCCESS"), f"debit on a {row['status']} block"
+        assert row["status"] in ("ACTIVE", "PAID", "SUCCESS"), f"debit on a {row['status']} block"
         assert auth.captured_amount + amount <= auth.amount, "debit above the authorised cap"
         assert auth.multi_debit or auth.captured_amount == 0, f"{auth.instrument} allows one capture"
         if row["member"] in self.fail_capture_for:
@@ -131,20 +134,21 @@ class MockPayments(PaymentsRail):
                                                        if auth.instrument == "CARD_PREAUTH" else "U30 debit failed at the remitter bank"))
         row["status"] = "SUCCESS"
         row["captured"] += amount
-        self._pool += amount                                   # settles into Quorum's account, in full, EMI or not
-        auth.status = AuthStatus.CAPTURED
+        if not auth.prepaid:
+            self._pool += amount                               # settles into Quorum's account, in full, EMI or not
+        auth.status = AuthStatus.CAPTURED                      # prepaid money was already in the pool
         auth.captured_amount += amount
         return auth
 
     def refund(self, auth: Authorisation) -> Authorisation:
         row = self.ledger[auth.rail_ref]
-        self._pool -= auth.captured_amount
+        self._pool -= auth.amount if auth.prepaid else auth.captured_amount   # prepaid: the whole payment goes back
         row["status"], row["captured"] = "REFUNDED", 0
         auth.status, auth.captured_amount = AuthStatus.REFUNDED, 0
         return auth
 
     def pay_supplier(self, supplier: str, amount: int, purpose: str, reference: str) -> Payout:
-        assert amount <= self._pool, f"pool ₹{self._pool:,} cannot cover ₹{amount:,} to {supplier} — Quorum does not front"
+        assert amount <= self._pool, f"pool ₹{inr(self._pool)} cannot cover ₹{inr(amount)} to {supplier} — Quorum does not front"
         self._pool -= amount
         method = "UPI" if purpose == "STAY" else "B2B_WALLET"
         p = Payout(supplier=supplier, amount=amount, purpose=purpose, reference=reference, method=method, at=clock.now())
@@ -159,9 +163,16 @@ class MockPayments(PaymentsRail):
         return self._pool
 
     def release(self, auth: Authorisation) -> Authorisation:
+        if auth.prepaid and self.ledger[auth.rail_ref]["status"] == "PAID":
+            self._pool -= auth.amount - auth.captured_amount   # the unused prepayment is refunded
         self.ledger[auth.rail_ref]["status"] = "CANCELLED"
         auth.status = AuthStatus.RELEASED
         return auth
+
+    def float_days(self, auth: Authorisation) -> int:
+        """How long a prepayment has sat in the pool. The float idea is priced on this."""
+        row = self.ledger[auth.rail_ref]
+        return (clock.now() - row["prepaid_at"]).days if row.get("prepaid_at") else 0
 
 
 # --------------------------------------------------------------------------- logistics
