@@ -4,68 +4,107 @@ Opening: Planning the trip · Team: Aabhas, Aditi, Sayan (IIM Calcutta) · Close
 
 Written outside the form on purpose: the Typeform has no save button. Check each answer against the
 word limit the form shows before pasting. Lines marked **[verify]** name something we have not yet
-confirmed in the rail's documentation or sandbox — confirm or cut before submitting.
+confirmed in the rail's documentation or sandbox. Confirm them or cut them before submitting.
 
-What changed after the call with KP:
+## 0. Working notes (not for the form)
 
-1. **Trip and travel are two problems.** Travel is per member (each person's own origin, and the return
-   can end somewhere else). The trip is shared (stays, dates, the occasion). The agent plans them
-   separately and joins them at the destination.
-2. **Purpose comes first.** Wedding, leisure, business offsite, pilgrimage. The occasion decides what gets
-   optimised — travel time, price, one stay or several — before any fare is searched.
-3. **Voice does three P0 jobs, not one.** Call a property only when its listing is missing what we need;
-   call a member when a deadline is close and they have not acted; call everyone when a booked leg breaks.
+### Where do we actually need to call someone?
+
+We used one test: **call only when the other side cannot be reached by an API or a message in time, and
+the answer changes what the agent does next.** Every place we had voice, checked against that test:
+
+| Candidate | Channel that already works | Call? | Why |
+|---|---|---|---|
+| Asking members for dates, start/return city | WhatsApp DM | **No** | Async, not urgent, needs a written record |
+| Reminding members before the vote or authorisation deadline | WhatsApp reminder, plus a UPI collect notification | **No** | A text does the job. Calling friends to chase them is exactly the "chasing" the product removes |
+| Checking an OTA-listed hotel's facts | The listing / OTA API | **No** | The data is already there |
+| Flight or train status | Carrier/OTA API | **No** | Machine to machine |
+| **A stay with no online inventory** (homestay, small guesthouse, wedding-block rooms) | None. Phone only | **Yes** | The only way to learn availability, the rate for the group, the missing facts (refund terms, twin sharing), and to place a hold before we ask the group for money |
+| **Telling a phone-only stay about a late arrival after a disruption** | None | **Yes** | Without it, the room goes to a walk-in at 2 am |
+| **A disruption where the member must decide within minutes** (the re-book costs more than they authorised, or the options differ materially) | WhatsApp, which a sleeping or travelling person misses | **Yes, as escalation only** | Text first. Call only if no reply and the decision can't wait. A re-book inside the authorised amount needs only a text |
+
+So voice ends up with **two jobs**, both driven by the counterparty rather than invented for the rail:
+
+1. **Supplier calls:** reach stays that exist only on the phone. Before the vote: availability, group rate,
+   missing facts, and a hold. On the travel day: late-arrival notice.
+2. **Urgent-decision escalation:** reach a member when a live disruption needs their yes within minutes.
+
+We dropped the deadline-nudge calls and the verification calls to hotels that are already listed online.
+
+### The flow (team decision)
+
+Organiser gives a **rough budget** and a **maximum overshoot** → agent builds an **itinerary within that
+budget** → **the group votes** on it → everyone who is in **authorises their share** → the agent makes the
+**essential bookings** (travel legs and stays).
+
+KP's points are still in it: trip and travel are planned separately, and the occasion sets the priorities.
+
+**Decisions to confirm as a team** (the draft assumes the defaults in bold):
+
+1. Budget is **per head, all-in (travel + stay)**. Overshoot is a % the organiser sets, **applied to each
+   member's all-in share**.
+2. The vote is cast **privately by DM, and only the tally is posted**. This keeps our research finding that
+   people don't say no in front of the group.
+3. The plan passes on **a simple majority of members**. Those who voted yes are "in".
+4. A failed vote leads to **up to two revisions**, built from the private "what would make it a yes"
+   replies. After that, the organiser decides.
+5. The amount each member authorises is **quoted share × (1 + overshoot %)**. The organiser's overshoot
+   limit is the mandate headroom, so one number governs both the plan and the money.
+6. Bookings happen when **everyone who is in has authorised**. If someone who voted yes doesn't authorise
+   by the deadline, they drop out, and the plan is re-priced for the rest. If the new price stays within
+   the overshoot limit, it goes ahead. If not, it goes back to the group.
 
 ---
 
 ## 1. Outcome (one sentence)
 
-Every member of a group trip is booked on travel from their own city and back, into stays that fit the
-occasion, inside the ceiling they privately set, by the deadline — without anyone fronting money or chasing
-anyone.
+Get everyone who says yes to a group trip booked on an itinerary the group voted for, with travel from and
+back to their own cities, within the organiser's budget plus the overshoot they allowed, with nobody fronting
+money for anyone else.
 
 ## 2. Autonomy — L3
 
-The most consequential thing Quorum does without asking: **it debits each member's blocked UPI mandate and
-books the trip once quorum is reached, and re-books a cancelled leg inside that member's pre-authorised cap.**
-Both happen inside limits the humans set beforehand — each member's ceiling, the mandate amount (share + 10 %
-headroom), the quorum, the 48-hour clock. Anything outside those limits (a re-book above the cap, a
-below-quorum group that wants to go anyway, a member dropping out after booking) goes back to people. That is
-L3. It is not L4: it does not decide *whether* the group travels, and it is not judged on the trip having
-happened if the group lets the clock run out.
+The most consequential thing Quorum does without asking is to **book, and later re-book, at a price
+different from the one the group voted on, as long as it stays inside the overshoot limit the organiser set.**
+Fares move between the vote and the booking. If a leg is cancelled, Quorum re-books it. In both cases it
+charges each member's pre-authorised mandate and tells them afterwards. It never charges more than the
+member authorised (quoted share + overshoot). It never books a plan the group didn't vote for. It never
+decides who is in. Anything past those limits goes back to people. That is L3. It is not L4, because the
+group, not the agent, decides whether the trip happens.
 
-## 3. States — happy flow and unhappy flow
+## 3. States: happy flow and unhappy flow
 
 ### Happy flow
 
 ```
-TRIGGERED ─► PURPOSE ─► CAPTURING ─► PLANNING ─────────────► POSTED ─► BOOKED ─► TRAVELLING ─► DONE
-  organiser   occasion    private DMs   ┌ TRIP  (shared) ┐    two options,  quorum    live legs
-  adds agent  sets the    per member:   │ stays, 1..n    │    one default,  met:
-  names       priority    dates,        │ verify gaps    │    48h clock,    debit +
-  destination weights     ceiling,      ├ TRAVEL (each)  ┤    each member   book
-  + occasion              origin AND    │ out: home→dest │    blocks own
-                          return city   │ back: dest→any │    share (UPI)
-                                        └────────────────┘
+INITIATED ─► GATHERING ─► PLANNING ─────────────► VOTING ─► AUTHORISING ─► BOOKING ─► BOOKED ─► TRAVELLING ─► DONE
+ organiser:   private DM:   ┌ TRIP (shared)    ┐   plan +    each "yes"      debit      tickets    live legs
+ destination  start city,   │ stays 1..n       │   per-head  member          each       + stay     watched
+ dates        return city,  │ phone-only stays │   cost in   approves UPI    share,     vouchers
+ occasion     date limits   │  → supplier call │   the DM,   mandate:        book       in the
+ budget/head  must-haves    ├ TRAVEL (each)    ┤   private   share ×         legs +     group
+ overshoot %                │ out + back,      │   yes/no    (1+overshoot)   stays
+                            │ searched apart   │
+                            └──────────────────┘
+                              total ≤ budget × (1 + overshoot)
 ```
 
 | State | What happens | Rail |
 |---|---|---|
-| TRIGGERED | Organiser adds Quorum to the WhatsApp group, names destination, rough dates, rough budget | — |
-| PURPOSE | Organiser picks the occasion. It sets the priority weights (table below) | — |
-| CAPTURING | Private DM to each member: dates, ceiling, **where they start and where they return to**, must-haves. Reply deadline; silence = default | chat |
-| PLANNING — trip | Shared part: stay(s) for the group. Occasion decides one stay or several (e.g. 2 nights North Goa + 2 nights South Goa; for a wedding, near the venue + an optional extension) | logistics (distances); voice (only for gaps) |
-| PLANNING — travel | Per member, outbound and return searched **separately**: Aditi flies Bengaluru → Goa but returns Goa → Mumbai. Arrival windows are aligned to the trip, not to each other | fares (4th rail) |
-| POSTED | Two bundles in the group, one marked default, 48-hour clock. Each member approves a UPI one-time mandate for their share + 10 % headroom. Nothing is charged | payments |
-| Deadline − 6h | Anyone who has not approved gets a **deadline call** | voice |
-| BOOKED | Quorum met ⇒ present each mandate for the share, book every leg and stay | payments + fares |
-| TRAVELLING | Legs are watched. Disruption ⇒ re-book inside the cap ⇒ **emergency call** to the affected member | voice + fares |
+| INITIATED | Organiser adds Quorum to the WhatsApp group: destination, dates, occasion, rough budget per head, maximum overshoot (e.g. ₹20,000, 10 %) | chat |
+| GATHERING | Private DM to each member: where they start, where they return to, dates they can't do, must-haves. There is a reply deadline, and silence = travel from their home city on the stated dates | chat |
+| PLANNING (trip) | Shared part. The occasion decides the number of stays and what gets optimised (table below). Stays with no online inventory get a **supplier call** for availability, group rate, missing facts and a 48-hour hold | Delhivery Maps (distances), Gnani (supplier call) |
+| PLANNING (travel) | Per member, outbound and return searched **separately**. For example, Aditi goes Bengaluru → Goa and back to Mumbai. Arrivals are aligned to the first shared event | fares (4th rail) |
+| VOTING | One itinerary is DM'd to each member: day by day, their own per-head cost, and the overshoot band. They reply yes or no with a reason. Only the tally goes to the group. Majority ⇒ passes | chat |
+| AUTHORISING | Each yes-voter approves a UPI one-time mandate for share × (1 + overshoot). Nothing is charged yet | Pine Labs |
+| BOOKING | Once everyone who is in has authorised: re-price at live fares. If it's still inside each member's authorised amount, debit each share and book the legs and stays. The supplier hold on phone-only stays gets converted with a payment | Pine Labs, fares, Gnani (confirm hold) |
+| BOOKED → TRAVELLING | Tickets and vouchers go in the group, and legs are watched. If a leg is cancelled, Quorum re-books inside the authorised amount and sends a text. A phone-only stay is **called** about the late arrival | fares, Gnani |
 
 How the occasion sets priorities:
 
 | Occasion | Fixed | Optimise first | Stays |
 |---|---|---|---|
-| Wedding | Dates, venue, arrive before the first function | Travel time and arrival buffer, then price | Near the venue; optional extension stay after |
+| Wedding | Dates, venue, arrive before the first function | Travel time and arrival buffer, then price | Near the venue (often the family's room block, phone-only); optional extension after |
 | Leisure | Rough dates only | Price per head, then stay quality | Often two or more (split the destination) |
 | Business offsite | Dates, venue | Door-to-door travel time, fewest connections | One, near the venue |
 | Pilgrimage / family | Dates around the ritual | Comfort for elders (direct legs, trains over red-eyes) | One, walking distance |
@@ -74,24 +113,26 @@ How the occasion sets priorities:
 
 | # | Failure | Where | What Quorum does |
 |---|---|---|---|
-| 1 | Member never replies to the DM | CAPTURING | Default applied (dates = yes, ceiling = organiser's number); stated in the DM up front |
-| 2 | Member's ceiling is below every option | PLANNING | Tells them privately what the cheapest option costs; they raise it or opt out. The group never sees whose ceiling bound |
-| 3 | Listing is missing what we need (refund terms, twin-sharing, rooms as pictured) | PLANNING — trip | **Verification call** to the property for the missing fields only. Mismatch ⇒ drop, call the next one |
-| 4 | Property does not answer / call fails | PLANNING — trip | Retry once; still nothing ⇒ drop from the list, say so in the group post |
-| 5 | Return city differs and no return leg fits the trip end | PLANNING — travel | Offer that member the nearest fitting leg (±1 day or a train) privately; never changes the group's dates |
-| 6 | Wedding: no leg arrives before the first function | PLANNING — travel | Flags it to that member before posting; the arrival buffer is a hard constraint, not a preference |
-| 7 | Fare rises during the 48h window, within 10 % headroom | POSTED → BOOKED | Absorbed by the headroom, no new approval |
-| 8 | Fare rises beyond headroom | POSTED → BOOKED | Re-asks only the affected members for the difference, with a short clock |
-| 9 | Member has not approved 6h before the deadline | POSTED | **Deadline call** — who is in, what they owe, "approve in your UPI app now or you're out" |
-| 10 | Quorum missed | POSTED | Every mandate lapses, nothing charged; organiser can re-run with a lower quorum or the other bundle |
-| 11 | Member revokes mandate in their UPI app | POSTED | Counted as a no; quorum recomputed |
-| 12 | One debit fails after others succeeded | BOOKED | Refund the successful debits, mark LAPSED, tell the group. This is the wall we describe to Pine Labs (Q4) |
-| 13 | Carrier cancels a leg | TRAVELLING | Re-book inside the cap, then **emergency call** to the affected member(s); a text alone will not wake anyone at 1 am |
-| 14 | Re-book costs more than the cap | TRAVELLING | Emergency call asks the member to approve the difference or pick a listed alternative |
-| 15 | Member drops out after booking | BOOKED | Their non-refundable share stays theirs; stay split re-priced for the rest and put to them. Goes to humans |
+| 1 | No itinerary fits budget × (1 + overshoot) | PLANNING | Tells the organiser what the cheapest plan costs and what drives it (e.g. Delhi fares on those dates). The organiser raises the budget, shifts the dates, or drops a stay. The agent never quietly exceeds the limit |
+| 2 | One member's travel alone breaks the per-head limit (a far-off start city) | PLANNING | Shows that member privately what their leg costs. Trains or other dates are offered. Their overspend is never averaged into everyone else's share without the vote showing it |
+| 3 | Phone-only stay: no answer, or no availability | PLANNING | Retry once, then move to the next stay. The plan says which stays were confirmed by phone |
+| 4 | Phone-only stay's answer differs from the listing (rate, rooms, refund terms) | PLANNING | Takes the price from the call, not the listing. If it's worse, drop it |
+| 5 | Vote fails | VOTING | Collects privately what would make it a yes, then revises (cheaper stay, other dates). After two revisions, the organiser decides |
+| 6 | Member doesn't vote | VOTING | One reminder text, then counted as not in. No call |
+| 7 | Yes-voter doesn't authorise by the deadline | AUTHORISING | Drops out, and the plan is re-priced for the rest. Within the overshoot limit ⇒ proceed. Outside it ⇒ back to the group |
+| 8 | Fare moves between the vote and booking, within the authorised amount | BOOKING | Absorbed. The difference is shown on the receipt |
+| 9 | Fare moves beyond the authorised amount | BOOKING | Asks only the affected members to top up, on a short clock. Otherwise they're offered the next leg that fits |
+| 10 | Supplier's hold expired before booking | BOOKING | Calls again to re-hold. If the room is gone, the next stay goes to a quick yes/no, only if it's more expensive |
+| 11 | Member revokes the mandate in their UPI app | AUTHORISING / BOOKING | Treated like #7 |
+| 12 | One debit fails after others succeeded | BOOKING | Refund the successful debits, stop, and tell the group. This is the wall in Q4 (Pine Labs) |
+| 13 | Carrier cancels a leg, and the re-book fits inside the authorised amount | TRAVELLING | Re-book and send a text. Call the phone-only stay about the late arrival |
+| 14 | Carrier cancels, and the re-book exceeds the authorised amount, or the member must choose, with little time | TRAVELLING | Text with options. If there's no reply within N minutes, an **escalation call** to that member asks for their choice by voice |
+| 15 | Member drops out after booking | BOOKED | Their non-refundable legs stay theirs. The stay split is re-priced for the rest and put to them. This goes to humans |
 
-Voice failures — **fill these from the Gnani playground before submitting** (switch Hindi/English
-mid-sentence, 10s silence, talk over it, noisy street, "haan… matlab nahi"):
+Voice failures: **fill these from the Gnani playground before submitting.** Script the agent as the
+supplier caller ("do you have 3 rooms, twin sharing, 2–6 Oct, for 5 people, and can you hold them 48
+hours?"). Have a teammate play a Goa homestay owner who switches between Konkani/Hindi/English mid-sentence,
+quotes a price and then changes it, says "haan… matlab nahi", goes silent, or talks over the agent.
 
 | # | What we did on the call | What broke | What the agent does |
 |---|---|---|---|
@@ -99,68 +140,71 @@ mid-sentence, 10s silence, talk over it, noisy street, "haan… matlab nahi"):
 | V2 | | | |
 | V3 | | | |
 
-## 4. Rails — what exists, what must be built
+## 4. Rails: what exists, what must be built
 
-### Gnani — voice (three P0 jobs)
+### Gnani (voice): two jobs, both where no other channel works
 
-Voice is not the interface; WhatsApp is. Voice is used where text fails: a property that is only reachable
-by phone, a member who is about to miss a deadline, and an emergency.
+Voice is not the interface; WhatsApp is. We call only when the other side has no API and no reliable
+message channel, or when a decision can't wait for a text to be read.
 
 | Job | Leverages (exists) | Needs built |
 |---|---|---|
-| Fill listing gaps | Inya Agent Builder: agent with system prompt + Jinja variables; `POST /v1/agents/{botId}/trigger_call`; pre-call dynamic variables fetched from our server (the list of *missing* fields for this property); `GET /v1/conversations/{id}/stats` / post-call webhook for disposition + transcript | **Structured extraction on the read path:** we define a schema (`refund_terms`, `twin_sharing`, `room_as_pictured`), the platform returns fields, not a transcript. Without it our engine parses prose |
-| Deadline call | Same outbound call with variables (member name, amount, deadline, who is already in) | **Handoff back to the chat/payment:** member says "haan, kar deta hoon" ⇒ we need the call to end by sending the UPI approval link, i.e. a post-call action that triggers our webhook with intent `WILL_APPROVE` **[verify: actions/variables]** |
-| Emergency call | Same outbound call; Hindi/English/regional voices | **Priority / DND-override calling** for transactional emergencies, and **bulk trigger** (call five members in parallel, one disposition per member) **[verify]** |
-| (later) Voice-note replies | Vachana STT (`vach_` key we already hold; ₹27/audio-hour) for Hinglish voice notes in DMs | — |
+| **Supplier call** to phone-only stays: availability, group rate, missing facts, hold. Later, the late-arrival notice | Inya Agent Builder: agent with system prompt + Jinja variables; `POST /v1/agents/{botId}/trigger_call`; pre-call dynamic variables from our server (dates, room count, the fields this listing is missing); `GET /v1/conversations/{id}/stats` / post-call webhook for disposition + transcript | **Structured extraction on the read path.** We define a schema (`available`, `rate_per_night`, `rooms`, `twin_sharing`, `refund_terms`, `hold_until`) and the platform returns fields, not a transcript. Also a **commitment record**: a hold agreed on a call needs to come back as something the supplier can be held to, e.g. an SMS confirmation sent from the call **[verify: actions]** |
+| **Escalation call** to a member during a disruption | Same outbound call, with the options as variables; Hindi/English/regional voices | **Choice capture that triggers an action:** "option 2" said on the call must reach our webhook as a structured choice so the re-book fires without the member opening WhatsApp **[verify: actions/variables]**. Plus priority calling for transactional emergencies **[verify]** |
 
-Wall: outbound calls reach whitelisted numbers only in the sandbox; production needs consent/DND handling
-for B2B verification calls and transactional member calls.
+Wall: in the sandbox, outbound calls reach whitelisted numbers only. In production we need consent and DND
+handling for calls to businesses and transactional calls to members.
 
-### Pine Labs — payments and authorisation (load-bearing)
+### Pine Labs (payments and authorisation, load-bearing)
 
 | Leverages (exists) | Needs built |
 |---|---|
-| UPI One-Time Mandate: create customer → no-plan OT subscription (`plan_details.amount` = share + 10 %, `validity_days`) → payment with `mandate_info.request_type = CREATE_MANDATE` (UPI intent) → subscription `ACTIVE` = funds blocked → `POST /presentations` for the share at quorum; unpresented mandates lapse | **Group mandate:** N mandates bound to one merchant order with `min_payers`, a shared expiry, **atomic capture** (all debited or none), and one webhook `GROUP_ORDER_SECURED` / `GROUP_ORDER_LAPSED`. Also a **merchant-initiated cancel** of an `ACTIVE` OT subscription **[verify]** and validity as short as 48h **[verify]** |
+| UPI One-Time Mandate. Create customer → no-plan OT subscription (`plan_details.amount` = share × (1 + overshoot), `validity_days`) → payment with `mandate_info.request_type = CREATE_MANDATE` (UPI intent) → subscription `ACTIVE` = funds blocked → `POST /presentations` for the actual share at booking. Unpresented mandates lapse. Paying phone-only stays: payment link / UPI to the supplier **[verify]** | **Group mandate:** N mandates bound to one merchant order, with a shared expiry, **atomic capture** (all debited or none), and one webhook `GROUP_ORDER_SECURED` / `GROUP_ORDER_LAPSED`. Also a **merchant-initiated cancel** of an `ACTIVE` OT subscription **[verify]** and validity as short as 48h **[verify]** |
 
 What breaks without it: we loop one presentation per member. If the fourth of five fails, three people are
-charged for a trip that cannot be booked, and we run refunds with three counterparties.
+charged for a trip that can't be booked, and we run refunds with three counterparties.
 
-### Delhivery — logistics (trip side, not parcels)
+### Delhivery (logistics: trip side, not parcels)
 
 | Leverages (exists) | Needs built |
 |---|---|
-| Maps reference: geocoding of stays and venues, distance / travel time between points **[verify exact endpoints]**. Used to (a) rank stays by distance to a wedding venue or offsite, (b) plan the transfer when the trip has two stays, (c) check airport/station → stay travel time so arrival buffers are real | **Road accessibility for the last mile** (is the lane to a homestay motorable for a cab/tempo traveller) — today that is one of the questions we have to phone the property for. Wedding logistics (gifts/outfits shipped to the venue) is a natural parcel use we are *not* claiming for Round 2 |
+| Maps reference: geocoding of stays and venues, distance / travel time between points **[verify exact endpoints]**. Used to (a) rank stays by distance to the venue, (b) plan the transfer when the trip has two stays, (c) check airport/station → stay time so arrival buffers are real | **Last-mile road accessibility** (can a cab or tempo traveller reach this homestay?). Today that's a question on the supplier call. Wedding logistics (gifts or outfits shipped to the venue) is a natural parcel use we are *not* claiming for Round 2 |
 
 ## 5. A fourth rail
 
-**A group fare-and-inventory hold.** Today every fare and room rate in our bundle can move during the 48-hour
-decision window, and five people from four cities means five separate fare searches with no way to hold any
-of them. The rail: hold N seats across different origin → destination legs and M rooms for a fixed window,
-at a quoted price, released automatically if the payments rail reports `GROUP_ORDER_LAPSED`. It pairs with
-the Pine Labs group mandate: money is blocked and inventory is held on the same clock.
+**A group fare-and-inventory hold.** The plan the group votes on is priced at one moment. Between the vote
+and the last authorisation, every fare and room rate can move, and five people from four cities means five
+separate fare searches with no way to hold any of them. Today the overshoot limit absorbs that drift. A hold
+rail would remove it: hold N seats across different origin → destination legs, and M rooms, for a fixed
+window at a quoted price, released automatically when the payments rail reports `GROUP_ORDER_LAPSED`. Money
+is blocked and inventory is held on the same clock.
 
-Who should build it: **TBO Tek** — it already distributes flight and hotel inventory B2B to agents, so the
-hold is an extension of its supplier contracts, not a new business. (Alternative: ixigo, for trains.)
+Who should build it: **TBO Tek**, which already distributes flight and hotel inventory B2B, so a hold is an
+extension of its supplier contracts. Alternative: ixigo, for trains.
 
 ## 6. How a human interacts with it
 
-* **WhatsApp group** — organiser adds Quorum as a contact, types destination, rough dates, occasion.
-  Quorum posts only three things to the group: the kickoff, the two bundles, the outcome.
-* **Private WhatsApp DMs** — each member answers four questions (dates, ceiling, start city, return city,
-  plus must-haves) in text or a voice note. Nobody sees anyone else's ceiling.
-* **Their own UPI app** — approving the mandate is the "I'm in". No card, no payment link to the organiser.
-* **Phone calls, three kinds only** — the deadline call (6h before, only to members who have not approved),
-  the emergency call (a booked leg broke), and outbound calls to properties the member never hears about.
-* **Organiser commands in the group** — `switch to comfort`, `re-run with 4`, `close trip`.
+* **Organiser, in the WhatsApp group:** adds Quorum as a contact and sends one message with destination,
+  dates, occasion, budget per head and maximum overshoot (e.g. "Goa, 2–6 Oct, leisure, 20k, 10 %"). Later
+  commands: `revise`, `raise budget to 22k`, `close trip`.
+* **Members, in private WhatsApp DMs:** answer the gathering questions (text or voice note), receive the
+  itinerary with their own cost, and vote yes/no with a reason. Nobody sees anyone else's vote or reason,
+  only the tally.
+* **Members, in their own UPI app:** approving the mandate is the "I'm in". No card, and no transfer to the
+  organiser.
+* **The group chat:** gets four posts: kickoff, the tally, the booking confirmation with tickets, and any
+  disruption.
+* **Phone:** members get a call only in a live disruption that needs their choice within minutes. Stays
+  that exist only on the phone get called by the agent. Members never hear those calls.
 
 ## 7. Name
 
-**Quorum** — the trip happens when enough people commit, not when one person pays.
+**Quorum**: the trip happens when enough people commit, not when one person pays.
 
 ## 8. Which Indian company is best placed to build this
 
-**MakeMyTrip.** It owns both halves KP split apart — travel inventory for every origin and stays at the
-destination — already sells group bookings **[verify: what its groups product covers]**, and has the
-checkout traffic. What it would
-have to give up is the one-card checkout its funnel is built on; that is exactly why a payments company
-holding the group mandate (Pine Labs) is the threat, and why MakeMyTrip should build it first.
+**MakeMyTrip.** It owns both halves of the plan: travel inventory from every origin, and stays at the
+destination. It already sells group bookings **[verify: what its groups product covers]**, and it has the
+checkout traffic. What it would have to give up is the one-card checkout its funnel is built on. That's
+why a payments company holding the group mandate (Pine Labs) is the threat, and why MakeMyTrip should build
+it first.
