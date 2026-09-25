@@ -325,6 +325,7 @@ class Trip(BaseModel):
     persona_override: Optional[str] = None   # bachelors / families; otherwise deduced from the parties
     used_hooks: dict[str, list[str]] = Field(default_factory=dict)   # member id (or "group") → lore already sent
     drips_sent: list[str] = Field(default_factory=list)              # countdown texts already sent
+    lore_sent: list[str] = Field(default_factory=list)               # dates (ISO) a daily place fact went out
     flip_until: Optional[datetime] = None    # how long a no-voter can still say yes after the tally
     budget_floor: Optional[int] = None       # after the vote: the lowest ceiling among those who are in
     total_budget: Optional[int] = None       # after the vote: (number in) × budget_floor — what the plan must fit
@@ -335,6 +336,7 @@ class Trip(BaseModel):
     votes: dict[str, Vote] = Field(default_factory=dict)
     vote_deadline: Optional[datetime] = None
     reminded: list[str] = Field(default_factory=list)
+    taking_time: list[str] = Field(default_factory=list)   # asked for time to decide: no halfway nudge, the deadline still stands
     awaiting_organiser: Optional[str] = None # why the agent stopped and asked: no_fit / vote_failed
     stays_out: list[str] = Field(default_factory=list)  # phone-only stays that had no rooms or never answered
     authorisations: dict[str, Authorisation] = Field(default_factory=dict)

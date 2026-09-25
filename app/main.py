@@ -128,6 +128,14 @@ def flip(trip_id: str, member_id: str):
     return _view(trip_id)
 
 
+@app.post("/trips/{trip_id}/members/{member_id}/time")
+def take_time(trip_id: str, member_id: str):
+    """The member says they need time to decide: they get the facts, and no further nudge before the deadline."""
+    trip = _trip(trip_id)
+    _guard(lambda: engine.member_takes_time(trip, member_id))
+    return _view(trip_id)
+
+
 class VoteIn(BaseModel):
     yes: bool
     reason: str = ""

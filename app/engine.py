@@ -40,6 +40,7 @@ CALL_LANGUAGE = "hi-IN"
 FLOAT_RATE = 0.065           # idea: money prepaid through a link sits with Quorum until booking; priced at a liquid-fund rate
 FLIP_WINDOW_H = 12           # after the tally, a no-voter gets one private nudge and this long to change their mind
 DRIPS = (("T-7", 7), ("T-1", 1))   # countdown texts after booking: keep the place in people's minds
+LORE_HOUR = 9                # after booking, one fact about the place per traveller per day (P2) until departure
 
 # Calls are for P0 things only. A P0 is: the other side cannot be reached any other way in time, and what
 # they say changes what the agent does next. These three are the whole list; everything else is a text.
@@ -316,6 +317,25 @@ class Engine:
             self._say(trip, f"dm:{m.id}", M.dm_details_after_yes(trip, m))     # tickets need names; only the yeses are asked
         if all(t in trip.votes for t in p.travellers):
             self.tally(trip)
+
+    def member_takes_time(self, trip: Trip, member_id: str, text: Optional[str] = None) -> None:
+        """"I need to think." Allowed while their vote or their block is open. They get the facts they need to decide
+        (the deadline, what silence means, what money moves when) and no further nudge before the deadline. The
+        deadline itself does not move: the plan is fair to the others only if it closes when it said it would."""
+        m = trip.member(member_id)
+        if trip.state == TripState.VOTING:
+            assert member_id in trip.plan().travellers and member_id not in trip.votes, "nothing open to decide"
+            deadline, stage = trip.vote_deadline, "vote"
+        elif trip.state == TripState.AUTHORISING:
+            a = trip.authorisations.get(member_id)
+            assert a and a.status == AuthStatus.PENDING, "nothing open to decide"
+            deadline, stage = trip.auth_deadline, "block"
+        else:
+            raise AssertionError(f"nothing to decide in {trip.state}")
+        self._say(trip, f"dm:{m.id}", text or "Need a bit of time to think this over.", actor=m.name)
+        if member_id not in trip.taking_time:
+            trip.taking_time.append(member_id)
+        self._say(trip, f"dm:{m.id}", M.dm_time_ack(trip, m, deadline, stage))
 
     def close_vote(self, trip: Trip) -> None:
         if trip.state != TripState.VOTING:
@@ -897,7 +917,7 @@ class Engine:
                 self.close_vote(trip)
             elif now >= trip.vote_deadline - timedelta(hours=VOTE_WINDOW_H / 2):
                 for t in trip.plan().travellers:
-                    if t not in trip.votes and t not in trip.reminded:      # one reminder text, never a call
+                    if t not in trip.votes and t not in trip.reminded and t not in trip.taking_time:   # one text, never a call; none if they asked for time
                         trip.reminded.append(t)
                         self._say(trip, f"dm:{t}", M.dm_vote_reminder(trip.member(t), trip.vote_deadline))
         if trip.state == TripState.AUTHORISING and trip.auth_deadline:
@@ -906,7 +926,7 @@ class Engine:
             elif now >= trip.auth_deadline - timedelta(hours=AUTH_WINDOW_H / 2):
                 for m in trip.in_members():                                   # one reminder text, never a call
                     a = trip.authorisations.get(m.id)
-                    if a and a.status == AuthStatus.PENDING and m.id not in trip.reminded:
+                    if a and a.status == AuthStatus.PENDING and m.id not in trip.reminded and m.id not in trip.taking_time:
                         trip.reminded.append(m.id)
                         self._say(trip, f"dm:{m.id}", M.dm_authorise_reminder(m, a, trip.auth_deadline, self._hook(trip, m.id)))
         for d in list(trip.pending.values()):
@@ -915,9 +935,22 @@ class Engine:
                 self._escalate(trip, d)
         if trip.state == TripState.BOOKED:
             p = trip.plan()
+            fired = False
             for label, days in DRIPS:
                 if label not in trip.drips_sent and now.date() >= p.start - timedelta(days=days) and now.date() < p.start:
                     trip.drips_sent.append(label)
+                    fired = True
                     for t in p.travellers:
                         self._say(trip, f"dm:{t}", M.dm_countdown(trip, trip.member(t), p, (p.start - now.date()).days,
                                                                    self._hook(trip, t)), priority="P2")
+            # the daily fact: one line about the place per traveller, every day from booking to departure,
+            # never repeated to the same person; a countdown day carries its own line, so it is skipped
+            today = now.date()
+            if now.hour >= LORE_HOUR and today < p.start and today.isoformat() not in trip.lore_sent:
+                trip.lore_sent.append(today.isoformat())
+                if not fired and not any(today == p.start - timedelta(days=d) for _, d in DRIPS):
+                    for t in p.travellers:
+                        h = self._hook(trip, t)
+                        if h:                                                     # the table ran dry: a quiet day
+                            self._say(trip, f"dm:{t}", M.dm_daily_lore(trip, trip.member(t), (p.start - today).days, h),
+                                      priority="P2")

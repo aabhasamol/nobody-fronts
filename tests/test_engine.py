@@ -369,3 +369,25 @@ def test_authorisation_reminder_is_a_text_never_a_call():
     clock.advance(1); engine.tick(trip)
     assert len([e for e in trip.events if "are still waiting for you" in e.text]) == 3   # once, not again
     assert len([e for e in trip.events if e.priority == "P0"]) == calls_before
+
+
+def test_asking_for_time_gets_the_facts_and_no_nudge_but_the_deadline_stands():
+    engine, members, trip, _ = make(LEISURE)
+    karan = members[4]
+    vote_all(engine, trip, members, skip=("Karan",))
+    n = len(trip.events)
+    engine.member_takes_time(trip, karan.id, "Need to check with work and my bank, give me a day?")
+    ack = [e.text for e in trip.events if e.channel == f"dm:{karan.id}" and e.actor == "agent"][-1]
+    assert "The deadline stays" in ack and "nothing is charged by a yes" in ack and "won't nudge you again" in ack
+    clock.advance(12); engine.tick(trip)
+    assert not any("a nudge" in e.text for e in trip.events if e.channel == f"dm:{karan.id}")
+    assert not any(e.priority == "P0" for e in trip.events[n:])                      # never a call to chase
+    clock.advance(12); engine.tick(trip)
+    assert trip.state == TripState.AUTHORISING and karan.id not in [m.id for m in trip.in_members()]
+    assert "4 yes, 0 no, 1 didn't reply" in group_posts(trip)[-2] or "1 didn't reply" in " ".join(group_posts(trip))
+    aditi = members[3]
+    engine.member_takes_time(trip, aditi.id)
+    clock.advance(24); engine.tick(trip)
+    assert not any("still waiting" in e.text for e in trip.events if e.channel == f"dm:{aditi.id}")
+    engine.member_approves(trip, aditi.id)                                            # time taken, then a yes
+    assert trip.authorisations[aditi.id].status.value == "BLOCKED"
