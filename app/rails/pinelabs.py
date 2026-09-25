@@ -23,7 +23,8 @@ What exists (and how Quorum uses it)
     UPI Reserve Pay          block once, multiple debits against the reserved amount               → UPI_RESERVE
     Credit / Debit / Cardless EMI   allowed_payment_methods CREDIT_EMI etc.; Offer Discovery by BIN + amount;
                              Quorum is settled in full at once, the issuer collects instalments     → emi_months
-    BNPL (LazyPay)           eligibility by mobile/email + amount, OTP; needs MID config             → not used
+    BNPL (LazyPay)           eligibility by mobile/email + amount, OTP; needs MID config; the lender
+                             fronts the share, Quorum is settled in full, the member repays after the trip → BNPL (≤ limit)
     Tokenisation             card-on-file tokens: a top-up on a card is one tap, not a re-entry
     Payouts                  IMPS / NEFT / RTGS / UPI to verified beneficiaries, instant or scheduled → pay_supplier
     Split settlements        split_info on a link/order, per-sub-merchant amounts, on_hold + Release Settlement
@@ -120,7 +121,7 @@ class PineLabsPayments(PaymentsRail):
             "amount": {"value": amount * 100, "currency": "INR"},
             "description": f"Quorum — your share of the trip, blocked now, debited only when everyone is in",
             "expire_by": _iso(expire_by),
-            "allowed_payment_methods": ["CARD", "UPI"],
+            "allowed_payment_methods": ["CARD", "UPI", "BNPL"],   # BNPL only shows when the MID has LazyPay enabled
             "pre_auth": "true",
             "is_mcc_transaction": "false",
             "merchant_payment_link_reference": f"quorum-{reference}-{member.id}-{uuid.uuid4().hex[:6]}",
@@ -157,6 +158,8 @@ class PineLabsPayments(PaymentsRail):
         elif method.startswith("CARD") or "EMI" in method:
             auth.instrument = "CARD_PREAUTH"
             auth.expires_at = min(auth.expires_at, clock.now() + timedelta(days=7)) if auth.expires_at else None
+        elif "LAZYPAY" in method or "BNPL" in method or "PAY_LATER" in method:
+            auth.instrument = "BNPL"                           # the lender paid; the member repays LazyPay after the trip
         elif method.startswith("UPI"):
             auth.instrument = "UPI_OTM"                        # Reserve Pay needs its own flow; see module docstring
         if status in ("AUTHORIZED", "ACTIVE", "PAID_PENDING_CAPTURE", "PROCESSED", "PAID", "CAPTURED", "SUCCESS") \

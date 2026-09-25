@@ -8,7 +8,7 @@ Vocabulary is deliberately the competition's: voice / payments / logistics.
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from ..models import Member, Leg, Stay, CallRecord, Authorisation, Payout
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, Payout, Activity
 
 
 class CaptureFailed(RuntimeError):
@@ -112,3 +112,16 @@ class LogisticsRail(ABC):
     @abstractmethod
     def cancel_leg(self, leg: Leg) -> Leg:
         """Simulate or perform a cancellation (disruption path)."""
+
+    @abstractmethod
+    def search_alternatives(self, origin: str, destination: str, after: datetime, seats: int) -> list[Leg]:
+        """Every way to still get there after a missed departure: later flights, a train, an outstation cab.
+        Soonest arrival first. Prices per seat; a cab is priced per car and spread over the seats."""
+
+    @abstractmethod
+    def search_activities(self, city: str, interests: list[str], persona: str) -> list[Activity]:
+        """Things to do that answer the group's interests; the pre-bookable ones become essentials."""
+
+    @abstractmethod
+    def book_activity(self, activity: Activity, heads: int) -> Activity:
+        """Reserve a pre-bookable activity for the group."""

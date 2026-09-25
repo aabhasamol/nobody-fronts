@@ -71,6 +71,8 @@ class Constraint(BaseModel):
     return_city: str = ""
     party: int = 1                           # how many people this member is paying for, themselves included
     party_names: list[str] = Field(default_factory=list)
+    interests: list[str] = Field(default_factory=list)   # chips from lore.INTERESTS: what would make the place theirs
+    details: dict[str, str] = Field(default_factory=dict) # after a yes: names and DOB for tickets, food, medical, pets
     earliest: Optional[date] = None
     latest: Optional[date] = None
     budget: Optional[int] = None             # INR per head, all-in: the most this member will pay for the trip
@@ -118,6 +120,17 @@ class CallRecord(BaseModel):
     called_at: Optional[datetime] = None
 
 
+class Activity(BaseModel):
+    """Something to do at the destination. Pre-bookable ones are essentials and go in the share; the rest are on the day."""
+    id: str = Field(default_factory=lambda: new_id("act"))
+    name: str
+    supplier: str
+    interest: str                            # which chip it answers
+    price_per_head: int                      # INR
+    prebook: bool                            # True: booked and paid with the trip; False: listed as pay-on-the-day
+    booking_ref: Optional[str] = None
+
+
 class Stay(BaseModel):
     id: str = Field(default_factory=lambda: new_id("stay"))
     name: str
@@ -155,6 +168,7 @@ class Plan(BaseModel):
     parties: dict[str, int] = Field(default_factory=dict)   # payer id → heads they pay for
     legs: list[Leg]                          # out + back per traveller, searched separately
     stays: list[Stay]                        # one or more; the occasion decides
+    activities: list[Activity] = Field(default_factory=list)   # pre-bookable ones are essentials
     start: date
     end: date
     note: str = ""                           # what this revision changed, in a few words
@@ -180,9 +194,13 @@ class Plan(BaseModel):
         """The stay per head, split among everyone travelling."""
         return sum(s.per_head(self.heads()) for s in self.stays)
 
+    def essentials_share(self) -> int:
+        """Pre-booked activities, per head. The on-the-day ones are not money the agent handles."""
+        return sum(a.price_per_head for a in self.activities if a.prebook)
+
     def per_head(self, member_id: str) -> int:
-        """All-in for one of this payer's people."""
-        return self.travel(member_id) + self.stay_share()
+        """All-in for one of this payer's people: travel, the stay split, and the pre-booked essentials."""
+        return self.travel(member_id) + self.stay_share() + self.essentials_share()
 
     def share(self, member_id: str) -> int:
         """What this payer owes: per head × the people they pay for."""
@@ -222,6 +240,8 @@ INSTRUMENTS = {
                          note="pre-authorisation on the card, one capture within 5–7 days; the rest of the hold is released at capture"),
     "PREPAID": dict(label="payment link, paid now", multi_debit=True, prepaid=True, max_validity_days=None, max_amount=None,
                     note="the money moves to Quorum's account at once and is refunded if the trip does not happen; the headroom is cash, so a re-booking needs no tap"),
+    "BNPL": dict(label="pay later via LazyPay", multi_debit=False, prepaid=False, max_validity_days=None, max_amount=30_000,
+                 note="a licensed lender fronts the share at booking and Quorum is settled in full; the member repays LazyPay after the trip on its terms. One capture; a top-up is a fresh approval. Limit [verify] with LazyPay"),
 }
 
 
@@ -275,6 +295,7 @@ class Decision(BaseModel):
     leg_id: Optional[str] = None
     options: list[Leg] = Field(default_factory=list)
     choice: Optional[int] = None             # 1-based index into options
+    refund: Optional[int] = None             # what comes back from the old leg: its total on a cancellation, 0 on a miss
     shortfall: int = 0                       # INR above what the member has authorised
     asked_at: datetime
     escalated: bool = False                  # an escalation call has been placed
@@ -300,6 +321,11 @@ class Trip(BaseModel):
     occasion: str = "leisure"                # leisure / wedding / offsite / pilgrimage
     budget: int                              # INR per head, all-in: the organiser's rough figure the proposal is built to
     overshoot: float = 0.10                  # the most the proposal may go above that, per head; also the mandate headroom
+    auth_window_h: int = 48                  # how long yes-voters get to block their share: the organiser decides
+    persona_override: Optional[str] = None   # bachelors / families; otherwise deduced from the parties
+    used_hooks: dict[str, list[str]] = Field(default_factory=dict)   # member id (or "group") → lore already sent
+    drips_sent: list[str] = Field(default_factory=list)              # countdown texts already sent
+    flip_until: Optional[datetime] = None    # how long a no-voter can still say yes after the tally
     budget_floor: Optional[int] = None       # after the vote: the lowest ceiling among those who are in
     total_budget: Optional[int] = None       # after the vote: (number in) × budget_floor — what the plan must fit
     state: TripState = TripState.INITIATED
@@ -340,6 +366,14 @@ class Trip(BaseModel):
     def party(self, member_id: str) -> int:
         c = self.constraints.get(member_id)
         return c.party if c else 1
+
+    def interests(self, member_id: str) -> list[str]:
+        c = self.constraints.get(member_id)
+        return c.interests if c else []
+
+    def persona(self) -> str:
+        from .lore import persona_of
+        return self.persona_override or persona_of([c.party for c in self.constraints.values()], self.occasion)
 
     def heads(self, member_ids: list[str]) -> int:
         return sum(self.party(m) for m in member_ids)

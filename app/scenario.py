@@ -25,13 +25,14 @@ TRIP = WEDDING
 # Canned gathering replies, one per member, so a demo is one click per person.
 REPLIES = {
     "Sayan":  dict(start_city="Kolkata", return_city="Kolkata", budget=24000, must_haves=["no hostels"],
-                   text="Kolkata both ways. Dates fine. Up to 24k. No hostels please."),
+                   interests=["trekking", "food"], text="Kolkata both ways. Dates fine. Up to 24k. No hostels please. Trek + food."),
     "Aabhas": dict(start_city="Kolkata", return_city="Kolkata", budget=25000, party=2, party_names=["Aabhas", "Meera"],
-                   must_haves=[], text="Two of us — Meera's coming. Kolkata and back. All dates work. 25k a head is fine."),
+                   interests=["heritage", "food"], must_haves=[],
+                   text="Two of us — Meera's coming. Kolkata and back. All dates work. 25k a head is fine. Old Goa, food."),
     "Aditi":  dict(start_city="Bengaluru", return_city="Mumbai", budget=20000, must_haves=["no hostels"],
-                   text="I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel."),
+                   interests=["water sports", "trekking"], text="I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel. Kayaking, trek."),
     "Riya":   dict(start_city="Delhi", return_city="Delhi", budget=23000, must_haves=[],
-                   text="Delhi both ways. 23k. Nothing fancy."),
+                   interests=["nightlife", "reels spots"], text="Delhi both ways. 23k. Nothing fancy. Nightlife, and the reel spots."),
     "Karan":  dict(start_city="Mumbai", return_city="Mumbai", budget=19000, must_haves=[],
-                   text="Mumbai. 19k. ok."),
+                   interests=["food"], text="Mumbai. 19k. ok. Food."),
 }

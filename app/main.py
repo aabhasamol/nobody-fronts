@@ -57,6 +57,8 @@ class TriggerIn(BaseModel):
     scenario: str = "wedding"                # wedding | leisure — presets in app/scenario.py
     budget: Optional[int] = None             # INR per head, all-in
     overshoot: Optional[float] = None        # 0.10 = 10 %
+    auth_window_h: Optional[int] = None      # the organiser's deadline for blocking a share
+    persona: Optional[str] = None            # bachelors | families; otherwise deduced from the parties
     organiser_index: int = 0
 
 
@@ -67,6 +69,10 @@ def trigger(body: TriggerIn):
         preset["budget"] = body.budget
     if body.overshoot is not None:
         preset["overshoot"] = body.overshoot
+    if body.auth_window_h:
+        preset["auth_window_h"] = body.auth_window_h
+    if body.persona:
+        preset["persona"] = body.persona
     for knob in (getattr(logistics, "drift", None), getattr(payments, "fail_capture_for", None)):
         if knob is not None:
             knob.clear()                     # a new trip starts with the world at rest
@@ -89,6 +95,7 @@ class GatherIn(BaseModel):
     budget: Optional[int] = None             # this member's own ceiling, per head all-in
     party: int = 1                           # how many people they are paying for, themselves included
     party_names: list[str] = []
+    interests: list[str] = []
     must_haves: list[str] = []
     text: Optional[str] = None
 
@@ -98,6 +105,26 @@ def gather(trip_id: str, member_id: str, body: GatherIn):
     trip = _trip(trip_id)
     kwargs = dict(REPLIES.get(trip.member(member_id).first, {})) if body.canned else body.model_dump(exclude={"canned"})
     _guard(lambda: engine.gather(trip, member_id, **kwargs))
+    return _view(trip_id)
+
+
+class DetailsIn(BaseModel):
+    fields: dict[str, str]                   # names, dob, food, medical, pets — whatever the member sent
+    text: Optional[str] = None
+
+
+@app.post("/trips/{trip_id}/members/{member_id}/details")
+def details(trip_id: str, member_id: str, body: DetailsIn):
+    trip = _trip(trip_id)
+    _guard(lambda: engine.details(trip, member_id, body.fields, body.text))
+    return _view(trip_id)
+
+
+@app.post("/trips/{trip_id}/members/{member_id}/flip")
+def flip(trip_id: str, member_id: str):
+    """A no-voter changes their mind inside the flip window."""
+    trip = _trip(trip_id)
+    _guard(lambda: engine.member_flips(trip, member_id))
     return _view(trip_id)
 
 
@@ -202,6 +229,14 @@ def disrupt(trip_id: str, leg_id: str):
     return _view(trip_id)
 
 
+@app.post("/trips/{trip_id}/missed/{leg_id}")
+def missed(trip_id: str, leg_id: str):
+    """The member missed the departure: re-routing options, no refund, their money."""
+    trip = _trip(trip_id)
+    _guard(lambda: engine.missed(trip, leg_id))
+    return _view(trip_id)
+
+
 class DriftIn(BaseModel):
     city: str
     multiplier: float                        # 1.04 = fares from this city are 4 % up on the vote
@@ -283,6 +318,7 @@ def _view(trip_id: str) -> dict:
     d["per_head"] = {p.id: {mid: p.per_head(mid) for mid in p.travellers} for p in t.plans}
     d["shares"] = {p.id: {mid: p.share(mid) for mid in p.travellers} for p in t.plans}
     d["heads"] = {p.id: p.heads() for p in t.plans}
+    d["persona"] = t.persona()
     d["totals"] = {p.id: p.total() for p in t.plans}
     d["pool"] = payments.pool()
     d["ceilings"] = {m.id: t.ceiling(m.id) for m in t.members}

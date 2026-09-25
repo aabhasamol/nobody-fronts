@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 import math
 import random
 from ..clock import clock
-from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, INSTRUMENTS, new_id, inr
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, Activity, INSTRUMENTS, new_id, inr
 from .base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 
@@ -184,6 +184,18 @@ _FLIGHTS = {
     "Mumbai":    [("Akasa", 8, 1.1, 2900), ("IndiGo", 13, 1.1, 3200), ("Air India", 19, 1.2, 3900)],
     "Hyderabad": [("IndiGo", 9, 1.3, 3700), ("Akasa", 15, 1.3, 3500)],
 }
+_ROAD_KM = {"Mumbai": 590, "Bengaluru": 560, "Hyderabad": 680, "Kolkata": 2000, "Delhi": 1900}   # to Goa, by road
+_ACTIVITIES = [
+    # name, supplier, interest, price per head, pre-bookable
+    ("Dudhsagar jeep-and-hike from Collem", "Collem Jeep Owners' Co-op", "trekking", 1200, True),
+    ("Sunrise kayaking at Palolem", "Palolem Kayaks", "water sports", 600, True),
+    ("Reis Magos and Fontainhas walk", "Goa Heritage Walks", "heritage", 400, True),
+    ("Chorao mangrove boat", "Salim Ali Boat Club", "wildlife", 150, False),
+    ("Saturday night market, Arpora", "—", "food", 0, False),
+    ("Hilltop / Curlies night", "—", "nightlife", 0, False),
+    ("Galgibaga turtle beach", "—", "quiet beaches", 0, False),
+    ("Parra road and Butterfly Beach boat", "Palolem boatmen", "reels spots", 500, False),
+]
 _STAYS = [
     # name, area, rate per twin room per night, phone_only, km to the venue (Assagao) / beach, what we know
     ("Fisherman's Rest, Morjim", "Morjim", 2400, True, 7.0, "family-run, six rooms, no online booking; number from a friend"),
@@ -232,3 +244,34 @@ class MockLogistics(LogisticsRail):
         if leg.pnr:
             self.cancelled_pnrs.add(leg.pnr)
         return leg
+
+    def search_alternatives(self, origin: str, destination: str, after: datetime, seats: int) -> list[Leg]:
+        """Later flights today and the first one tomorrow; a train and an outstation cab where the road allows."""
+        out: list[Leg] = []
+        for l in self.search_legs(origin, destination, after.date()):
+            if l.depart > after:
+                out.append(l.model_copy(update={"seats": seats}))
+        first = min(self.search_legs(origin, destination, after.date() + timedelta(days=1)), key=lambda l: l.depart)
+        out.append(first.model_copy(update={"seats": seats}))
+        km = _ROAD_KM.get(origin) or _ROAD_KM.get(destination)
+        if km and km <= 700:
+            dep = after + timedelta(hours=1)
+            hours = km / 55
+            cab_total = int(round(km * 16 / 100.0)) * 100                    # ₹16/km, the whole car
+            out.append(Leg(member_id="", mode="cab", carrier="Uber Outstation", origin=origin, destination=destination,
+                           depart=dep, arrive=dep + timedelta(hours=hours), price=math.ceil(cab_total / seats), seats=seats))
+            train_dep = datetime.combine(after.date(), time(22, 0))
+            if train_dep > after:
+                out.append(Leg(member_id="", mode="train", carrier="Konkan Kanya Express", origin=origin, destination=destination,
+                               depart=train_dep, arrive=train_dep + timedelta(hours=11), price=1500, seats=seats))
+        return sorted(out, key=lambda l: (l.arrive, l.price))
+
+    def search_activities(self, city: str, interests: list[str], persona: str) -> list[Activity]:
+        acts = [Activity(name=n, supplier=s, interest=i, price_per_head=p, prebook=b) for n, s, i, p, b in _ACTIVITIES]
+        if persona == "families":
+            acts = [a for a in acts if a.interest != "nightlife"]
+        return [a for a in acts if a.interest in interests]
+
+    def book_activity(self, activity: Activity, heads: int) -> Activity:
+        activity.booking_ref = "ACT" + str(self.rng.randint(10000, 99999))
+        return activity

@@ -23,6 +23,7 @@ from datetime import date, datetime, timedelta
 from typing import Optional
 from . import messages as M
 from .clock import clock
+from . import lore
 from .models import (Trip, Member, Constraint, Plan, Leg, Stay, Vote, Authorisation, AuthStatus, Decision,
                      TripState, Event, CallRecord, INSTRUMENTS, inr)
 from .rails.base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
@@ -37,6 +38,8 @@ LATE_ARRIVAL_HOUR = 20       # a re-booked arrival at or after this hour gets th
 PRICE_WORDS = ("expensive", "cheap", "budget", "cost", "price", "₹", "money", "afford", "pricey", "over")
 CALL_LANGUAGE = "hi-IN"
 FLOAT_RATE = 0.065           # idea: money prepaid through a link sits with Quorum until booking; priced at a liquid-fund rate
+FLIP_WINDOW_H = 12           # after the tally, a no-voter gets one private nudge and this long to change their mind
+DRIPS = (("T-7", 7), ("T-1", 1))   # countdown texts after booking: keep the place in people's minds
 
 # Calls are for P0 things only. A P0 is: the other side cannot be reached any other way in time, and what
 # they say changes what the agent does next. These three are the whole list; everything else is a text.
@@ -66,6 +69,13 @@ class Engine:
     def _rail(self, trip: Trip, rail: str, text: str, priority: str = "P1") -> None:
         self._say(trip, f"rail:{rail}", text, actor=rail, priority=priority)
 
+    def _hook(self, trip: Trip, member_id: Optional[str] = None) -> Optional[str]:
+        """One line about the place for this person (or the group), never repeated to them."""
+        key = member_id or "group"
+        used = trip.used_hooks.setdefault(key, [])
+        persona = trip.persona() if member_id else "group"     # the group is mixed: it gets the general lines
+        return lore.hook(trip.destination, persona, trip.interests(member_id) if member_id else [], used)
+
     def _call(self, trip: Trip, reason: str, place_call, describe: str) -> CallRecord:
         """The only way the engine picks up the phone. `reason` must be one of P0_CALLS."""
         assert reason in P0_CALLS, f"not a P0 reason: {reason}"
@@ -75,12 +85,14 @@ class Engine:
 
     # ------------------------------------------------------------------ 1. initiate → gather
     def trigger(self, name: str, organiser: Member, members: list[Member], destination: str, start: date, end: date,
-                occasion: str, budget: int, overshoot: float, venue: str = "") -> Trip:
+                occasion: str, budget: int, overshoot: float, venue: str = "", auth_window_h: int = AUTH_WINDOW_H,
+                persona: Optional[str] = None) -> Trip:
         assert organiser in members
         trip = Trip(name=name, organiser_id=organiser.id, members=members, destination=destination, venue=venue,
-                    start=start, end=end, occasion=occasion, budget=budget, overshoot=overshoot)
+                    start=start, end=end, occasion=occasion, budget=budget, overshoot=overshoot,
+                    auth_window_h=auth_window_h, persona_override=persona)
         self.trips[trip.id] = trip
-        self._say(trip, "group", M.hello_group(trip))
+        self._say(trip, "group", M.hello_group(trip, self._hook(trip)))
         self._sys(trip, "Loaded per member: " + "; ".join(
             f"{m.first} — {m.home_city}, {len(m.past_trips)} past trips" for m in members))
         trip.gather_deadline = clock.now() + timedelta(hours=GATHER_WINDOW_H)
@@ -92,7 +104,8 @@ class Engine:
     def gather(self, trip: Trip, member_id: str, start_city: Optional[str] = None, return_city: Optional[str] = None,
                available: bool = True, must_haves: Optional[list[str]] = None, earliest: Optional[date] = None,
                latest: Optional[date] = None, budget: Optional[int] = None, party: int = 1,
-               party_names: Optional[list[str]] = None, text: Optional[str] = None) -> None:
+               party_names: Optional[list[str]] = None, interests: Optional[list[str]] = None,
+               text: Optional[str] = None) -> None:
         assert trip.state == TripState.GATHERING, f"cannot gather in {trip.state}"
         assert party >= 1, "a payer pays for at least themselves"
         m = trip.member(member_id)
@@ -103,10 +116,19 @@ class Engine:
         trip.constraints[member_id] = Constraint(member_id=member_id, available=available, start_city=start_city,
                                                  return_city=return_city, must_haves=must_haves or [],
                                                  earliest=earliest, latest=latest, budget=budget or trip.budget,
-                                                 party=party, party_names=party_names or [], replied_at=clock.now())
+                                                 party=party, party_names=party_names or [], interests=interests or [],
+                                                 replied_at=clock.now())
         self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, trip.constraints[member_id]), priority="P2")
         if all(mm.id in trip.constraints for mm in trip.members):
             self.plan(trip)
+
+    def details(self, trip: Trip, member_id: str, fields: dict[str, str], text: Optional[str] = None) -> None:
+        """After a yes: names and DOB for the tickets, food, medical needs, pets. Never asked before the yes."""
+        m = trip.member(member_id)
+        if text:
+            self._say(trip, f"dm:{m.id}", text, actor=m.name)
+        trip.constraints[member_id].details.update(fields)
+        self._say(trip, f"dm:{m.id}", M.dm_details_ack(m), priority="P2")
 
     def close_gathering(self, trip: Trip) -> None:
         """Called by the clock when the window ends. Silence = home city both ways on the stated dates."""
@@ -172,7 +194,8 @@ class Engine:
                 continue
             p = Plan(version=len(trip.plans) + 1, travellers=[m.id for m in travellers],
                      parties={m.id: trip.party(m.id) for m in travellers},
-                     legs=self._legs_for(trip, travellers, start, end), stays=[s], start=start, end=end, note=note)
+                     legs=self._legs_for(trip, travellers, start, end), stays=[s],
+                     activities=self._activities_for(trip, travellers), start=start, end=end, note=note)
             ok, over = self._fit(trip, p)
             if ok:
                 return p, over
@@ -195,6 +218,22 @@ class Engine:
         if trip.total_budget is not None:                     # after the vote the total is the rule, full stop
             return p.total() <= trip.total_budget
         return len(over) <= len(p.travellers) // 2            # a proposal may carry a minority over the line, flagged
+
+    def _activities_for(self, trip: Trip, travellers: list[Member]) -> list:
+        """Leisure trips get one pre-booked activity — the interest most of the group shares — as an essential,
+        and the rest of what matches their interests listed as pay-on-the-day. Other occasions set their own agenda."""
+        if trip.occasion != "leisure":
+            return []
+        counts: dict[str, int] = {}
+        for m in travellers:
+            for i in set(trip.interests(m.id)):
+                counts[i] = counts.get(i, 0) + 1
+        acts = self.logistics.search_activities(trip.destination, list(counts), trip.persona())
+        prebook = sorted((a for a in acts if a.prebook), key=lambda a: (-counts.get(a.interest, 0), a.price_per_head))
+        shared = [a for a in prebook if counts.get(a.interest, 0) >= 2]
+        essential = shared[:1]
+        on_the_day = [a for a in acts if a not in essential and not a.prebook][:3]
+        return essential + on_the_day
 
     def _accept(self, trip: Trip, p: Plan, over: list[Member]) -> None:
         trip.plans.append(p)
@@ -263,7 +302,7 @@ class Engine:
         trip.vote_deadline = clock.now() + timedelta(hours=VOTE_WINDOW_H)
         trip.state = TripState.VOTING
         for t in p.travellers:
-            self._say(trip, f"dm:{t}", M.dm_vote(trip, trip.member(t), p, trip.vote_deadline))
+            self._say(trip, f"dm:{t}", M.dm_vote(trip, trip.member(t), p, trip.vote_deadline, self._hook(trip, t)))
 
     def vote(self, trip: Trip, member_id: str, yes: bool, reason: str = "") -> None:
         assert trip.state == TripState.VOTING, f"cannot vote in {trip.state}"
@@ -273,6 +312,8 @@ class Engine:
         self._say(trip, f"dm:{m.id}", ("Yes" if yes else "No") + (f". {reason}" if reason else "."), actor=m.name)
         trip.votes[member_id] = Vote(member_id=member_id, yes=yes, reason=reason, at=clock.now())
         self._say(trip, f"dm:{m.id}", M.dm_vote_ack(m, yes), priority="P2")
+        if yes and not trip.constraints[member_id].details:
+            self._say(trip, f"dm:{m.id}", M.dm_details_after_yes(trip, m))     # tickets need names; only the yeses are asked
         if all(t in trip.votes for t in p.travellers):
             self.tally(trip)
 
@@ -290,8 +331,10 @@ class Engine:
         no = [v for v in trip.votes.values() if not v.yes]
         silent = [t for t in p.travellers if t not in trip.votes]
         if len(yes) >= trip.majority():
-            trip.auth_deadline = clock.now() + timedelta(hours=AUTH_WINDOW_H)
+            trip.auth_deadline = clock.now() + timedelta(hours=trip.auth_window_h)
             self.open_authorising(trip, M.group_tally(trip, len(yes), len(no), len(silent), passed=True))
+            if trip.state == TripState.AUTHORISING:
+                self._nudge_outs(trip)
             return
         revising = len(trip.plans) - 1 < MAX_REVISIONS
         self._say(trip, "group", M.group_tally(trip, len(yes), len(no), len(silent), passed=False, revising=revising))
@@ -300,6 +343,53 @@ class Engine:
         else:
             trip.awaiting_organiser = "vote_failed"
             self._say(trip, f"dm:{trip.organiser_id}", M.dm_organiser_decides(trip))
+
+    def _nudge_outs(self, trip: Trip) -> None:
+        """Decision time: everyone who said no or nothing gets one private nudge — their own number with them in,
+        an answer to their reason, one line about the place — and FLIP_WINDOW_H to change their mind."""
+        p = trip.plan()
+        ins = [m.id for m in trip.in_members()]
+        outs = [m for m in trip.travellers() if m.id not in ins]
+        if not outs:
+            return
+        trip.flip_until = clock.now() + timedelta(hours=FLIP_WINDOW_H)
+        for m in outs:
+            trial = p.model_copy(deep=True)
+            self._retarget(trip, trial, ins + [m.id])
+            v = trip.votes.get(m.id)
+            self._say(trip, f"dm:{m.id}", M.dm_nudge_out(trip, m, v.reason if v else "", trial.per_head(m.id),
+                                                          self._hook(trip, m.id), trip.flip_until))
+
+    def member_flips(self, trip: Trip, member_id: str, text: Optional[str] = None) -> None:
+        """A no-voter says yes inside the flip window. They join the people who are in; everyone's share re-sizes."""
+        assert trip.state == TripState.AUTHORISING, f"cannot join in {trip.state}"
+        assert trip.flip_until and clock.now() <= trip.flip_until, "the window to change your mind has closed"
+        m = trip.member(member_id)
+        assert member_id not in [x.id for x in trip.in_members()], "already in"
+        self._say(trip, f"dm:{m.id}", text or "Okay, I'm in.", actor=m.name)
+        trip.votes[member_id] = Vote(member_id=member_id, yes=True, reason="changed my mind", at=clock.now())
+        if member_id in trip.dropped:
+            trip.dropped.remove(member_id)
+        p = trip.plan()
+        old = {t: p.share(t) for t in p.travellers}
+        ins = trip.in_members()
+        trip.set_budget([x.id for x in ins])
+        changes = self._retarget(trip, p, [x.id for x in ins])
+        self._rail(trip, "logistics", f"{m.first} joined after the tally: {p.heads()} heads, ₹{inr(p.total())} against "
+                                      f"₹{inr(trip.total_budget)}" + (f" ({'; '.join(changes)})" if changes else ""))
+        if p.total() > trip.total_budget or any(p.share(t) > trip.authorisations[t].amount for t in old if t in trip.authorisations):
+            return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
+        share = p.share(member_id)
+        cap = ceil100(share * (1 + trip.overshoot))
+        validity_days = max(1, (trip.auth_deadline - clock.now()).days + 2)
+        auth = self.payments.create_block(m, cap, validity_days, reference=p.id)
+        trip.authorisations[member_id] = auth
+        self._rail(trip, "payments", f"Block {auth.rail_ref} created for {m.first}: ₹{inr(cap)} (share ₹{inr(share)} × "
+                                     f"{1 + trip.overshoot:.2f}) — PENDING")
+        self._say(trip, f"dm:{m.id}", M.dm_authorise(trip, m, p, share, cap, share, self.payments.emi_offers(cap)))
+        for t in old:
+            if t in trip.authorisations and p.share(t) != old[t]:
+                self._say(trip, f"dm:{t}", M.dm_repriced(trip, trip.member(t), old[t], p.share(t), [m], joined=True))
 
     def revise(self, trip: Trip, travellers: Optional[list[Member]] = None, hint: Optional[str] = None) -> None:
         """Build the next plan from the private 'what would make it a yes' replies."""
@@ -332,7 +422,7 @@ class Engine:
             self._say(trip, f"dm:{org.id}", text, actor=org.name)
         trip.awaiting_organiser = None
         if go and trip.yes_voters():
-            trip.auth_deadline = clock.now() + timedelta(hours=AUTH_WINDOW_H)
+            trip.auth_deadline = clock.now() + timedelta(hours=trip.auth_window_h)
             self.open_authorising(trip, M.group_organiser_go(trip))
         else:
             self.lapse(trip, f"{org.first} closed the trip after the vote didn't pass.")
@@ -467,6 +557,9 @@ class Engine:
         p.travellers = travellers
         p.parties = {t: trip.party(t) for t in travellers}
         p.legs = [l for l in p.legs if l.member_id in travellers]
+        joining = [trip.member(t) for t in travellers if not p.legs_for(t)]   # someone flipping in needs their legs back
+        if joining:
+            p.legs += self._legs_for(trip, joining, p.start, p.end)
         changes = []
         for s in p.stays:
             if s.rooms_for(before) != s.rooms_for(p.heads()):
@@ -563,7 +656,7 @@ class Engine:
             p = trip.plan()
             leg = next(l for l in p.legs if l.id == d.leg_id)
             del trip.pending[m.id]
-            self._rebook(trip, m, leg, d.options[d.choice - 1])
+            self._rebook(trip, m, leg, d.options[d.choice - 1], leg.total if d.refund is None else d.refund)
         else:
             del trip.pending[m.id]
             if trip.state == TripState.BOOKING and not any(x.kind == "TOP_UP" for x in trip.pending.values()):
@@ -597,7 +690,9 @@ class Engine:
             a = trip.authorisations[m.id]
             line = f"Debited ₹{inr(first)} on {a.rail_ref} ({INSTRUMENTS[a.instrument]['label']})"
             line += f" + ₹{inr(rest)} on top-up {trip.top_ups[m.id].rail_ref}" if rest else ""
-            if a.prepaid:
+            if a.instrument == "BNPL":
+                line += f"; LazyPay fronted it — Quorum settled in full, {m.first} repays LazyPay after the trip on its terms"
+            elif a.prepaid:
                 line += (f"; it was already in the pool — ₹{inr(self._headroom(trip, m.id))} of {m.first}'s prepayment stays "
                          f"there for a re-booking and comes back after the trip")
             elif a.multi_debit:
@@ -623,6 +718,11 @@ class Engine:
             self._rail(trip, "logistics", f"Stay confirmed {s.booking_ref}: {s.name}, {s.rooms_for(len(ins))} twin rooms × "
                                           f"{s.nights} nights for {len(ins)}" + (" — phone hold converted" if s.phone_only else ""))
             self._pay(trip, s.name, p.stay_total(s), "STAY", s.booking_ref)
+        for a in p.activities:
+            if a.prebook:
+                self.logistics.book_activity(a, p.heads())
+                self._rail(trip, "logistics", f"Activity booked {a.booking_ref}: {a.name} for {p.heads()}")
+                self._pay(trip, a.supplier, a.price_per_head * p.heads(), "ACTIVITY", a.booking_ref)
         for m in ins:
             for l in p.legs_for(m.id):
                 self.logistics.book_leg(l, m)
@@ -647,7 +747,7 @@ class Engine:
         assert trip.state == TripState.LAPSED and trip.in_members(), "nothing to re-run"
         trip.top_ups.clear()
         trip.pending.clear()
-        trip.auth_deadline = clock.now() + timedelta(hours=AUTH_WINDOW_H)
+        trip.auth_deadline = clock.now() + timedelta(hours=trip.auth_window_h)
         self.open_authorising(trip, f"Re-running the authorisation for {', '.join(m.first for m in trip.in_members())}.")
 
     def lapse(self, trip: Trip, why: str) -> None:
@@ -692,6 +792,22 @@ class Engine:
                                                                trip.authorisations[m.id]))
         self._say(trip, "group", M.disruption_escalate(m))
 
+    def missed(self, trip: Trip, leg_id: str) -> None:
+        """The member missed the departure. No refund; every way to still get there (later flights, a train, an
+        outstation cab) goes to them as options, soonest arrival first, paid from their own headroom or a top-up."""
+        assert trip.state == TripState.BOOKED
+        p = trip.plan()
+        leg = next(l for l in p.legs if l.id == leg_id)
+        m = trip.member(leg.member_id)
+        leg.status = "MISSED"
+        self._rail(trip, "logistics", f"{m.first} missed {M.leg_desc(leg)} PNR {leg.pnr} — no refund on a missed departure")
+        options = self.logistics.search_alternatives(leg.origin, leg.destination, leg.depart, leg.seats)[:3]
+        budget = self._headroom(trip, m.id)
+        trip.pending[m.id] = Decision(member_id=m.id, kind="REBOOK", leg_id=leg.id, options=options, refund=0,
+                                      shortfall=max(0, min(o.total for o in options) - budget), asked_at=clock.now())
+        self._say(trip, f"dm:{m.id}", M.dm_missed_options(trip, m, leg, options, budget, ESCALATE_AFTER_MIN))
+        self._say(trip, "group", M.missed_group(m, leg))
+
     def member_chooses(self, trip: Trip, member_id: str, option: int, via: str = "dm") -> None:
         """The member picked a re-booking option, by text or on the escalation call."""
         d = trip.pending[member_id]
@@ -703,25 +819,27 @@ class Engine:
         d.choice = option
         if via == "dm":
             self._say(trip, f"dm:{m.id}", str(option), actor=m.name)
-        need = new.total - (self._headroom(trip, m.id) + leg.total)
+        refund = leg.total if d.refund is None else d.refund
+        need = new.total - (self._headroom(trip, m.id) + refund)
         if need <= 0:
             del trip.pending[m.id]
-            self._rebook(trip, m, leg, new)
+            self._rebook(trip, m, leg, new, refund)
             return
         self._ask_top_up(trip, m, need, kind="REBOOK", why=f"re-book you on {new.carrier} {new.depart:%H:%M}", leg_id=leg.id)
 
-    def _rebook(self, trip: Trip, m: Member, leg: Leg, new: Leg) -> None:
+    def _rebook(self, trip: Trip, m: Member, leg: Leg, new: Leg, refund: Optional[int] = None) -> None:
         p = trip.plan()
+        refund = leg.total if refund is None else refund
         new = new.model_copy(update={"member_id": m.id, "quoted": leg.price, "seats": leg.seats})
         self.logistics.book_leg(new, m)
         new.status = "REBOOKED"
         p.legs = [new if l.id == leg.id else l for l in p.legs]
-        extra = new.total - leg.total
+        extra = new.total - refund
         if extra > 0:
             first, rest = self._present(trip, m.id, extra)
-            funding = f"₹{inr(leg.total)} refund + ₹{inr(first)} headroom" + (f" + ₹{inr(rest)} top-up" if rest else "")
+            funding = (f"₹{inr(refund)} refund + " if refund else "no refund; ") + f"₹{inr(first)} headroom" + (f" + ₹{inr(rest)} top-up" if rest else "")
         elif extra < 0:
-            funding = f"₹{inr(leg.total)} refund covers it; ₹{inr(-extra)} stays in the pool for {m.first}"
+            funding = f"₹{inr(refund)} refund covers it; ₹{inr(-extra)} stays in the pool for {m.first}"
         else:
             funding = "same fare"
         seats = f" × {new.seats} seats" if new.seats > 1 else ""
@@ -736,7 +854,7 @@ class Engine:
                     s.calls.append(rec)
                     late_stay = s
         self._say(trip, "group", M.disruption_group(m, leg, new, late_stay))
-        self._say(trip, f"dm:{m.id}", M.dm_rebooked(m, leg, new, extra))
+        self._say(trip, f"dm:{m.id}", M.dm_rebooked(m, leg, new, extra, refund))
 
     def _escalate(self, trip: Trip, d: Decision) -> None:
         """Voice job 2: the text went unanswered and the decision cannot wait."""
@@ -790,8 +908,16 @@ class Engine:
                     a = trip.authorisations.get(m.id)
                     if a and a.status == AuthStatus.PENDING and m.id not in trip.reminded:
                         trip.reminded.append(m.id)
-                        self._say(trip, f"dm:{m.id}", M.dm_authorise_reminder(m, a, trip.auth_deadline))
+                        self._say(trip, f"dm:{m.id}", M.dm_authorise_reminder(m, a, trip.auth_deadline, self._hook(trip, m.id)))
         for d in list(trip.pending.values()):
             if (d.kind == "REBOOK" and d.choice is None and not d.escalated
                     and now >= d.asked_at + timedelta(minutes=ESCALATE_AFTER_MIN)):
                 self._escalate(trip, d)
+        if trip.state == TripState.BOOKED:
+            p = trip.plan()
+            for label, days in DRIPS:
+                if label not in trip.drips_sent and now.date() >= p.start - timedelta(days=days) and now.date() < p.start:
+                    trip.drips_sent.append(label)
+                    for t in p.travellers:
+                        self._say(trip, f"dm:{t}", M.dm_countdown(trip, trip.member(t), p, (p.start - now.date()).days,
+                                                                   self._hook(trip, t)), priority="P2")

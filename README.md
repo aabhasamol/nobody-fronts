@@ -15,13 +15,27 @@ The organiser gives a **rough budget** and a **maximum overshoot** → the agent
 that budget** → **each payer votes on it privately**, and only the tally reaches the group → **the yes-voters
 set the trip's budget** (the heads they pay for × the lowest per-head ceiling among them) and the plan is
 **re-sized for exactly those heads** and must fit → **each payer blocks their own share × (1 + overshoot)**, by
-UPI mandate or a payment link (a card is held, EMI if they like; anything that can't hold pays now into the
-pool) → the agent **captures each share into Quorum's account and pays every supplier from it**.
+UPI mandate or a payment link (a card is held, EMI if they like; pay later via LazyPay if the share is
+inside its limit; anything that can't hold pays now into the pool) → the agent **captures each share into
+Quorum's account and pays every supplier from it**, by the deadline the organiser set.
 
 A member in the group is a **payer**, not necessarily one traveller: three families of three, four and five
 are three payers and twelve heads. Gathering asks each payer privately how many people they are paying
 for; rooms, seats, shares, the budget and the mandates all follow the head count, while the vote stays one
 per payer.
+
+**Two personas, no corporate.** Bachelors and families. The persona is deduced (anyone paying for three or
+more, or a family occasion, means families) or set by the organiser, and it shapes defaults rather than
+announcing itself: daytime flights and no club nights for families, cheapest fares for bachelors, who gets
+asked about medical needs and pets. Fewest bottlenecks: six taps to build the plan; names, dates of birth,
+food and medical only after someone says yes, because tickets need them and no-voters never do.
+
+**The place does the convincing.** Every message that has to go anyway carries one line about the
+destination, picked for the person (their interests, the persona) and never repeated to them: the film that
+was shot at the fort, the road from every reel, the quiet beach for the parents, this week's weather. At
+decision time the outs get one private nudge with their own number and one chance to flip in; after booking
+a countdown text a week out and the day before keeps the place in everyone's mind. `app/lore.py` is the
+table; swap in a real source and nothing else changes.
 
 Trip and travel are planned separately: the stay is shared and the occasion decides what it optimises
 (a wedding ranks stays by distance to the venue and lands you before the first function; a leisure trip
@@ -34,7 +48,7 @@ into anyone else's.
 ```bash
 pip install -r requirements.txt
 python demo.py                      # three transcripts: wedding (book + two disruptions), leisure (failed vote → revision → dropout), the payments wall
-pytest -q                           # 43 tests: the loop, every unhappy turn, the pool, the instruments, and the voice rail on files
+pytest -q                           # 53 tests: the loop, every unhappy turn, the pool, the instruments, the place, and the voice rail on files
 ./run.sh                            # web UI at http://localhost:8000
 python scripts/speech_demo.py --dry-run          # what the real Gnani loop would cost (≈ ₹1.13 once, then ₹0)
 QUORUM_VOICE=gnani python demo.py                # the same demo with real TTS/STT; replies from cache/replies/<callee>/
@@ -57,10 +71,10 @@ shows the wall: three debits refunded, nothing booked.
 | INITIATED | Organiser adds Quorum to the group: destination, dates, occasion, rough budget per head, maximum overshoot | — |
 | GATHERING | Private DM to each member: how many people they're paying for (names help), start city, return city, dates they can't do, their own per-head ceiling, must-haves. Reply deadline; silence = just them, home city both ways, at the organiser's figure | — |
 | PLANNING | Trip side: stays ranked by the occasion's priority; stays with no online inventory get a **supplier call** (availability, group rate, refund terms, 48-hour hold; retry once; the call's price wins). Travel side: per member, out and back, searched separately. Total must fit budget × (1 + overshoot) per head | logistics, **voice** |
-| VOTING | One itinerary DM'd to each member: their legs, the stay split, their all-in against their own ceiling, what they'd authorise. Yes/no with a reason, privately. One reminder text. Majority of members ⇒ passes; else up to two revisions built from the reasons; then the organiser decides | — |
+| VOTING | One itinerary DM'd to each member: their legs, the stay split, on leisure trips the one pre-booked activity the group shares (an essential) and the things to do on the day, their all-in against their own ceiling, what they'd authorise, and one line about the place. Yes/no with a reason, privately. One reminder text. Majority of members ⇒ passes; else up to two revisions built from the reasons; then the organiser decides. When it passes, everyone who said no or nothing gets one private nudge with their own number and 12 hours to flip in | — |
 | AUTHORISING | The yes-voters set the budget: the heads they pay for × the lowest per-head ceiling among them. The plan is re-sized for exactly those heads (rooms re-split, seats per payer; the same hook is where a car or an activity would re-size) and must fit that budget, else it goes back to the group as a revision. Then every yes-voter blocks share × (1 + overshoot) their way: a UPI mandate (Reserve Pay keeps the headroom live; an OTM takes one capture), or a payment link (a card is held for one capture, EMI tenures quoted; a method that can't hold pays now and the money waits in the pool, refunded if the trip lapses). Yes-voters who don't block drop out and the rest are re-sized and re-checked: inside ⇒ proceed, over ⇒ back to the group. Nobody can revoke from their own app; they ask Quorum, which releases | **payments** |
 | BOOKING | Re-price at live fares (inside the cap: absorbed, shown on the receipt; over: only that member is asked to top up). Re-hold an expired phone hold. Debit every share into **the pool, Quorum's merchant account**; **one failure refunds the rest and stops**. Book legs and stays and **pay each supplier from the pool**, logged per booking. The pool can never go negative: nobody fronts, Quorum included | payments, logistics, voice |
-| BOOKED | Tickets and vouchers in DMs; the group gets one post. A cancelled leg's refund comes back into the pool and the re-booked ticket is paid from it, inside the member's cap (a late arrival gets the phone-only stay a call); if every alternative is over the cap: a text with options, then an **escalation call** after 20 minutes, then a top-up from that member | logistics, voice, payments |
+| BOOKED | Tickets and vouchers in DMs; the group gets one post. A cancelled leg's refund comes back into the pool and the re-booked ticket is paid from it, inside the member's cap (a late arrival gets the phone-only stay a call); if every alternative is over the cap: a text with options, then an **escalation call** after 20 minutes, then a top-up from that member. A **missed** departure is the member's: every way to still get there (later flights, a train, an Uber Outstation cab) goes to them soonest-first, no refund, paid from their headroom or a top-up. Countdown texts at T-7 and T-1 | logistics, voice, payments |
 | LAPSED / CLOSED | Nothing booked, nothing charged | — |
 
 Read `app/engine.py` top to bottom; it is the product. Every sentence the agent says is in `app/messages.py`.

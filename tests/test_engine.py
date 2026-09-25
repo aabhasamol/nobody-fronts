@@ -79,12 +79,13 @@ def test_nothing_fits_goes_to_the_organiser_never_quietly_over():
 
 
 def test_one_members_travel_over_the_limit_is_flagged_privately_not_averaged():
-    engine, members, trip, _ = make(LEISURE, budget=18_000, overshoot=0.0)
+    engine, members, trip, _ = make(LEISURE, budget=19_000, overshoot=0.0)
     assert trip.state == TripState.VOTING
     flagged = {e.channel for e in trip.events if "heads-up before the vote" in e.text}
     assert flagged == {f"dm:{members[0].id}", f"dm:{members[1].id}"}                # the two from Kolkata
     p = trip.plan()
-    assert p.per_head(members[3].id) == 17_800 <= trip.limit() < p.per_head(members[0].id) == 18_200
+    assert p.essentials_share() == 1_200                                           # Dudhsagar, trekking shared by two
+    assert p.per_head(members[3].id) == 19_000 <= trip.limit() < p.per_head(members[0].id) == 19_400
 
 
 # ------------------------------------------------------------------ vote
@@ -153,7 +154,7 @@ def test_dropout_at_the_deadline_reprices_the_rest_and_proceeds_inside_their_cap
     assert trip.state == TripState.BOOKED
     assert trip.authorisations[members[3].id].status == AuthStatus.RELEASED and members[3].id in trip.dropped
     p = trip.plan()
-    assert len(p.travellers) == 4 and p.heads() == 5 and p.per_head(members[0].id) == 17_560 > 16_600   # 5 heads, 3 rooms: up, inside caps
+    assert len(p.travellers) == 4 and p.heads() == 5 and p.per_head(members[0].id) == 18_760 > 17_800   # 5 heads, 3 rooms: up, inside caps
     assert any("dropped out, so the rooms now split among 5" in e.text and "up from" in e.text
                for e in trip.events if e.channel == f"dm:{members[0].id}")
 

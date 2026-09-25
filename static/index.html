@@ -66,6 +66,8 @@
       <select id="scenario"><option value="wedding">wedding · Assagao</option><option value="leisure">leisure</option></select>
       <label><small>₹/head</small> <input id="budget" type="number" value="20000" step="500"></label>
       <label><small>over %</small> <input id="overshoot" type="number" value="10" step="5" style="width:60px"></label>
+      <label><small>deadline h</small> <input id="authh" type="number" value="48" step="12" style="width:60px"></label>
+      <select id="persona"><option value="">persona: auto</option><option value="bachelors">bachelors</option><option value="families">families</option></select>
       <button class="primary" onclick="trigger()">Organiser adds Quorum to the group</button>
     </div>
   </section>
@@ -107,7 +109,7 @@ async function api(path, method='GET', body) {
 }
 async function act(path, body) { trip = await api(path, 'POST', body); render(); }
 async function trigger() {
-  trip = await api('/trips', 'POST', {scenario: $('scenario').value, budget: +$('budget').value, overshoot: +$('overshoot').value / 100});
+  trip = await api('/trips', 'POST', {scenario: $('scenario').value, budget: +$('budget').value, overshoot: +$('overshoot').value / 100, auth_window_h: +$('authh').value, persona: $('persona').value || null});
   current = trip.members[0].id; render();
 }
 async function reload() { if (trip) { trip = await api('/trips/' + trip.id); render(); } }
@@ -151,6 +153,8 @@ function render() {
   if (trip.state === 'BOOKED' && plan) {
     plan.legs.filter(l => l.status === 'BOOKED' && l.destination === trip.destination).forEach(l =>
       ga.push(btn(`Carrier cancels ${first(member(l.member_id))}'s ${l.origin}→${l.destination}`, `t('disrupt/${l.id}')`)));
+    const miss = plan.legs.find(l => l.status === 'BOOKED' && l.destination === trip.destination && ['Mumbai','Bengaluru'].includes(l.origin));
+    if (miss) ga.push(btn(`${first(member(miss.member_id))} misses the ${miss.origin} flight`, `t('missed/${miss.id}')`));
   }
   ga.push(btn('New trip', 'location.reload()', 'quiet'));
   $('groupActions').innerHTML = (ga.length > 1 ? '' : '<small>the group hears from the agent only at kickoff, the tally, the booking and a disruption &nbsp;</small>') + ga.join('');
@@ -162,6 +166,10 @@ function render() {
   const me = member(current), da = [];
   const auth = trip.authorisations[current], top = trip.top_ups[current], pend = trip.pending[current];
   if (trip.state === 'GATHERING' && !trip.constraints[current]) da.push(btn(`${first(me)} replies: start city, return city, must-haves`, `m('gather', {canned: true})`, 'primary'));
+  if (trip.state === 'AUTHORISING' && !trip.in_members.includes(current) && trip.flip_until && new Date(trip.now) <= new Date(trip.flip_until) && trip.constraints[current] && trip.constraints[current].available)
+    da.push(btn(`${first(me)} changes their mind: in`, `m('flip')`, 'primary'));
+  if (trip.votes[current] && trip.votes[current].yes && trip.constraints[current] && !Object.keys(trip.constraints[current].details || {}).length && ['VOTING','AUTHORISING'].includes(trip.state))
+    da.push(btn(`${first(me)} sends names, DOB, food`, `m('details', {fields: {names: '${esc(first(me))}', dob: '1998-05-14', food: 'veg'}, text: 'Names as on ID sent. 14 May 1998. Veg.'})`));
   if (trip.state === 'VOTING' && plan.travellers.includes(current) && !trip.votes[current]) {
     da.push(btn('Yes', `m('vote', {yes: true})`, 'primary'));
     da.push(btn('No — too expensive', `m('vote', {yes: false, reason: 'Too expensive for me. Cheaper?'})`));
@@ -173,6 +181,7 @@ function render() {
     da.push(btn(`Hold ${inr(auth.amount)} on credit card`, `m('approve', {via: 'CARD_PREAUTH'})`));
     if (emi) da.push(btn(`Card, ${emi[0]}-month EMI (${inr(emi[1])}/mo)`, `m('approve', {via: 'CARD_PREAUTH', emi_months: ${emi[0]}})`));
     da.push(btn(`Pay ${inr(auth.amount)} now via link`, `m('approve', {via: 'PREPAID'})`, 'quiet'));
+    if (auth.amount <= 30000) da.push(btn('Pay later via LazyPay', `m('approve', {via: 'BNPL'})`, 'quiet'));
   }
   if (trip.state === 'AUTHORISING' && auth && auth.status === 'BLOCKED') da.push(btn('Ask Quorum to release my block', `m('withdraw')`, 'quiet'));
   if (top && top.status === 'PENDING') da.push(btn(`Approve top-up ${inr(top.amount)}${auth && auth.instrument === 'CARD_PREAUTH' ? ' (card tap)' : ''}`, `m('approve', {via: '${auth && auth.instrument ? auth.instrument : 'UPI_RESERVE'}'})`, 'primary'));
@@ -183,7 +192,7 @@ function render() {
   // ---- rails
   const deadline = trip.state === 'GATHERING' ? trip.gather_deadline : trip.state === 'VOTING' ? trip.vote_deadline : trip.state === 'AUTHORISING' ? trip.auth_deadline : null;
   $('kv').innerHTML = `<b>Organiser</b><span>${esc(org.name)} — never pays for anyone</span>
-    <b>Occasion</b><span>${trip.occasion} · ${trip.destination}${trip.venue ? ' · venue ' + trip.venue : ''} · ${trip.start} → ${trip.end}</span>
+    <b>Occasion</b><span>${trip.occasion} · ${trip.destination}${trip.venue ? ' · venue ' + trip.venue : ''} · ${trip.start} → ${trip.end} · persona: ${trip.persona}</span>
     <b>Budget</b><span>proposal built to ${inr(trip.budget)} a head +${Math.round(trip.overshoot*100)}% = ${inr(trip.limit)}${trip.total_budget ? ` · set by the ${trip.in_members.length} payers who are in (${plan ? trip.heads[plan.id] : '?'} heads): ${plan ? trip.heads[plan.id] : '?'} × ${inr(trip.budget_floor)} (lowest ceiling) = <b style="color:var(--ink)">${inr(trip.total_budget)}</b>` : ' · after the vote: heads of the yes-voters × their lowest ceiling'}</span>
     <b>Pool</b><span>${inr(trip.pool)} in Quorum's account · ${trip.payouts.length} payout${trip.payouts.length===1?'':'s'} to suppliers · the organiser is never in the money path</span>
     <b>Deadline</b><span>${deadline ? fmt(deadline) : '—'}</span>
@@ -201,7 +210,7 @@ function render() {
   } else $('votes').innerHTML = '';
 
   const auths = [...Object.values(trip.authorisations), ...Object.values(trip.top_ups)];
-  const instr = {UPI_RESERVE: 'UPI Reserve Pay', UPI_OTM: 'UPI one-time mandate', CARD_PREAUTH: 'card hold'};
+  const instr = {UPI_RESERVE: 'UPI Reserve Pay', UPI_OTM: 'UPI one-time mandate', CARD_PREAUTH: 'card hold', PREPAID: 'paid via link', BNPL: 'LazyPay, pay later'};
   $('auths').innerHTML = auths.length ? `<div class="h3">Blocks (UPI mandates and card holds)</div><table><tr><th>Member</th><th>Cap</th><th>Debited</th><th>Via</th><th>Status</th></tr>` +
     auths.map(a => `<tr><td>${first(member(a.member_id))}${a.purpose==='TOP_UP'?' <small>top-up</small>':''}</td><td>${inr(a.amount)}</td><td>${a.captured_amount ? inr(a.captured_amount) : '—'}</td><td><small>${a.instrument ? instr[a.instrument] + (a.emi_months ? ', ' + a.emi_months + '-mo EMI' : '') : 'member to choose'}<br>${a.rail_ref}</small></td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('') + '</table>' : '';
 

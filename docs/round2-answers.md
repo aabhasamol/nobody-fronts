@@ -71,6 +71,13 @@ KP's points are still in it: trip and travel are planned separately, and the occ
 8. **A member is a payer, not necessarily one traveller.** Gathering asks privately how many people they are
    paying for (three families of 3, 4 and 5 = three payers, twelve heads). Rooms, seats, shares and the budget
    (heads × lowest per-head ceiling) follow the head count; the vote is one per payer.
+10. **Two personas, no corporate:** bachelors and families. Deduced from who pays for whom (or set by the
+   organiser) and used to shape defaults, never announced. Fewest bottlenecks: six taps to build the plan;
+   names, dates of birth, food and medical only after a yes.
+11. **The place does the convincing.** Every message that has to go anyway carries one line about the
+   destination, picked for the person and never repeated: the film shot at the fort, the road from every
+   reel, the quiet beach for the parents. At decision time the outs get one private nudge with their own
+   number and 12 hours to flip in; after booking, a countdown text a week out and the day before.
 9. **Two ways to block, the payer's choice:** a UPI mandate (nothing moves until booking; Reserve Pay keeps
    the headroom live), or a payment link — a credit card is only held (one capture at booking, EMI if they
    like), and any method that can't hold pays now, the money waiting in Quorum's account and refunded in full
@@ -141,7 +148,7 @@ How the occasion sets priorities:
 | 3 | Phone-only stay: no answer, or no availability | PLANNING | Retry once, then move to the next stay. The plan says which stays were confirmed by phone |
 | 4 | Phone-only stay's answer differs from the listing (rate, rooms, refund terms) | PLANNING | Takes the price from the call, not the listing. If it's worse, drop it |
 | 5 | Vote fails | VOTING | Collects privately what would make it a yes, then revises (cheaper stay, other dates). After two revisions, the organiser decides |
-| 6 | Member doesn't vote | VOTING | One reminder text, then counted as not in. No call |
+| 6 | Member doesn't vote | VOTING | One reminder text, then counted as not in. No call. When the plan passes, the outs and the silent get one private nudge — their own number with them in, a line about the place — and 12 hours to flip in on the same terms |
 | 7 | Yes-voter doesn't authorise by the deadline | AUTHORISING | Drops out, and the plan is re-priced for the rest. Within the overshoot limit ⇒ proceed. Outside it ⇒ back to the group |
 | 8 | Fare moves between the vote and booking, within the authorised amount | BOOKING | Absorbed. The difference is shown on the receipt |
 | 9 | Fare moves beyond the authorised amount | BOOKING | Asks only the affected members to top up, on a short clock. Otherwise they're offered the next leg that fits |
@@ -149,6 +156,7 @@ How the occasion sets priorities:
 | 11 | Member revokes the mandate in their UPI app | AUTHORISING / BOOKING | Treated like #7 |
 | 12 | One debit fails after others succeeded | BOOKING | Refund the successful debits, stop, and tell the group. This is the wall in Q4 (Pine Labs) |
 | 13 | Carrier cancels a leg, and the re-book fits inside the authorised amount | TRAVELLING | Re-book and send a text. Call the phone-only stay about the late arrival |
+| 13a | Member misses the departure | TRAVELLING | No refund, and it's their money. Every way to still get there today — later flights, the train, an Uber Outstation cab — goes to them soonest-first with the price; headroom first, a top-up for the rest; escalation call after 20 minutes if the text goes unanswered |
 | 14 | Carrier cancels, and the re-book exceeds the authorised amount, or the member must choose, with little time | TRAVELLING | Text with options. If there's no reply within N minutes, an **escalation call** to that member asks for their choice by voice |
 | 15 | Member drops out after booking | BOOKED | Their non-refundable legs stay theirs. The stay split is re-priced for the rest and put to them. This goes to humans |
 
@@ -222,6 +230,9 @@ extension of its supplier contracts. Alternative: ixigo, for trains.
   disruption.
 * **Phone:** members get a call only in a live disruption that needs their choice within minutes. Stays
   that exist only on the phone get called by the agent. Members never hear those calls.
+* **Paying later:** a member whose share is inside LazyPay's limit can choose pay-later on the payment link;
+  the lender fronts it, Quorum is settled in full at booking, and they repay LazyPay after the trip on its
+  terms. Quorum never lends and never charges interest; the same goes for card EMI.
 
 ## 7. Name
 

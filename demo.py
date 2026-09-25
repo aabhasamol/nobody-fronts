@@ -12,7 +12,10 @@
                  the card-holder whose hold was used up at capture → text → no reply → escalation call → a fresh
                  card tap for the difference, from that member only.
   2. leisure   — one stay unavailable on the call; the vote fails on price; the revision drops a night; the
-                 vote passes; one yes-voter never authorises, drops out, and the rest re-price downwards.
+                 vote passes with a pre-booked Dudhsagar jeep as the one essential; one yes-voter never authorises,
+                 drops out, and the rest re-price. Then Karan misses his Mumbai flight: later flights, a train and an
+                 Uber Outstation cab go to him, no refund, his money; and a week before the trip everyone gets the
+                 countdown text with one line about the place.
   3. wall      — the fourth of four debits fails: the three that went through are refunded, nothing is booked.
 """
 from __future__ import annotations
@@ -107,8 +110,14 @@ def run_leisure():
     for m in (sayan, aabhas, aditi, karan):                     # Riya never approves
         engine.member_approves(t, m.id)
     clock.advance(48); engine.tick(t)
+    n = show(t, n)
+    leg = next(l for l in t.plan().legs if l.member_id == karan.id and l.destination == "Goa")
+    engine.missed(t, leg.id)                                     # Karan sleeps through the 08:00 from Mumbai
+    engine.member_chooses(t, karan.id, 1)                        # the 13:00: ₹1,900 more than his headroom
+    engine.member_approves(t, karan.id)                          # he approves the top-up
+    clock.set(clock.now().replace(month=9, day=25, hour=10, minute=0)); engine.tick(t)   # a week before: the countdown
     show(t, n)
-    print(f"\nFINAL STATE: {t.state.value}   captured=₹{sum(a.captured_amount for a in t.authorisations.values()):,}")
+    print(f"\nFINAL STATE: {t.state.value}   captured=₹{sum(a.captured_amount for a in t.authorisations.values()) + sum(a.captured_amount for a in t.top_ups.values()):,}")
 
 
 if __name__ == "__main__":

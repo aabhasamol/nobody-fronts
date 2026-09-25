@@ -14,7 +14,7 @@ running on them. This is that picture, with the seams marked.
 | **UPI One-Time Mandate** | Block up to ₹1 lakh for up to 60 days with one UPI PIN; one capture, partial allowed; merchant releases the rest; the customer cannot revoke it from their app | UPI members who want one debit |
 | **UPI Reserve Pay** | Block once, debit many times against the reserved amount | UPI members by default: the share at booking, then a re-booking difference inside the headroom, no new tap |
 | **Credit / Debit / Cardless EMI** | `CREDIT_EMI` etc. as payment methods; Offer Discovery by card BIN + amount returns tenures; **the merchant is settled in full at once**, the issuer collects instalments | A card member's EMI choice. The pool is whole either way |
-| **BNPL** (LazyPay) | Eligibility by mobile/email + amount, OTP; MID must be enabled | Not used: checkout-time, small limits |
+| **BNPL** (LazyPay) | Eligibility by mobile/email + amount, OTP; MID must be enabled | **Pay later for a share inside the limit:** the lender fronts it at booking, Quorum is settled in full, the member repays LazyPay after the trip. Quorum never lends and never charges interest. Limit [verify] |
 | **Tokenisation** | Card-on-file tokens under RBI's rules | A top-up on a card is one tap on the saved token, not a re-entry |
 | **Settlements** | Captures settle to the merchant account; reconciliation APIs | **The pool** is that account |
 | **Payouts** | IMPS / NEFT / RTGS / UPI to verified beneficiaries, instant or scheduled, bulk | The pool pays a homestay, a driver, a local vendor. Airlines and listed hotels go through a B2B travel wallet |

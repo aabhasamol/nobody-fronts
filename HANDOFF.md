@@ -35,6 +35,12 @@ real fares), not wider. Do not add features the loop does not need.
   capture), a card hold (one capture, 7 days) and a prepaid link (money in the pool now, refunded on lapse).
   Only the engine's `_headroom` needs to know the difference. The prepaid float is priced in the rail log at
   `FLOAT_RATE` as an idea; nothing invests anything.
+* Personas are deduced in `lore.persona_of` (anyone paying for three or more, or a family occasion ⇒
+  families) and only ever shape defaults. Place lore lives in `app/lore.py`; `Engine._hook` picks one line
+  per person per message and never repeats it. Replace the table with a real source (a destination guide,
+  a reels feed) and nothing else changes. Nudges are P2 texts riding on messages that had to go anyway.
+* BNPL is a lender's product on the rail (LazyPay via Pine Labs), never Quorum fronting: the instrument
+  `BNPL` settles Quorum in full at capture. Its limit (₹30,000 in the mock) is [verify] with LazyPay.
 * The yes-voters set the budget: `Trip.set_budget` = the heads they pay for × the lowest ceiling among them. Before
   the vote the proposal is held to the organiser's rough figure + overshoot per head; after it, the total is
   the rule (`Engine._fit`). Re-sizing for whoever is in happens in `Engine._retarget`: rooms today; a car or
