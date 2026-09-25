@@ -26,6 +26,25 @@ real fares), not wider. Do not add features the loop does not need.
   deadline, never a group poll. The group gets four kinds of post: kickoff, tally, booking, disruption.
 * Money is INR integers in the engine; adapters convert to paisa at the edge. A member is never debited
   more than `Authorisation.amount` (+ a top-up they approved themselves).
+* The pool is Quorum's merchant account. Captures settle into it, `Engine._pay` pays suppliers from it, a
+  carrier's refund comes back into it, and `PaymentsRail.pay_supplier` must refuse to take it negative. The
+  organiser is never in the money path; neither is Quorum's own money.
+* A member is a payer; `Constraint.party` is how many heads they pay for. `Plan.per_head` is one of their
+  people, `Plan.share` is what they owe, legs carry `seats`. Votes and majority stay per payer.
+* Blocks come in four instruments (`models.INSTRUMENTS`): UPI Reserve Pay (multi-debit), UPI OTM (one
+  capture), a card hold (one capture, 7 days) and a prepaid link (money in the pool now, refunded on lapse).
+  Only the engine's `_headroom` needs to know the difference. The prepaid float is priced in the rail log at
+  `FLOAT_RATE` as an idea; nothing invests anything.
+* Personas are deduced in `lore.persona_of` (anyone paying for three or more, or a family occasion ⇒
+  families) and only ever shape defaults. Place lore lives in `app/lore.py`; `Engine._hook` picks one line
+  per person per message and never repeats it. Replace the table with a real source (a destination guide,
+  a reels feed) and nothing else changes. Nudges are P2 texts riding on messages that had to go anyway.
+* BNPL is a lender's product on the rail (LazyPay via Pine Labs), never Quorum fronting: the instrument
+  `BNPL` settles Quorum in full at capture. Its limit (₹30,000 in the mock) is [verify] with LazyPay.
+* The yes-voters set the budget: `Trip.set_budget` = the heads they pay for × the lowest ceiling among them. Before
+  the vote the proposal is held to the organiser's rough figure + overshoot per head; after it, the total is
+  the rule (`Engine._fit`). Re-sizing for whoever is in happens in `Engine._retarget`: rooms today; a car or
+  a group activity would re-size in the same place.
 * Time comes from `app/clock.py`. Never call `datetime.now()` in engine code.
 * `Event` log is the transcript. If it happened and the group or a member saw it, it goes through `_say`.
 * Every phone-only stay that says no or never answers goes in `trip.stays_out` and is not called again.
@@ -34,18 +53,26 @@ real fares), not wider. Do not add features the loop does not need.
 ## Next tasks, in order
 
 1. **Pine Labs UAT end to end** (highest value; unblocks the Round-2 demo on a real rail)
-   * Sign up at the Pine Labs Online dashboard, get UAT client id/secret/merchant id, ask for OTM enablement.
-   * Set `QUORUM_PAYMENTS=pinelabs`, run `demo.py`. Fix field names in `app/rails/pinelabs.py` against the
-     live responses (token field, `data` envelope, `customer_id` path) — they were written from docs.
+   * Sign up at the Pine Labs Online dashboard, get UAT client id/secret/merchant id; ask for Pay by Link,
+     pre-authorization, UPI OTM / Reserve Pay and Payouts to be enabled on the MID.
+   * Set `QUORUM_PAYMENTS=pinelabs`, run `demo.py`. The adapter creates one pre-authorised payment link per
+     member; fix response field names (`payment_link_id`, `payment_link_url`, `order_id`, `status`, the
+     method used) and the Capture / Cancel Order paths against the live reference — every one is [verify].
+   * Confirm whether pay-by-link with `pre_auth` runs UPI as a one-time mandate or as an immediate debit; if
+     immediate, route UPI to the OTM / Reserve Pay flow and keep the link for cards.
+   * EMI: confirm the flow for a member who chose EMI — void the hold and complete a `CREDIT_EMI` checkout
+     for the exact share at booking (needs the member's AFA), or capture and let the issuer convert.
    * Make `capture()` block on presentation status until `SUCCESS` and raise `CaptureFailed` on `FAILED`,
      instead of recording `CAPTURED` optimistically. Wire `/webhooks/pinelabs` to reconcile.
-   * **Verify three things the engine assumes:** (a) a *second* presentation on the same OT mandate — the
-     share at booking, then a re-booking difference inside the headroom (`Engine._present`). If OTM is one
-     debit only, present share + headroom together and refund, or move the difference to a top-up mandate.
-     (b) The refund endpoint and body (`PineLabsPayments.refund`, marked [verify]). (c) Whether a merchant
-     can cancel an `ACTIVE` OT subscription, and the minimum `validity_days`.
+   * **Confirmed from the docs, no longer to verify:** an OTM takes one capture (partial allowed) and the
+     merchant releases the rest; the member cannot revoke from their app; Reserve Pay is the multi-debit
+     instrument. **Still to verify:** Reserve Pay's endpoints, the refund body, and Payouts beneficiary
+     registration.
    * Then run the wall for real: `payments.fail_capture_for` has no UAT equivalent, so use a test VPA that
      declines. Showing the rollback fail honestly is worth more than pretending it cannot.
+   * **Payouts.** `PineLabsPayments.pay_supplier` only records an instruction. The real thing is a B2B travel
+     wallet (TBO / Cleartrip B2B) topped up from the settlement account for flights and listed hotels, and
+     UPI or a bank transfer for a homestay. Wire one; the engine's `_pay` does not change.
 
 2. **Gnani — run the real loop on recordings, then put a phone line behind it**
    * `python scripts/speech_demo.py --dry-run`, then without the flag: the four Hindi questions go through

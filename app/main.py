@@ -6,11 +6,14 @@ Everything a member or the organiser does in WhatsApp (or their UPI app) is one 
 adapter would call the same engine methods. The two `/rails/*` endpoints are demo knobs on the mock rails.
 """
 from __future__ import annotations
+import base64
+import os
+import secrets
 from datetime import date
 from pathlib import Path
 from typing import Callable, Optional
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from .clock import clock
@@ -23,6 +26,25 @@ voice, payments, logistics = build_rails()
 engine = Engine(voice, payments, logistics)
 STATIC = Path(__file__).resolve().parent.parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
+DEMO_PASSWORD = os.environ.get("QUORUM_DEMO_PASSWORD", "")
+
+
+@app.middleware("http")
+async def demo_password(request: Request, call_next):
+    """When QUORUM_DEMO_PASSWORD is set (a public deploy), the whole app asks for it: any username, that password."""
+    if DEMO_PASSWORD and request.url.path != "/clock":                 # /clock stays open as the health check
+        header = request.headers.get("authorization", "")
+        ok = False
+        if header.startswith("Basic "):
+            try:
+                _, _, pwd = base64.b64decode(header[6:]).decode().partition(":")
+                ok = secrets.compare_digest(pwd, DEMO_PASSWORD)
+            except Exception:
+                ok = False
+        if not ok:
+            return Response("Quorum demo — password required", status_code=401,
+                            headers={"WWW-Authenticate": 'Basic realm="Quorum demo"'})
+    return await call_next(request)
 
 
 @app.get("/")
@@ -35,6 +57,8 @@ class TriggerIn(BaseModel):
     scenario: str = "wedding"                # wedding | leisure — presets in app/scenario.py
     budget: Optional[int] = None             # INR per head, all-in
     overshoot: Optional[float] = None        # 0.10 = 10 %
+    auth_window_h: Optional[int] = None      # the organiser's deadline for blocking a share
+    persona: Optional[str] = None            # bachelors | families; otherwise deduced from the parties
     organiser_index: int = 0
 
 
@@ -45,6 +69,10 @@ def trigger(body: TriggerIn):
         preset["budget"] = body.budget
     if body.overshoot is not None:
         preset["overshoot"] = body.overshoot
+    if body.auth_window_h:
+        preset["auth_window_h"] = body.auth_window_h
+    if body.persona:
+        preset["persona"] = body.persona
     for knob in (getattr(logistics, "drift", None), getattr(payments, "fail_capture_for", None)):
         if knob is not None:
             knob.clear()                     # a new trip starts with the world at rest
@@ -64,6 +92,10 @@ class GatherIn(BaseModel):
     start_city: Optional[str] = None
     return_city: Optional[str] = None
     available: bool = True
+    budget: Optional[int] = None             # this member's own ceiling, per head all-in
+    party: int = 1                           # how many people they are paying for, themselves included
+    party_names: list[str] = []
+    interests: list[str] = []
     must_haves: list[str] = []
     text: Optional[str] = None
 
@@ -73,6 +105,26 @@ def gather(trip_id: str, member_id: str, body: GatherIn):
     trip = _trip(trip_id)
     kwargs = dict(REPLIES.get(trip.member(member_id).first, {})) if body.canned else body.model_dump(exclude={"canned"})
     _guard(lambda: engine.gather(trip, member_id, **kwargs))
+    return _view(trip_id)
+
+
+class DetailsIn(BaseModel):
+    fields: dict[str, str]                   # names, dob, food, medical, pets — whatever the member sent
+    text: Optional[str] = None
+
+
+@app.post("/trips/{trip_id}/members/{member_id}/details")
+def details(trip_id: str, member_id: str, body: DetailsIn):
+    trip = _trip(trip_id)
+    _guard(lambda: engine.details(trip, member_id, body.fields, body.text))
+    return _view(trip_id)
+
+
+@app.post("/trips/{trip_id}/members/{member_id}/flip")
+def flip(trip_id: str, member_id: str):
+    """A no-voter changes their mind inside the flip window."""
+    trip = _trip(trip_id)
+    _guard(lambda: engine.member_flips(trip, member_id))
     return _view(trip_id)
 
 
@@ -88,18 +140,25 @@ def vote(trip_id: str, member_id: str, body: VoteIn):
     return _view(trip_id)
 
 
+class ApproveIn(BaseModel):
+    via: str = "UPI_RESERVE"                 # UPI_RESERVE | UPI_OTM | CARD_PREAUTH
+    emi_months: Optional[int] = None         # card only
+
+
 @app.post("/trips/{trip_id}/members/{member_id}/approve")
-def approve(trip_id: str, member_id: str):
-    """The member tapped Approve in their UPI app — on their share block, or on a top-up."""
+def approve(trip_id: str, member_id: str, body: Optional[ApproveIn] = None):
+    """The member approved the block: in their UPI app, or on the card page — their share, or a top-up."""
     trip = _trip(trip_id)
-    _guard(lambda: engine.member_approves(trip, member_id))
+    body = body or ApproveIn()
+    _guard(lambda: engine.member_approves(trip, member_id, body.via, body.emi_months))
     return _view(trip_id)
 
 
-@app.post("/trips/{trip_id}/members/{member_id}/revoke")
-def revoke(trip_id: str, member_id: str):
+@app.post("/trips/{trip_id}/members/{member_id}/withdraw")
+def withdraw(trip_id: str, member_id: str):
+    """The member asks Quorum to release their block. (A mandate or card hold can't be revoked from their own app.)"""
     trip = _trip(trip_id)
-    _guard(lambda: engine.member_revokes(trip, member_id))
+    _guard(lambda: engine.member_withdraws(trip, member_id))
     return _view(trip_id)
 
 
@@ -167,6 +226,14 @@ def close(trip_id: str):
 def disrupt(trip_id: str, leg_id: str):
     trip = _trip(trip_id)
     _guard(lambda: engine.disrupt(trip, leg_id))
+    return _view(trip_id)
+
+
+@app.post("/trips/{trip_id}/missed/{leg_id}")
+def missed(trip_id: str, leg_id: str):
+    """The member missed the departure: re-routing options, no refund, their money."""
+    trip = _trip(trip_id)
+    _guard(lambda: engine.missed(trip, leg_id))
     return _view(trip_id)
 
 
@@ -249,5 +316,13 @@ def _view(trip_id: str) -> dict:
     d["in_members"] = [m.id for m in t.in_members()]
     d["blocked_count"] = len(t.blocked())
     d["per_head"] = {p.id: {mid: p.per_head(mid) for mid in p.travellers} for p in t.plans}
+    d["shares"] = {p.id: {mid: p.share(mid) for mid in p.travellers} for p in t.plans}
+    d["heads"] = {p.id: p.heads() for p in t.plans}
+    d["persona"] = t.persona()
+    d["totals"] = {p.id: p.total() for p in t.plans}
+    d["pool"] = payments.pool()
+    d["ceilings"] = {m.id: t.ceiling(m.id) for m in t.members}
+    d["emi_offers"] = {mid: payments.emi_offers(a.amount) for mid, a in list(t.authorisations.items()) + list(t.top_ups.items())
+                       if a.status.value == "PENDING"}
     d["knobs"] = {"drift": getattr(logistics, "drift", {}), "fail_capture_for": sorted(getattr(payments, "fail_capture_for", []))}
     return d

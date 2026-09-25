@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 import math
 import random
 from ..clock import clock
-from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, new_id
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, Activity, INSTRUMENTS, new_id, inr
 from .base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 
@@ -48,7 +48,7 @@ class MockVoice(VoiceRail):
             hold_until=hold_until,
             transcript=(f"[agent, {language}] Namaskar, Quorum se bol raha hoon, {party_size} logon ka group, "
                         f"{check_in:%d %b} se {nights} raat. {rooms} twin rooms milenge?\n"
-                        f"[{stay.name}] Haan, {rooms} rooms hain. ₹{rate:,} per room per night, breakfast included.\n"
+                        f"[{stay.name}] Haan, {rooms} rooms hain. ₹{inr(rate)} per room per night, breakfast included.\n"
                         f"[agent] Twin sharing theek hai? Cancel karein toh refund?\n"
                         f"[{stay.name}] Twin theek hai. 72 ghante pehle tak full refund.\n"
                         f"[agent] 48 ghante hold kar sakte hain? Group vote ke baad confirm karenge.\n"
@@ -73,36 +73,52 @@ class MockVoice(VoiceRail):
 
 # --------------------------------------------------------------------------- payments
 class MockPayments(PaymentsRail):
-    """Each `create_block` mints a fake OT mandate. `approve()` and `revoke()` are what the member's UPI app
-    would do; the demo UI calls them on their behalf. Put a member id in `fail_capture_for` to make their
-    presentation bounce, which is how the demo shows the partial-capture wall."""
+    """Each `create_block` mints a pending block; `approve(auth, via, emi_months)` is what the member does in
+    their UPI app or on the card page, and fixes the instrument: UPI Reserve Pay (multi-debit), a UPI one-time
+    mandate (one debit) or a credit-card pre-authorisation (one capture, 7-day window, optional EMI). `revoke()`
+    is the member cancelling in-app. Put a member id in `fail_capture_for` to make their debit bounce, which is
+    how the demo shows the partial-capture wall."""
 
     def __init__(self):
         self.ledger: dict[str, dict] = {}
         self.fail_capture_for: set[str] = set()
+        self._pool = 0                                        # Quorum's merchant account, in INR
+        self.payouts: list[Payout] = []
 
     def create_block(self, member: Member, amount: int, validity_days: int, reference: str) -> Authorisation:
-        sub = new_id("otsub")
+        sub = new_id("blk")
         order = new_id("ord")
         self.ledger[sub] = {"member": member.id, "amount": amount, "status": "CREATED",
                             "expires": clock.now() + timedelta(days=validity_days), "captured": 0}
         return Authorisation(member_id=member.id, plan_id=reference, amount=amount,
                              status=AuthStatus.PENDING, rail_ref=sub, order_ref=order, created_at=clock.now())
 
-    def approve(self, auth: Authorisation) -> None:
-        """Simulates the member tapping 'Approve' in their UPI app."""
-        self.ledger[auth.rail_ref]["status"] = "ACTIVE"
+    def approve(self, auth: Authorisation, via: str = "UPI_RESERVE", emi_months: int | None = None) -> None:
+        """Simulates the member approving: in their UPI app, or on the card page (3-D Secure), with EMI if chosen."""
+        assert via in INSTRUMENTS, f"unknown instrument {via}"
+        assert emi_months is None or via == "CARD_PREAUTH", "EMI is a card thing"
+        limit = INSTRUMENTS[via]["max_amount"]
+        assert limit is None or auth.amount <= limit, f"a {INSTRUMENTS[via]['label']} blocks at most ₹{inr(limit)}"
+        row = self.ledger[auth.rail_ref]
+        row["status"], row["instrument"] = "ACTIVE", via
+        auth.instrument, auth.emi_months = via, emi_months
+        if INSTRUMENTS[via]["prepaid"]:                        # the link took the money now: it sits in the pool
+            row["status"], row["prepaid_at"] = "PAID", clock.now()
+            self._pool += auth.amount
+        cap = INSTRUMENTS[via]["max_validity_days"]
+        if cap is not None:                                    # a card hold lives 5–7 days whatever we asked for
+            row["expires"] = min(row["expires"], clock.now() + timedelta(days=cap))
+        auth.expires_at = row["expires"]
 
-    def revoke(self, auth: Authorisation) -> None:
-        """Simulates the member revoking the mandate in their UPI app."""
-        self.ledger[auth.rail_ref]["status"] = "REVOKED"
+    def emi_offers(self, amount: int) -> list[tuple[int, int]]:
+        """Mock of Offer Discovery: three tenures, issuer interest folded in roughly (13–15 % p.a.)."""
+        return [(3, math.ceil(amount * 1.02 / 3 / 10) * 10), (6, math.ceil(amount * 1.04 / 6 / 10) * 10),
+                (9, math.ceil(amount * 1.06 / 9 / 10) * 10)]
 
     def refresh(self, auth: Authorisation) -> Authorisation:
         row = self.ledger[auth.rail_ref]
-        if row["status"] == "ACTIVE" and auth.status == AuthStatus.PENDING:
-            auth.status = AuthStatus.BLOCKED
-        elif row["status"] == "REVOKED" and auth.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
-            auth.status = AuthStatus.REVOKED
+        if row["status"] in ("ACTIVE", "PAID") and auth.status == AuthStatus.PENDING:
+            auth.status = AuthStatus.BLOCKED                   # PAID: a prepaid link, the money is already in the pool
         elif clock.now() > row["expires"] and auth.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
             auth.status = AuthStatus.EXPIRED
             row["status"] = "EXPIRED"
@@ -110,26 +126,53 @@ class MockPayments(PaymentsRail):
 
     def capture(self, auth: Authorisation, amount: int) -> Authorisation:
         row = self.ledger[auth.rail_ref]
-        assert row["status"] in ("ACTIVE", "SUCCESS"), f"presentation on a {row['status']} mandate"
-        assert auth.captured_amount + amount <= auth.amount, "presentation above the authorised cap"
+        assert row["status"] in ("ACTIVE", "PAID", "SUCCESS"), f"debit on a {row['status']} block"
+        assert auth.captured_amount + amount <= auth.amount, "debit above the authorised cap"
+        assert auth.multi_debit or auth.captured_amount == 0, f"{auth.instrument} allows one capture"
         if row["member"] in self.fail_capture_for:
-            raise CaptureFailed("issuer declined: U30 debit failed at the remitter bank")
+            raise CaptureFailed("issuer declined: " + ("card authorisation reversed by the issuer"
+                                                       if auth.instrument == "CARD_PREAUTH" else "U30 debit failed at the remitter bank"))
         row["status"] = "SUCCESS"
         row["captured"] += amount
-        auth.status = AuthStatus.CAPTURED
+        if not auth.prepaid:
+            self._pool += amount                               # settles into Quorum's account, in full, EMI or not
+        auth.status = AuthStatus.CAPTURED                      # prepaid money was already in the pool
         auth.captured_amount += amount
         return auth
 
     def refund(self, auth: Authorisation) -> Authorisation:
         row = self.ledger[auth.rail_ref]
+        self._pool -= auth.amount if auth.prepaid else auth.captured_amount   # prepaid: the whole payment goes back
         row["status"], row["captured"] = "REFUNDED", 0
         auth.status, auth.captured_amount = AuthStatus.REFUNDED, 0
         return auth
 
+    def pay_supplier(self, supplier: str, amount: int, purpose: str, reference: str) -> Payout:
+        assert amount <= self._pool, f"pool ₹{inr(self._pool)} cannot cover ₹{inr(amount)} to {supplier} — Quorum does not front"
+        self._pool -= amount
+        method = "UPI" if purpose == "STAY" else "B2B_WALLET"
+        p = Payout(supplier=supplier, amount=amount, purpose=purpose, reference=reference, method=method, at=clock.now())
+        self.payouts.append(p)
+        return p
+
+    def receive_refund(self, supplier: str, amount: int, reference: str) -> int:
+        self._pool += amount
+        return self._pool
+
+    def pool(self) -> int:
+        return self._pool
+
     def release(self, auth: Authorisation) -> Authorisation:
+        if auth.prepaid and self.ledger[auth.rail_ref]["status"] == "PAID":
+            self._pool -= auth.amount - auth.captured_amount   # the unused prepayment is refunded
         self.ledger[auth.rail_ref]["status"] = "CANCELLED"
         auth.status = AuthStatus.RELEASED
         return auth
+
+    def float_days(self, auth: Authorisation) -> int:
+        """How long a prepayment has sat in the pool. The float idea is priced on this."""
+        row = self.ledger[auth.rail_ref]
+        return (clock.now() - row["prepaid_at"]).days if row.get("prepaid_at") else 0
 
 
 # --------------------------------------------------------------------------- logistics
@@ -141,6 +184,18 @@ _FLIGHTS = {
     "Mumbai":    [("Akasa", 8, 1.1, 2900), ("IndiGo", 13, 1.1, 3200), ("Air India", 19, 1.2, 3900)],
     "Hyderabad": [("IndiGo", 9, 1.3, 3700), ("Akasa", 15, 1.3, 3500)],
 }
+_ROAD_KM = {"Mumbai": 590, "Bengaluru": 560, "Hyderabad": 680, "Kolkata": 2000, "Delhi": 1900}   # to Goa, by road
+_ACTIVITIES = [
+    # name, supplier, interest, price per head, pre-bookable
+    ("Dudhsagar jeep-and-hike from Collem", "Collem Jeep Owners' Co-op", "trekking", 1200, True),
+    ("Sunrise kayaking at Palolem", "Palolem Kayaks", "water sports", 600, True),
+    ("Reis Magos and Fontainhas walk", "Goa Heritage Walks", "heritage", 400, True),
+    ("Chorao mangrove boat", "Salim Ali Boat Club", "wildlife", 150, False),
+    ("Saturday night market, Arpora", "—", "food", 0, False),
+    ("Hilltop / Curlies night", "—", "nightlife", 0, False),
+    ("Galgibaga turtle beach", "—", "quiet beaches", 0, False),
+    ("Parra road and Butterfly Beach boat", "Palolem boatmen", "reels spots", 500, False),
+]
 _STAYS = [
     # name, area, rate per twin room per night, phone_only, km to the venue (Assagao) / beach, what we know
     ("Fisherman's Rest, Morjim", "Morjim", 2400, True, 7.0, "family-run, six rooms, no online booking; number from a friend"),
@@ -189,3 +244,34 @@ class MockLogistics(LogisticsRail):
         if leg.pnr:
             self.cancelled_pnrs.add(leg.pnr)
         return leg
+
+    def search_alternatives(self, origin: str, destination: str, after: datetime, seats: int) -> list[Leg]:
+        """Later flights today and the first one tomorrow; a train and an outstation cab where the road allows."""
+        out: list[Leg] = []
+        for l in self.search_legs(origin, destination, after.date()):
+            if l.depart > after:
+                out.append(l.model_copy(update={"seats": seats}))
+        first = min(self.search_legs(origin, destination, after.date() + timedelta(days=1)), key=lambda l: l.depart)
+        out.append(first.model_copy(update={"seats": seats}))
+        km = _ROAD_KM.get(origin) or _ROAD_KM.get(destination)
+        if km and km <= 700:
+            dep = after + timedelta(hours=1)
+            hours = km / 55
+            cab_total = int(round(km * 16 / 100.0)) * 100                    # ₹16/km, the whole car
+            out.append(Leg(member_id="", mode="cab", carrier="Uber Outstation", origin=origin, destination=destination,
+                           depart=dep, arrive=dep + timedelta(hours=hours), price=math.ceil(cab_total / seats), seats=seats))
+            train_dep = datetime.combine(after.date(), time(22, 0))
+            if train_dep > after:
+                out.append(Leg(member_id="", mode="train", carrier="Konkan Kanya Express", origin=origin, destination=destination,
+                               depart=train_dep, arrive=train_dep + timedelta(hours=11), price=1500, seats=seats))
+        return sorted(out, key=lambda l: (l.arrive, l.price))
+
+    def search_activities(self, city: str, interests: list[str], persona: str) -> list[Activity]:
+        acts = [Activity(name=n, supplier=s, interest=i, price_per_head=p, prebook=b) for n, s, i, p, b in _ACTIVITIES]
+        if persona == "families":
+            acts = [a for a in acts if a.interest != "nightlife"]
+        return [a for a in acts if a.interest in interests]
+
+    def book_activity(self, activity: Activity, heads: int) -> Activity:
+        activity.booking_ref = "ACT" + str(self.rng.randint(10000, 99999))
+        return activity

@@ -8,7 +8,7 @@ Vocabulary is deliberately the competition's: voice / payments / logistics.
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from ..models import Member, Leg, Stay, CallRecord, Authorisation
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, Payout, Activity
 
 
 class CaptureFailed(RuntimeError):
@@ -41,10 +41,15 @@ class VoiceRail(ABC):
 
 
 class PaymentsRail(ABC):
-    """Pine Labs. Block-now, debit-at-booking, release-otherwise.
+    """Pine Labs. Block-now, debit-at-booking, release-otherwise — and the pool.
 
-    Today this is orchestrated over N single-payer UPI one-time mandates. The ask to Pine Labs
-    (see docs/rails.md) is a group mandate: N mandates on one order, shared expiry, atomic capture.
+    Quorum is the merchant of record for the trip. Members' mandates are created by Quorum and settle into
+    Quorum's merchant account: that account is the pool. Quorum then pays each supplier from it (a B2B
+    travel wallet for flights and listed hotels, UPI or a bank transfer for a homestay). The organiser is
+    never in the money path. The pool can never go negative: Quorum does not front either.
+
+    Today the collection side is N single-payer UPI one-time mandates. The ask to Pine Labs
+    (see docs/rails.md) is a group order with a shared expiry and an atomic capture into escrow.
     """
 
     @abstractmethod
@@ -53,12 +58,16 @@ class PaymentsRail(ABC):
 
     @abstractmethod
     def refresh(self, auth: Authorisation) -> Authorisation:
-        """Poll the rail for the mandate's current status (PENDING → BLOCKED, or REVOKED / EXPIRED)."""
+        """Poll the rail for the block's current status (PENDING → BLOCKED, or REVOKED / EXPIRED)."""
+
+    @abstractmethod
+    def emi_offers(self, amount: int) -> list[tuple[int, int]]:
+        """(months, monthly INR) tenures a credit card could pay this amount in. Pine Labs: Offer Discovery."""
 
     @abstractmethod
     def capture(self, auth: Authorisation, amount: int) -> Authorisation:
-        """Present `amount` against a blocked mandate. Cumulative presentations never exceed auth.amount.
-        Raises CaptureFailed if the bank declines."""
+        """Debit `amount` against a block: a UPI presentation, or a card capture. Cumulative debits never exceed
+        auth.amount, and a single-capture instrument accepts one. Raises CaptureFailed if the bank declines."""
 
     @abstractmethod
     def refund(self, auth: Authorisation) -> Authorisation:
@@ -67,6 +76,18 @@ class PaymentsRail(ABC):
     @abstractmethod
     def release(self, auth: Authorisation) -> Authorisation:
         """Cancel the mandate / let the block lapse. Nothing is charged."""
+
+    @abstractmethod
+    def pay_supplier(self, supplier: str, amount: int, purpose: str, reference: str) -> Payout:
+        """Pay a supplier from the pool. Must fail if the pool cannot cover it."""
+
+    @abstractmethod
+    def receive_refund(self, supplier: str, amount: int, reference: str) -> int:
+        """A supplier (a carrier that cancelled) returns money to the pool. Returns the pool balance."""
+
+    @abstractmethod
+    def pool(self) -> int:
+        """What is in Quorum's account for this checkout: captured − refunded − paid out + supplier refunds."""
 
 
 class LogisticsRail(ABC):
@@ -91,3 +112,16 @@ class LogisticsRail(ABC):
     @abstractmethod
     def cancel_leg(self, leg: Leg) -> Leg:
         """Simulate or perform a cancellation (disruption path)."""
+
+    @abstractmethod
+    def search_alternatives(self, origin: str, destination: str, after: datetime, seats: int) -> list[Leg]:
+        """Every way to still get there after a missed departure: later flights, a train, an outstation cab.
+        Soonest arrival first. Prices per seat; a cab is priced per car and spread over the seats."""
+
+    @abstractmethod
+    def search_activities(self, city: str, interests: list[str], persona: str) -> list[Activity]:
+        """Things to do that answer the group's interests; the pre-bookable ones become essentials."""
+
+    @abstractmethod
+    def book_activity(self, activity: Activity, heads: int) -> Activity:
+        """Reserve a pre-bookable activity for the group."""
