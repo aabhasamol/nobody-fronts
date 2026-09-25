@@ -363,8 +363,8 @@ def test_authorisation_reminder_is_a_text_never_a_call():
     engine.member_approves(trip, members[0].id)
     calls_before = len([e for e in trip.events if e.priority == "P0"])
     clock.advance(24); engine.tick(trip)                                           # halfway through the 48h window
-    nudged = [e.channel for e in trip.events if "still waiting in your app" in e.text]
+    nudged = [e.channel for e in trip.events if "are still waiting for you" in e.text]
     assert sorted(nudged) == sorted(f"dm:{m.id}" for m in members[1:4])           # the three who haven't approved
     clock.advance(1); engine.tick(trip)
-    assert len([e for e in trip.events if "still waiting in your app" in e.text]) == 3   # once, not again
+    assert len([e for e in trip.events if "are still waiting for you" in e.text]) == 3   # once, not again
     assert len([e for e in trip.events if e.priority == "P0"]) == calls_before

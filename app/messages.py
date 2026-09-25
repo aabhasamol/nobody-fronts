@@ -198,8 +198,8 @@ def dm_authorise(trip: Trip, m: Member, p: Plan, share: int, cap: int, old_share
 
 
 def dm_authorise_reminder(m: Member, a: Authorisation, deadline: datetime) -> str:
-    return (f"{m.first}, a nudge — the UPI request for {fmt_inr(a.amount)} is still waiting in your app. Approve by "
-            f"{fmt_dt(deadline)} or I'll take you off the plan; nothing is charged either way.")
+    return (f"{m.first}, a nudge — the UPI request and the payment link for {fmt_inr(a.amount)} are still waiting for "
+            f"you. Use either by {fmt_dt(deadline)} or I'll take you off the plan; nothing is charged either way.")
 
 
 def dm_authorise_ack(m: Member, a: Authorisation) -> str:
