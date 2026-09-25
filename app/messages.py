@@ -142,7 +142,7 @@ def dm_details_ack(m: Member) -> str:
 def dm_nudge_out(trip: Trip, m: Member, reason: str, per_head_if_in: int, hook: str | None, until: datetime) -> str:
     r = reason.lower()
     answer = ("With you in it's cheaper for everyone, you included" if any(w in r for w in ("expens", "cheap", "cost", "price", "budget", "₹"))
-              else "If it was the dates, tell me which ones and I'll check the fares" if "date" in r
+              else "If it was the dates, tell me which ones and I'll check the fares" if any(w in r for w in ("date", "leave", "off work", "exam"))
               else "If something in the plan put you off, say what and I'll see if it can change")
     return (f"{m.first}, the others are going. {answer}: your all-in would be {fmt_inr(per_head_if_in)} a head."
             + (f" {hook}" if hook else "") +
