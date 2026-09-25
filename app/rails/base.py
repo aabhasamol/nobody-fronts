@@ -7,28 +7,44 @@ Vocabulary is deliberately the competition's: voice / payments / logistics.
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from datetime import date
-from ..models import Member, Leg, Stay, VerificationRecord, Authorisation
+from datetime import date, datetime
+from ..models import Member, Leg, Stay, CallRecord, Authorisation
+
+
+class CaptureFailed(RuntimeError):
+    """A presentation against a blocked mandate did not go through (bank timeout, revoked, insufficient funds)."""
 
 
 class VoiceRail(ABC):
-    """Gnani. Outbound calls that return a structured answer."""
+    """Gnani. Outbound calls that come back as fields, not prose.
+
+    Voice has two jobs, both where no other channel works:
+      1. supplier calls to stays that exist only on the phone (availability, group rate, missing facts, a hold;
+         later, a late-arrival notice);
+      2. an escalation call to a member when a live disruption needs their choice within minutes and the text
+         went unanswered.
+    Members are never called to chase a reply, and listed stays are never called to check the listing.
+    """
 
     @abstractmethod
-    def verify_property(self, stay: Stay, language: str, questions: list[str]) -> VerificationRecord:
-        """Phone the property, ask the checklist, return disposition + answers + transcript."""
+    def call_supplier(self, stay: Stay, party_size: int, check_in: date, nights: int, language: str) -> CallRecord:
+        """Ask a phone-only stay: rooms for the party on these dates, rate per twin room per night, twin sharing,
+        refund terms, and a 48-hour hold. Disposition CONFIRMED / UNAVAILABLE / NO_ANSWER."""
 
     @abstractmethod
-    def ask_member_by_call(self, member: Member, questions: list[str]) -> dict[str, str]:
-        """For members who won't fill forms (parents): capture constraints by call."""
+    def notify_late_arrival(self, stay: Stay, member: Member, eta: datetime) -> CallRecord:
+        """Tell a phone-only stay that one guest now arrives late, so the room is not given away."""
+
+    @abstractmethod
+    def escalate_member(self, member: Member, question: str, options: list[str]) -> CallRecord:
+        """Call a member who has not answered a time-critical text. Returns the option they chose (1-based)."""
 
 
 class PaymentsRail(ABC):
-    """Pine Labs. Block-now, debit-at-quorum, release-otherwise.
+    """Pine Labs. Block-now, debit-at-booking, release-otherwise.
 
-    Today this is orchestrated over N single-payer UPI one-time mandates.
-    The ask to Pine Labs (see docs/rails.md) is to make `capture_all` atomic
-    at the order level so a 4-of-5 partial capture cannot happen.
+    Today this is orchestrated over N single-payer UPI one-time mandates. The ask to Pine Labs
+    (see docs/rails.md) is a group mandate: N mandates on one order, shared expiry, atomic capture.
     """
 
     @abstractmethod
@@ -37,11 +53,16 @@ class PaymentsRail(ABC):
 
     @abstractmethod
     def refresh(self, auth: Authorisation) -> Authorisation:
-        """Poll the rail for the mandate's current status (PENDING → BLOCKED)."""
+        """Poll the rail for the mandate's current status (PENDING → BLOCKED, or REVOKED / EXPIRED)."""
 
     @abstractmethod
     def capture(self, auth: Authorisation, amount: int) -> Authorisation:
-        """Execute the debit against a BLOCKED mandate. amount ≤ auth.amount."""
+        """Present `amount` against a blocked mandate. Cumulative presentations never exceed auth.amount.
+        Raises CaptureFailed if the bank declines."""
+
+    @abstractmethod
+    def refund(self, auth: Authorisation) -> Authorisation:
+        """Return everything captured on this mandate. Used when a later capture in the same group failed."""
 
     @abstractmethod
     def release(self, auth: Authorisation) -> Authorisation:
@@ -49,15 +70,15 @@ class PaymentsRail(ABC):
 
 
 class LogisticsRail(ABC):
-    """Intercity legs and stays. No parcels — Delhivery is not touched in this opening."""
+    """Intercity legs and stays. Not parcels: Delhivery's role here is distances, not deliveries."""
 
     @abstractmethod
     def search_legs(self, origin: str, destination: str, on: date) -> list[Leg]:
-        """Quote outbound (or return) options for one traveller, cheapest first."""
+        """Quote options for one traveller, one direction, cheapest first. Live: the price may differ by call."""
 
     @abstractmethod
     def search_stays(self, city: str, check_in: date, nights: int, must_haves: list[str]) -> list[Stay]:
-        """Quote stays for the group, cheapest first."""
+        """Quote stays for the group: listed ones at the listing rate, phone-only ones at whatever is known."""
 
     @abstractmethod
     def book_leg(self, leg: Leg, member: Member) -> Leg:
@@ -65,7 +86,7 @@ class LogisticsRail(ABC):
 
     @abstractmethod
     def book_stay(self, stay: Stay, members: list[Member]) -> Stay:
-        """Confirm the stay for everyone who committed."""
+        """Confirm the stay for everyone who is in. For a phone-only stay this converts the hold."""
 
     @abstractmethod
     def cancel_leg(self, leg: Leg) -> Leg:

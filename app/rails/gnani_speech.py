@@ -1,11 +1,10 @@
 """Gnani Speech APIs (Vachana) — text-to-speech and speech-to-text, with a hard call budget.
 
-This is the rail the `vach_…` key opens. It is NOT the Inya Agent Builder Platform API (outbound calls,
-`https://api.inya.ai/platform`, `x-api-key` with `agents` permission) that `gnani.py` targets. Two products,
-two keys:
+This is the whole of what Gnani's API gives us: `tts(text) → audio` and `stt(audio) → text`, on the
+`vach_…` key in `app/keys.py`. Gnani does not dial phones; `gnani.py` assembles a P0 call from these two
+verbs plus a telephony seam.
 
-    vach_… key  →  https://api.vachana.ai        STT (Prisma v2.5) and TTS (Timbre v2)      ← this file
-    agents key  →  https://api.inya.ai/platform   agent config + trigger_call + call stats   ← gnani.py
+    vach_… key  →  https://api.vachana.ai        STT (Prisma v2.5) and TTS (Timbre v2)
 
 Pricing (Gnani API dashboard, 16 Sep 2026): STT ₹27 per audio-hour, TTS ₹27 per 10,000 characters,
 rate limit 60 requests/minute. Cheap per call, but the account credit is finite, so every call goes through
@@ -17,7 +16,7 @@ Endpoints (docs.gnani.ai quick start):
 Auth header on both: X-API-Key-ID: <key>
 
 Environment:
-    GNANI_SPEECH_KEY         the vach_ key (never commit it; .env is git-ignored)
+    GNANI_SPEECH_KEY         overrides the committed key in app/keys.py
     GNANI_CALL_BUDGET=40     hard cap on billable calls for this checkout (counter kept in .gnani_budget.json)
 """
 from __future__ import annotations
@@ -26,6 +25,7 @@ import json
 import os
 from pathlib import Path
 import httpx
+from .. import keys
 
 TTS_URL = "https://api.vachana.ai/api/v1/tts/inference"
 STT_URL = "https://api.vachana.ai/stt/v3"
@@ -72,7 +72,7 @@ def estimate(kind: str, units: float) -> float:
 
 class GnaniSpeech:
     def __init__(self, key: str | None = None, budget: CallBudget | None = None):
-        self.key = key or os.environ["GNANI_SPEECH_KEY"]
+        self.key = key or os.environ.get("GNANI_SPEECH_KEY") or keys.GNANI_SPEECH_KEY
         self.budget = budget or CallBudget()
         self.http = httpx.Client(timeout=60, headers={"X-API-Key-ID": self.key})
         CACHE_DIR.mkdir(parents=True, exist_ok=True)

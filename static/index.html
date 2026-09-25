@@ -4,18 +4,21 @@
 <meta charset="utf-8">
 <title>Quorum — trip agent prototype</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <style>
   :root { --bg:#f3efe6; --panel:#fff; --ink:#222; --muted:#6b6b6b; --line:#ddd6c8; --red:#9b1c1c; --teal:#1f7a8c; --green:#2e7d32; --gold:#b8860b; }
   * { box-sizing:border-box; }
   body { margin:0; font:14px/1.45 -apple-system, "Segoe UI", Arial, sans-serif; color:var(--ink); background:var(--bg); }
-  header { display:flex; align-items:center; gap:16px; padding:10px 18px; background:var(--red); color:#fff; }
+  header { display:flex; align-items:center; gap:14px; padding:10px 18px; background:var(--red); color:#fff; flex-wrap:wrap; }
   header h1 { font-size:17px; margin:0; font-weight:700; }
   header .state { font-size:12px; background:rgba(255,255,255,.18); padding:3px 9px; border-radius:12px; }
   header .clock { margin-left:auto; font-size:12px; display:flex; gap:6px; align-items:center; }
   button { font:inherit; padding:5px 10px; border:1px solid var(--line); background:#fff; border-radius:6px; cursor:pointer; }
   button.primary { background:var(--red); color:#fff; border-color:var(--red); }
+  button.quiet { color:var(--muted); }
   button:disabled { opacity:.45; cursor:default; }
-  main { display:grid; grid-template-columns: 1.1fr 1fr 1fr; gap:12px; padding:12px 18px; height:calc(100vh - 48px); }
+  input, select { font:inherit; padding:4px 6px; border:1px solid var(--line); border-radius:6px; width:90px; }
+  main { display:grid; grid-template-columns: 1.1fr 1fr 1.1fr; gap:12px; padding:12px 18px; height:calc(100vh - 48px); }
   .panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; display:flex; flex-direction:column; min-height:0; }
   .panel h2 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0; padding:10px 14px; border-bottom:1px solid var(--line); }
   .scroll { overflow:auto; padding:12px 14px; flex:1; }
@@ -25,18 +28,20 @@
   .msg .who { font-size:11px; color:var(--muted); margin-bottom:2px; }
   .tabs { display:flex; gap:4px; padding:8px 10px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
   .tabs button.on { background:var(--ink); color:#fff; border-color:var(--ink); }
-  .actions { display:flex; gap:6px; padding:8px 10px; border-top:1px solid var(--line); flex-wrap:wrap; }
+  .actions { display:flex; gap:6px; padding:8px 10px; border-top:1px solid var(--line); flex-wrap:wrap; align-items:center; }
   .kv { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-size:13px; padding:10px 14px; border-bottom:1px solid var(--line); }
   .kv b { color:var(--muted); font-weight:600; }
   table { width:100%; border-collapse:collapse; font-size:12.5px; }
   th, td { text-align:left; padding:5px 6px; border-bottom:1px solid #eee7d9; vertical-align:top; }
   th { color:var(--muted); font-weight:600; }
   .pill { display:inline-block; padding:1px 7px; border-radius:10px; font-size:11px; border:1px solid var(--line); }
-  .PENDING { color:var(--gold); } .BLOCKED { color:var(--teal); } .CAPTURED { color:var(--green); } .RELEASED, .EXPIRED { color:var(--red); }
+  .PENDING { color:var(--gold); } .BLOCKED { color:var(--teal); } .CAPTURED { color:var(--green); } .RELEASED, .EXPIRED, .REVOKED, .REFUNDED { color:var(--red); }
   .rail { font-family: ui-monospace, Menlo, monospace; font-size:11.5px; padding:4px 0; border-bottom:1px dashed #eee7d9; }
   .rail .tag { display:inline-block; width:74px; font-weight:700; }
   .rail.payments .tag { color:var(--red); } .rail.voice .tag { color:var(--teal); } .rail.logistics .tag { color:#5b6b7a; }
-  .default { color:var(--green); font-weight:700; }
+  .current { color:var(--green); font-weight:700; }
+  .p0 { background:var(--teal); color:#fff; border-color:var(--teal); margin-right:6px; }
+  .h3 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:12px 0 4px; }
   small { color:var(--muted); }
 </style>
 </head>
@@ -44,10 +49,11 @@
 <header>
   <h1>Quorum</h1>
   <span class="state" id="state">no trip yet</span>
-  <span id="subtitle" style="font-size:12px;opacity:.85">the organiser never fronts money, never chases</span>
+  <span style="font-size:12px;opacity:.85">the organiser never fronts money, never chases</span>
   <div class="clock">
     <span id="now">—</span>
-    <button onclick="advance(6)">+6h</button>
+    <button onclick="advance(0.5)">+30 min</button>
+    <button onclick="advance(12)">+12h</button>
     <button onclick="advance(24)">+24h</button>
     <button onclick="advance(48)">+48h</button>
   </div>
@@ -57,24 +63,30 @@
     <h2>Group chat · <span id="gname">—</span></h2>
     <div class="scroll" id="group"></div>
     <div class="actions" id="groupActions">
+      <select id="scenario"><option value="wedding">wedding · Assagao</option><option value="leisure">leisure</option></select>
+      <label><small>₹/head</small> <input id="budget" type="number" value="20000" step="500"></label>
+      <label><small>over %</small> <input id="overshoot" type="number" value="10" step="5" style="width:60px"></label>
       <button class="primary" onclick="trigger()">Organiser adds Quorum to the group</button>
     </div>
   </section>
 
   <section class="panel">
-    <h2>Private DMs</h2>
+    <h2>Private DMs · what each member sees, and only they see</h2>
     <div class="tabs" id="tabs"></div>
     <div class="scroll" id="dm"></div>
     <div class="actions" id="dmActions"></div>
   </section>
 
   <section class="panel">
-    <h2>Rails</h2>
+    <h2>Rails · what the agent knows</h2>
     <div class="kv" id="kv"></div>
     <div class="scroll">
-      <div id="bundles"></div>
-      <div id="auths" style="margin-top:10px"></div>
-      <div id="rails" style="margin-top:10px"></div>
+      <div id="plans"></div>
+      <div id="votes"></div>
+      <div id="auths"></div>
+      <div id="knobs"></div>
+      <div class="h3">Rail log</div>
+      <div id="rails"></div>
     </div>
   </section>
 </main>
@@ -83,73 +95,117 @@
 let trip = null, current = null;
 const $ = id => document.getElementById(id);
 const inr = n => '₹' + Number(n).toLocaleString('en-IN');
-const first = n => n.split(' ')[0];
 const fmt = iso => new Date(iso).toLocaleString('en-IN', {weekday:'short', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit'});
+const member = id => trip.members.find(m => m.id === id);
+const first = m => m.name.split(' ')[0];
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
 async function api(path, method='GET', body) {
   const r = await fetch(path, {method, headers:{'Content-Type':'application/json'}, body: body ? JSON.stringify(body) : undefined});
   if (!r.ok) { alert((await r.json()).detail || r.statusText); throw new Error(r.statusText); }
   return r.json();
 }
-async function trigger() { trip = await api('/trips', 'POST', {}); current = trip.members[0].id; render(); }
+async function act(path, body) { trip = await api(path, 'POST', body); render(); }
+async function trigger() {
+  trip = await api('/trips', 'POST', {scenario: $('scenario').value, budget: +$('budget').value, overshoot: +$('overshoot').value / 100});
+  current = trip.members[0].id; render();
+}
 async function reload() { if (trip) { trip = await api('/trips/' + trip.id); render(); } }
 async function advance(h) { await api('/clock/advance', 'POST', {hours:h}); await reload(); if (!trip) $('now').textContent = fmt((await api('/clock')).now); }
+async function knob(path, body) { await api(path, 'POST', body); await reload(); }
 
-// canned replies, one per member, so the demo is one click per person
-const canned = {
-  'Sayan':  {available:true,  budget_ceiling:20000, must_haves:['no hostels'], text:'Yes to dates. ₹20k is my ceiling. No hostels please.'},
-  'Aabhas': {available:true,  budget_ceiling:22000, must_haves:[], text:'In. ₹22k. Anything with a beach.'},
-  'Aditi':  {available:true,  budget_ceiling:18000, must_haves:['no hostels'], text:'Yes. ₹18k max, and not a hostel.'},
-  'Riya':   {available:true,  budget_ceiling:20000, must_haves:[], text:'Dates work. ₹20k. Nothing fancy.'},
-  'Karan':  {available:true,  budget_ceiling:15000, must_haves:[], text:'ok. 15k.'},
-};
-async function reply(mid) { const m = trip.members.find(x=>x.id===mid); trip = await api(`/trips/${trip.id}/members/${mid}/capture`, 'POST', canned[first(m.name)]); render(); }
-async function approve(mid) { trip = await api(`/trips/${trip.id}/members/${mid}/approve`, 'POST'); render(); }
-async function switchDefault(bid) { trip = await api(`/trips/${trip.id}/switch-default`, 'POST', {bundle_id: bid}); render(); }
-async function rerun(bid) { trip = await api(`/trips/${trip.id}/rerun`, 'POST', {bundle_id: bid}); render(); }
-async function closeTrip() { trip = await api(`/trips/${trip.id}/close`, 'POST'); render(); }
-async function disrupt(legId) { trip = await api(`/trips/${trip.id}/disrupt/${legId}`, 'POST'); render(); }
+const m = (path, body) => act(`/trips/${trip.id}/members/${current}/${path}`, body);
+const t = (path, body) => act(`/trips/${trip.id}/${path}`, body);
 
 function msgHtml(e) {
   const cls = e.actor === 'agent' ? 'agent' : (e.actor === 'system' ? 'system' : '');
-  const who = cls === 'system' ? '' : `<div class="who">${e.actor} · ${fmt(e.at)}</div>`;
-  return `<div class="msg ${cls}">${who}${e.text}</div>`;
+  const who = cls === 'system' ? '' : `<div class="who">${esc(e.actor)} · ${fmt(e.at)}</div>`;
+  return `<div class="msg ${cls}">${who}${esc(e.text)}</div>`;
 }
+const btn = (label, onclick, cls='') => `<button class="${cls}" onclick="${onclick}">${label}</button>`;
 
 function render() {
   if (!trip) return;
-  $('state').textContent = trip.state;
+  const plan = trip.plans[trip.plans.length - 1];
+  const org = member(trip.organiser_id);
+  $('state').textContent = trip.state + (trip.awaiting_organiser ? ' · waiting on ' + first(org) : '');
   $('now').textContent = fmt(trip.now);
   $('gname').textContent = trip.name;
-  // group
+
+  // ---- group chat: kickoff, tally, booking, disruptions. Nothing else.
   $('group').innerHTML = trip.events.filter(e => e.channel === 'group' || e.channel === 'system').map(msgHtml).join('');
   $('group').scrollTop = 1e9;
-  const ga = $('groupActions'); ga.innerHTML = '';
-  if (trip.state === 'POSTED') trip.bundles.filter(b=>!b.is_default).forEach(b => ga.innerHTML += `<button onclick="switchDefault('${b.id}')">Group says: make ${b.label} the default</button>`);
-  if (trip.state === 'LAPSED') { trip.bundles.forEach(b => ga.innerHTML += `<button onclick="rerun('${b.id}')">Re-run with ${b.label}</button>`); ga.innerHTML += `<button onclick="closeTrip()">Close trip</button>`; }
-  if (trip.state === 'BOOKED') {
-    const b = trip.bundles.find(x=>x.id===trip.default_bundle_id);
-    const leg = b.legs.find(l => l.status === 'BOOKED');
-    if (leg) ga.innerHTML += `<button onclick="disrupt('${leg.id}')">Simulate: carrier cancels ${first(trip.members.find(m=>m.id===leg.member_id).name)}'s ${leg.origin}→${leg.destination}</button>`;
+  const ga = []; 
+  if (trip.awaiting_organiser === 'no_fit') {
+    ga.push(btn(`${first(org)}: raise budget to ${inr(trip.budget + 2000)}`, `t('organiser/adjust', {budget: ${trip.budget + 2000}})`, 'primary'));
+    ga.push(btn(`${first(org)}: allow 20% over`, `t('organiser/adjust', {overshoot: 0.2})`));
   }
-  // DMs
-  $('tabs').innerHTML = trip.members.map(m => `<button class="${m.id===current?'on':''}" onclick="current='${m.id}';render()">${first(m.name)}${m.id===trip.organiser_id?' ★':''}</button>`).join('');
+  if (trip.awaiting_organiser === 'vote_failed') {
+    ga.push(btn(`${first(org)}: go with the yes-voters`, `t('organiser/decide', {go: true})`, 'primary'));
+    ga.push(btn(`${first(org)}: close the trip`, `t('organiser/decide', {go: false})`));
+  }
+  if (trip.state === 'LAPSED') {
+    if (trip.in_members.length) ga.push(btn('Re-run the authorisation', `t('rerun')`, 'primary'));
+    ga.push(btn('Close trip', `t('close')`));
+  }
+  if (trip.state === 'BOOKED' && plan) {
+    plan.legs.filter(l => l.status === 'BOOKED' && l.destination === trip.destination).forEach(l =>
+      ga.push(btn(`Carrier cancels ${first(member(l.member_id))}'s ${l.origin}→${l.destination}`, `t('disrupt/${l.id}')`)));
+  }
+  ga.push(btn('New trip', 'location.reload()', 'quiet'));
+  $('groupActions').innerHTML = (ga.length > 1 ? '' : '<small>the group hears from the agent only at kickoff, the tally, the booking and a disruption &nbsp;</small>') + ga.join('');
+
+  // ---- DMs
+  $('tabs').innerHTML = trip.members.map(x => `<button class="${x.id===current?'on':''}" onclick="current='${x.id}';render()">${first(x)}${x.id===trip.organiser_id?' ★':''}${trip.in_members.includes(x.id)?' ✓':''}</button>`).join('');
   $('dm').innerHTML = trip.events.filter(e => e.channel === 'dm:' + current).map(msgHtml).join('') || '<small>nothing yet</small>';
   $('dm').scrollTop = 1e9;
-  const m = trip.members.find(x=>x.id===current); const da = $('dmActions'); da.innerHTML = '';
-  if (trip.state === 'CAPTURING' && !trip.constraints[current]) da.innerHTML += `<button class="primary" onclick="reply('${current}')">${first(m.name)} replies with constraints</button>`;
-  if (trip.state === 'POSTED') { const a = trip.authorisations[current]; if (a && a.status === 'PENDING') da.innerHTML += `<button class="primary" onclick="approve('${current}')">${first(m.name)} approves UPI block (${inr(a.amount)})</button>`; }
-  // rails panel
-  const org = trip.members.find(x=>x.id===trip.organiser_id);
-  $('kv').innerHTML = `<b>Organiser</b><span>${org.name} (never pays for anyone)</span>
-    <b>Quorum</b><span>${trip.blocked_count} blocked of ${trip.quorum} needed, ${trip.members.length} members</span>
-    <b>Deadline</b><span>${trip.deadline ? fmt(trip.deadline) : (trip.capture_deadline ? 'replies by ' + fmt(trip.capture_deadline) : '—')}</span>`;
-  $('bundles').innerHTML = trip.bundles.length ? `<table><tr><th>Bundle</th><th>Stay</th><th>Verified</th>${trip.members.map(x=>'<th>'+first(x.name)+'</th>').join('')}</tr>` +
-    trip.bundles.map(b => `<tr><td class="${b.is_default?'default':''}">${b.label}${b.is_default?' ·default':''}</td><td>${b.stay.name}<br><small>${b.stay.nights} nights · ${b.stay.booking_ref||''}</small></td><td>${b.stay.verification ? b.stay.verification.disposition : '—'}</td>${trip.members.map(x=>'<td>'+inr(trip.per_head[b.id][x.id])+'</td>').join('')}</tr>`).join('') + '</table>' : '<small>no bundles yet</small>';
-  const auths = Object.values(trip.authorisations);
-  $('auths').innerHTML = auths.length ? `<table><tr><th>Member</th><th>Share</th><th>Mandate</th><th>Status</th></tr>` +
-    auths.map(a => `<tr><td>${first(trip.members.find(x=>x.id===a.member_id).name)}</td><td>${inr(a.amount)}</td><td><small>${a.rail_ref}</small></td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('') + '</table>' : '';
-  $('rails').innerHTML = trip.events.filter(e => e.channel.startsWith('rail:')).map(e => `<div class="rail ${e.actor}"><span class="tag">${e.actor}</span>${e.text}</div>`).join('');
+  const me = member(current), da = [];
+  const auth = trip.authorisations[current], top = trip.top_ups[current], pend = trip.pending[current];
+  if (trip.state === 'GATHERING' && !trip.constraints[current]) da.push(btn(`${first(me)} replies: start city, return city, must-haves`, `m('gather', {canned: true})`, 'primary'));
+  if (trip.state === 'VOTING' && plan.travellers.includes(current) && !trip.votes[current]) {
+    da.push(btn('Yes', `m('vote', {yes: true})`, 'primary'));
+    da.push(btn('No — too expensive', `m('vote', {yes: false, reason: 'Too expensive for me. Cheaper?'})`));
+    da.push(btn('No — other reason', `m('vote', {yes: false, reason: 'Those dates do not work for me.'})`));
+  }
+  if (trip.state === 'AUTHORISING' && auth && auth.status === 'PENDING') da.push(btn(`Approve UPI block ${inr(auth.amount)}`, `m('approve')`, 'primary'));
+  if (trip.state === 'AUTHORISING' && auth && auth.status === 'BLOCKED') da.push(btn('Revoke in UPI app', `m('revoke')`, 'quiet'));
+  if (top && top.status === 'PENDING') da.push(btn(`Approve top-up ${inr(top.amount)}`, `m('approve')`, 'primary'));
+  if (pend && pend.kind === 'REBOOK' && pend.choice == null) pend.options.forEach((o, i) => da.push(btn(`Option ${i+1}: ${o.carrier} ${o.depart.slice(11,16)} ${inr(o.price)}`, `m('choose', {option: ${i+1}})`)));
+  if (trip.state === 'BOOKED' && plan.travellers.includes(current)) da.push(btn(`${first(me)} drops out`, `m('exit')`, 'quiet'));
+  $('dmActions').innerHTML = da.join('') || `<small>${first(me)} has nothing to do right now</small>`;
+
+  // ---- rails
+  const deadline = trip.state === 'GATHERING' ? trip.gather_deadline : trip.state === 'VOTING' ? trip.vote_deadline : trip.state === 'AUTHORISING' ? trip.auth_deadline : null;
+  $('kv').innerHTML = `<b>Organiser</b><span>${esc(org.name)} — never pays for anyone</span>
+    <b>Occasion</b><span>${trip.occasion} · ${trip.destination}${trip.venue ? ' · venue ' + trip.venue : ''} · ${trip.start} → ${trip.end}</span>
+    <b>Budget</b><span>${inr(trip.budget)} a head all-in, +${Math.round(trip.overshoot*100)}% allowed → limit ${inr(trip.limit)}; each yes-voter authorises share × ${(1+trip.overshoot).toFixed(2)}</span>
+    <b>Deadline</b><span>${deadline ? fmt(deadline) : '—'}</span>
+    <b>In</b><span>${trip.in_members.length ? trip.in_members.map(id => first(member(id))).join(', ') : '—'} · ${trip.blocked_count} blocked · majority ${trip.majority} of ${trip.members.length}</span>
+    <b>Calls</b><span>${trip.events.filter(e => e.priority === 'P0').length} placed — P0 only: a phone-only stay, a late arrival there, or a member who didn't answer a disruption text</span>`;
+
+  $('plans').innerHTML = trip.plans.length ? `<div class="h3">Plans</div><table><tr><th>v</th><th>Stay</th>${trip.members.map(x=>'<th>'+first(x)+'</th>').join('')}</tr>` +
+    trip.plans.map(p => `<tr><td class="${p===plan?'current':''}">v${p.version}${p.note ? '<br><small>'+esc(p.note)+'</small>' : ''}</td><td>${p.stays.map(s => `${esc(s.name)}<br><small>${s.nights}n · ${inr(s.rate_per_room_night)}/room${s.phone_only ? ' · phone-only' + (s.hold_until ? ', held till ' + fmt(s.hold_until) : '') : ' · listed'}${s.booking_ref ? ' · ' + s.booking_ref : ''}</small>`).join('<br>')}</td>${trip.members.map(x => '<td>' + (trip.per_head[p.id][x.id] != null ? inr(trip.per_head[p.id][x.id]) : '—') + '</td>').join('')}</tr>`).join('') + '</table>' : '';
+
+  if (plan && (trip.state === 'VOTING' || Object.keys(trip.votes).length)) {
+    const v = Object.values(trip.votes), yes = v.filter(x=>x.yes).length, no = v.length - yes;
+    const pending = trip.state === 'VOTING' ? plan.travellers.length - v.length : 0;
+    $('votes').innerHTML = `<div class="h3">Vote on v${plan.version} (private; the group sees only the tally)</div>${yes} yes · ${no} no${pending ? ` · ${pending} not yet` : ''}` +
+      (no ? `<br><small>reasons for no: ${v.filter(x=>!x.yes).map(x=>esc(x.reason)||'—').join(' / ')}</small>` : '');
+  } else $('votes').innerHTML = '';
+
+  const auths = [...Object.values(trip.authorisations), ...Object.values(trip.top_ups)];
+  $('auths').innerHTML = auths.length ? `<div class="h3">UPI one-time mandates</div><table><tr><th>Member</th><th>Cap</th><th>Debited</th><th>Mandate</th><th>Status</th></tr>` +
+    auths.map(a => `<tr><td>${first(member(a.member_id))}${a.purpose==='TOP_UP'?' <small>top-up</small>':''}</td><td>${inr(a.amount)}</td><td>${a.captured_amount ? inr(a.captured_amount) : '—'}</td><td><small>${a.rail_ref}</small></td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('') + '</table>' : '';
+
+  const riya = trip.members.find(x => first(x) === 'Riya') || trip.members[3];
+  const failing = trip.knobs.fail_capture_for.includes(riya.id), drift = trip.knobs.drift.Delhi || 1;
+  const next = drift < 1.02 ? 1.04 : drift < 1.5 ? 1.6 : 1.0;          // ×1.00 → ×1.04 → ×1.60 → ×1.00
+  const nextLabel = {1.04: '×1.04 (moves inside the cap)', 1.6: '×1.60 (spikes past the cap)', 1: 'back to ×1.00'}[next];
+  $('knobs').innerHTML = `<div class="h3">Demo knobs (the world, not the agent)</div>
+    ${btn(`Fares from Delhi: ×${drift.toFixed(2)} → ${nextLabel}`, `knob('/rails/drift', {city: 'Delhi', multiplier: ${next}})`)}
+    ${btn(failing ? `${first(riya)}'s debit will bounce — undo` : `Make ${first(riya)}'s debit bounce at booking`, `knob('/rails/fail-capture', {member_id: '${riya.id}', fail: ${!failing}})`, failing ? 'primary' : '')}`;
+
+  $('rails').innerHTML = trip.events.filter(e => e.channel.startsWith('rail:')).map(e => `<div class="rail ${e.actor}"><span class="tag">${e.actor}</span>${e.priority === 'P0' ? '<span class="pill p0">P0 · call</span>' : ''}${esc(e.text)}</div>`).join('');
 }
 api('/clock').then(c => $('now').textContent = fmt(c.now));
 </script>

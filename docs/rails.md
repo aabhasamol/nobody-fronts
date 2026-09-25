@@ -22,17 +22,20 @@ That is the IPO block-and-debit primitive, opened to merchants, one payer at a t
 
 ### How the prototype uses it
 
-`app/rails/pinelabs.py` maps our three verbs straight onto that flow:
+`app/rails/pinelabs.py` maps our verbs straight onto that flow:
 
 | Quorum verb | Pine Labs call | Notes |
 |---|---|---|
-| `create_block(member, amount, validity_days)` | customer → OT subscription (`amount` = share + 10 % headroom, in paisa) → CREATE_MANDATE payment | One mandate **per member**, referenced to our bundle id in `merchant_metadata` |
-| `refresh(auth)` | `GET /subscriptions/ot/{id}` | `ACTIVE` ⇒ member approved ⇒ our status `BLOCKED` |
-| `capture(auth, share)` | `POST /presentations` for the share only | Headroom stays on the mandate for re-booking |
+| `create_block(member, amount, validity_days)` | customer → OT subscription (`amount` = share × (1 + overshoot), in paisa) → CREATE_MANDATE payment | One mandate **per yes-voter**, referenced to our plan id in `merchant_metadata`. Only people who voted yes get one |
+| `refresh(auth)` | `GET /subscriptions/ot/{id}` | `ACTIVE` ⇒ member approved ⇒ `BLOCKED`; `REVOKED` ⇒ treated as a dropout |
+| `capture(auth, amount)` | `POST /presentations` — the share at booking; later, a re-booking difference inside the headroom | Cumulative, never above the cap. **[verify]** a second presentation on one OT mandate |
+| `refund(auth)` | `POST /refunds/{order_id}` **[verify path]** | Used when a later member's presentation fails and the successful ones must be returned |
 | `release(auth)` | (no cancel documented) | We record `RELEASED`; the mandate expires on its own |
 
-The 10 % headroom is a product decision the OTM design allows: block more than you intend to debit.
-It is what lets the agent re-book a cancelled 6 am flight without going back to the group.
+The overshoot the organiser sets is the mandate headroom: one number governs both the plan ("nothing above
+budget × (1 + overshoot) a head") and the money ("block share × (1 + overshoot), debit the share"). It is what
+lets the agent absorb a fare that moved since the vote, or re-book a cancelled flight, without going back to
+the group. Anything beyond it is a **top-up mandate** asked of that member alone (`Engine._ask_top_up`).
 
 ### The ask
 
@@ -48,86 +51,116 @@ holds one mandate. Let it hold five, with a rule.
 
 ### The wall — what breaks today
 
-`Engine.book` loops `capture()` once per member. In production a presentation can fail (bank timeout,
-insufficient funds after a parallel debit, mandate revoked in-app). If the fourth of five fails, three
-people have paid for a trip that cannot be booked at the quoted group rate, and the merchant is now running
-a refund workflow with three counterparties. Nothing in the documented API lets us express "all or nothing"
-across mandates. We can approximate it with careful ordering and compensating refunds; we cannot make it
-atomic. That is the sentence we would put in front of Pine Labs.
+`Engine._capture_all` loops `capture()` once per member who is in. In production a presentation can fail
+(bank timeout, insufficient funds after a parallel debit, mandate revoked in-app). If the fourth of four
+fails, three people have paid for a trip that cannot be booked at the quoted group rate. The engine does the
+only thing it can: refund the three, release the rest, tell the group, and offer a re-run. `python demo.py`
+shows it (the third transcript). That is a compensating rollback with three counterparties and three
+refund timelines, not atomicity. Nothing in the documented API lets us express "all or nothing" across
+mandates. That is the sentence we would put in front of Pine Labs.
 
 Two smaller walls to confirm in the sandbox:
 
 * whether OTM validity can be as short as the 48-hour decision window (docs mention "approved validity window");
 * whether there is a merchant-initiated cancel for an `ACTIVE` OT subscription, or only expiry.
 
-## 2. Voice — Gnani / Inya (verification)
+## 2. Voice — Gnani / Inya (two jobs)
+
+### Where we call, and where we don't
+
+One test, applied to every place a call was tempting: **call only when the other side cannot be reached by
+an API or a message in time, and the answer changes what the agent does next.** Members' constraints,
+reminders before a deadline, facts about a listed hotel, flight status: all fail the test (WhatsApp or an API
+already does it, and calling friends to chase them is the chasing the product removes). Two things pass:
+
+1. **Supplier calls.** A homestay, a small guesthouse, a wedding's room block: no online inventory, phone
+   only. Before the vote: rooms for the party, the group rate, refund terms, and a 48-hour hold. On the
+   travel day: a late-arrival notice so the room does not go to a walk-in at 2 am.
+2. **Escalation.** A member's flight is cancelled and every alternative costs more than they authorised.
+   Text first, with the options. If there is no reply in 20 minutes, call, read the options, take the choice.
+
+`VoiceRail` has exactly those methods (`call_supplier`, `notify_late_arrival`, `escalate_member`) and the
+engine calls them in exactly those places (`Engine._supplier_call`, `_rebook`, `_escalate`).
 
 ### What exists today
 
-The Inya Agent Builder Platform API (`https://api.inya.ai/platform`, header `x-api-key`) lets us
-configure an agent (system prompt with Jinja variables, disposition prompt, language), place an
-**outbound call** to a whitelisted number with `POST /v1/agents/{botId}/trigger_call`, and read the outcome
-from `GET /v1/conversations/{id}/stats` (call status, disposition, transcript) or a post-call webhook.
-Pre-call / dynamic-variable APIs let the agent fetch per-call context from our server.
+Gnani's API is two verbs. The **Speech APIs** (brand: Vachana; key prefix `vach_`): **text-to-speech**
+(Timbre v2, `POST /api/v1/tts/inference`, Hindi and Indian-English voices) and **speech-to-text** (Prisma
+v2.5, `POST /stt/v3`, `language_code` per request), over REST, with WebSocket variants for streaming.
+Pricing: ₹27 per audio-hour transcribed, ₹27 per 10,000 characters synthesised, 60 requests a minute. It does
+not dial phones, run a conversation, or extract fields. We hold this key (`app/keys.py`).
 
-### Two keys, one rail
+### One key, two verbs, and a phone line that is not Gnani's
 
-Gnani sells two things. The **Speech APIs** (brand: Vachana; key prefix `vach_`) are STT and TTS over
-REST/WebSocket — ₹27 per audio-hour, ₹27 per 10,000 characters, 60 requests a minute. The **Inya Agent
-Builder** is the platform that places calls and runs the conversation; its API key carries an `agents`
-permission and is issued separately. The competition credits we hold are for the first. So the prototype
-keeps both paths:
+A P0 call is assembled in `app/rails/gnani.py`:
 
-* `app/rails/gnani_speech.py` — runs today with our key. `scripts/speech_demo.py` synthesises the verifier's
-  four Hindi questions (439 characters ≈ ₹1.19, cached forever after) and transcribes a recorded "hotel" reply
-  (a two-minute answer ≈ ₹0.90). That proves the rail is real and the questions are answerable, for ₹2.
-* `app/rails/gnani.py` — the full outbound loop, for when an agents-scoped key and a whitelisted number arrive.
-  Until then it is documented, not demonstrated.
+    telephony dials → play the TTS of each line the agent says → record the other side → STT
+    → read the fields out of the words
 
-A third path exists if the agents key never comes: Gnani publishes Pipecat and LiveKit plugins for the
-Speech APIs, so a self-hosted voice agent (Pipecat + a Twilio number) could run the same script. That is a
-week of work, not a day; it is the fallback, not the plan.
+* **Speak.** Each line the agent says is synthesised once and cached by content (`gnani_speech.py`). The
+  supplier script is four Hindi questions (419 characters ≈ ₹1.13 the first time, ₹0 after); the late-arrival
+  notice is one line; the escalation script is English with the options read out.
+* **Listen.** Each reply is transcribed (`language_code` hi-IN for suppliers, en-IN for members). A
+  one-minute answer ≈ ₹0.45.
+* **Read.** Rules in `gnani.py` turn words into the fields the engine acts on: yes/no with the last verdict
+  winning ("haan… matlab nahi" is a no, "koi dikkat nahi" is a yes), rupee amounts from digits and
+  hazaar/sau, refund terms as the sentence that mentions a refund, a 48-hour hold unless refused, and
+  option one/two/ek/do/pehla/doosra for an escalation. Number-words ("teen hazaar") defeat them today.
+* **The phone line** is a separate seam, `Telephony` (dial → play → listen → hang up), because it is a
+  different vendor: Exotel or Twilio, a day of work. The default `FileTelephony` writes the agent's audio to
+  `cache/calls/<ref>/` and takes the reply from recordings in `cache/replies/<callee>/` (one per question, or
+  one for the whole call; a `.txt` is a typed reply). No recordings ⇒ the call is honestly NO_ANSWER.
 
-### How the prototype uses it
+That is how the demo runs the real Gnani loop for about ₹2 without a carrier: a teammate records the homestay
+owner's answers on a phone, drops the files in, `python scripts/speech_demo.py --call …` prints Gnani's
+transcript and the fields, and `QUORUM_VOICE=gnani python demo.py` runs the whole product on it. Every
+billable call goes through `CallBudget` (40 per checkout) because the key is committed.
 
-`app/rails/gnani.py`:
+### How the engine uses it
 
-1. `setup_agent()` pushes the verifier prompt once (four questions: room as pictured, road motorable, refund
-   terms, twin-sharing) and a disposition prompt that classifies `VERIFIED / MISMATCH / NO_ANSWER`.
-2. `verify_property(stay)` registers the hotel's listing claim and party size under a `clientReferenceId`,
-   triggers the call, polls the conversation logs for that reference, reads stats, and returns a
-   `VerificationRecord` the engine acts on: `MISMATCH` ⇒ drop the property and call the next one.
-3. `app/main.py` serves `GET /gnani/precall?ref=…` so the agent's pre-call hook can pull the variables.
-
-For the sandbox demo the "hotel" is a teammate's whitelisted phone answering as the property. That is
-honest: the point is the structured outcome, not the phone network.
+Only through `Engine._call`, which takes one of three `P0_CALLS` reasons and refuses anything else:
+`SUPPLIER_AVAILABILITY` (retry once on no answer; UNAVAILABLE ⇒ next stay and never call this one again;
+CONFIRMED ⇒ the rate from the call replaces the listing and the hold is recorded), `LATE_ARRIVAL`, and
+`DISRUPTION_UNANSWERED` (the choice comes back as a number; the engine then asks that member alone for a
+top-up mandate). Every call is a P0 event in the transcript; nothing else is.
 
 ### The ask
 
-Merchant-defined structured extraction. The agent can be prompted to collect four answers, but we get them
-back inside a transcript or a free-text disposition. We want a schema on the agent — `{room_as_pictured:
-bool, road_motorable: bool, refund_terms: string, twin_sharing: bool}` — filled by the platform and returned
-as fields, so the engine never parses prose. Close to what Gnani's "actions and variables" already do for
-CRM pushes; we want it on the read path.
+1. **Normalised entities in the transcript.** Amounts, dates, times, yes/no, ordinal choices, returned as
+   values alongside the words — so "teen hazaar do sau" arrives as 3200 and "haan… matlab nahi" as a no —
+   instead of the rules we maintain in `gnani.py`. This is the structured-extraction ask, sized to the API
+   Gnani actually sells.
+2. **Streaming, duplex STT/TTS** on the WebSocket endpoints, so a live call does not wait for whole clips
+   and the agent can be interrupted.
+3. **Code-switch robustness** for Konkani/Hindi/English in one sentence, and a per-request hint that the
+   speaker is a small-business owner quoting prices.
 
 ### The wall
 
-Whitelisting. Outbound calls only reach registered numbers, so the prototype cannot cold-call a real hotel
-in the sandbox. Fine for Round 2; it is the production question to raise with Gnani (consent and DND rules
-for B2B verification calls to businesses).
+Gnani gives us the voice, not the phone line. Placing the call, and the consent and DND rules for calls to
+businesses and transactional calls to members, sit with the carrier and with us. That is fine for Round 2 —
+the demo is honest about it — and it is the production question to raise: a hold agreed on a call is only as
+good as the recording and the transcript we keep of it.
 
-## 3. Logistics — Delhivery (no role, and why)
+## 3. Logistics — Delhivery (distances, not parcels)
 
 Delhivery moves parcels. Nothing in this opening is a parcel: the "logistics" of a group trip is seat
-inventory and re-booking on cancellation, which the agent treats as execution. The `LogisticsRail`
-interface exists so a fare API (or an OTA's B2B feed) can be dropped in later; `MockLogistics` fills it for
-now. We would rather say "not touched" than invent a luggage-forwarding feature to tick a box.
+inventory and re-booking on cancellation, which the agent treats as execution behind `LogisticsRail`
+(`MockLogistics` fills it until a fare API or an OTA's B2B feed is dropped in).
+
+What Delhivery does have that the plan needs is **Maps**: geocoding and distances. The occasion decides how
+stays are ranked — a wedding or an offsite ranks by distance to the venue, a pilgrimage by walking distance,
+and the arrival buffer from airport to stay has to be real for "arrive before the first function" to mean
+anything. `Stay.km_to_venue` carries that number; today it is hand-written. That is the one integration we
+would ask for. Last-mile road accessibility (can a cab reach this homestay?) is today a question on the
+supplier call. Wedding logistics — outfits or gifts shipped to the venue — is a natural parcel use we are
+*not* claiming for Round 2.
 
 ## 4. Where value moves (for the strategy write-up)
 
 * **Drains from:** the OTA checkout. MakeMyTrip's funnel monetises one card, one click, and the indecision
-  before it (fare locks, price alerts, pay-later). A 48-hour default-and-clock with five payers is a
-  different funnel.
+  before it (fare locks, price alerts, pay-later). A private vote and five separate mandates on one plan is
+  a different funnel.
 * **Drains from:** the organiser's credit-card float and the reward points that came with fronting
   ₹80,000. Interviews should test whether some organisers *like* fronting for that reason; it is the
   adoption cost of "nobody fronts".

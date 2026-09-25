@@ -13,8 +13,8 @@ def build_rails() -> tuple[VoiceRail, PaymentsRail, LogisticsRail]:
     payments: PaymentsRail = MockPayments()
     logistics: LogisticsRail = MockLogistics()
     if os.environ.get("QUORUM_VOICE") == "gnani":
-        from .gnani import GnaniVoice
-        voice = GnaniVoice()
+        from .gnani import GnaniSpeechVoice           # real TTS/STT; replies from cache/replies/<callee>/
+        voice = GnaniSpeechVoice()
     if os.environ.get("QUORUM_PAYMENTS") == "pinelabs":
         from .pinelabs import PineLabsPayments
         payments = PineLabsPayments()
