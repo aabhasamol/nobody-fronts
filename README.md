@@ -6,8 +6,10 @@
 Round 1 said what the agent does. This repository is the agent, assembled: the flow as a state machine,
 three rail interfaces (voice / payments / logistics), a mock implementation of each so the whole thing runs
 offline, and real adapters for **Gnani** (text-to-speech and speech-to-text, the two verbs a P0 call is built
-from) and **Pine Labs Online** (UPI One-Time Mandates — block now, debit at booking, release otherwise). The eight Round-2 answers are in `docs/round2-answers.md`;
-this code is what they describe.
+from) and **Pine Labs Online** (UPI One-Time Mandates — block now, debit at booking, release otherwise). The eight Round-2 answers as submitted are in
+`docs/round2-final.md` (source: `docs/Quorum_Round_2_Final.docx`); `docs/round2-answers.md` is the working
+draft this code was built from. The final state flow is `docs/quorum-flow-final.webp`, with an interactive
+walk-through in `docs/quorum-trip-flow.html`.
 
 ## The flow, in one line
 
@@ -176,7 +178,9 @@ scripts/speech_demo.py  cost dry-run · TTS the questions · STT a reply · or t
 static/index.html  demo UI
 demo.py            three terminal transcripts (docs/demo_transcript.txt is its output)
 tests/             the loop and every unhappy turn against the mocks; the voice rail's parsers and file loop
-docs/round2-answers.md  the eight Round-2 answers this code implements
+docs/round2-final.md    the eight Round-2 answers as submitted (Quorum_Round_2_Final.docx)
+docs/round2-answers.md  the working draft this code implements
+docs/quorum-flow-final.webp, docs/quorum-trip-flow.html  the final state flow: diagram and interactive walk-through
 docs/rails.md      what exists, what we ask, where it breaks
 HANDOFF.md         next tasks, in priority order, for whoever builds next
 ```

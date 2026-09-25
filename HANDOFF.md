@@ -2,6 +2,11 @@
 
 Read `README.md`, then `docs/round2-answers.md`, then `app/engine.py`, then `docs/rails.md`. Then this.
 
+The submitted answers (`docs/round2-final.md`) and the final flow (`docs/quorum-flow-final.webp`,
+`docs/quorum-trip-flow.html`) are ahead of this code in places: each payer is checked against their own
+ceiling (the engine still uses the lowest ceiling among the yes-voters), a phone-only hold is asked for at
+least 96 h (the engine defaults to 48 h), and each payer's cap is heads × their own ceiling.
+
 ## The one thing to protect
 
 The product is the loop in `Engine`: budget + overshoot → private gathering → one itinerary that fits →
