@@ -1,4 +1,5 @@
 """The Gnani rail without the network: reading fields out of words, and the TTS → line → STT loop on files."""
+import shutil
 from datetime import date, datetime
 from pathlib import Path
 from app.models import Stay, Member
@@ -27,6 +28,8 @@ def stay():
 
 def rail(tmp_path, replies: dict[str, str] | None, callee=None, as_audio=False):
     d = tmp_path / "replies" / slug(callee or stay().name)
+    if d.exists():
+        shutil.rmtree(d)                                              # each call starts from a clean line
     if replies is not None:
         d.mkdir(parents=True)
         for stem, text in replies.items():
