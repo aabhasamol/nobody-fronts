@@ -1,5 +1,5 @@
 """The loop against the mock rails: gather → plan → vote → authorise → book, and every unhappy turn."""
-from datetime import date
+from datetime import date, timedelta
 from app.clock import clock
 from app.engine import Engine
 from app.models import TripState, AuthStatus
@@ -7,14 +7,14 @@ from app.rails import build_rails
 from app.scenario import five_friends, WEDDING, LEISURE, REPLIES
 
 
-def make(trip_kwargs=WEDDING, silent=(), **overrides):
+def make(trip_kwargs=WEDDING, silent=(), ceilings=None, **overrides):
     voice, payments, logistics = build_rails()
     engine = Engine(voice, payments, logistics)
     members = five_friends()
     trip = engine.trigger(organiser=members[0], members=members, **{**trip_kwargs, **overrides})
     for m in members:
         if m.first not in silent:
-            engine.gather(trip, m.id, **REPLIES[m.first])
+            engine.gather(trip, m.id, **{**REPLIES[m.first], **({"budget": ceilings[m.first]} if m.first in (ceilings or {}) else {})})
     if silent:
         clock.advance(24); engine.tick(trip)
     return engine, members, trip, (voice, payments, logistics)
@@ -88,6 +88,17 @@ def test_one_members_travel_over_the_limit_is_flagged_privately_not_averaged():
     assert p.per_head(members[3].id) == 19_000 <= trip.limit() < p.per_head(members[0].id) == 19_400
 
 
+def test_a_quote_under_the_organisers_limit_but_over_the_payers_own_ceiling_is_flagged_to_them_alone():
+    engine, members, trip, _ = make(LEISURE, ceilings={"Riya": 18_000})
+    p = trip.plan()
+    assert p.per_head(members[3].id) == 19_000 <= trip.limit() == 22_000             # fits the organiser's limit...
+    assert trip.quote_limit(members[3].id) == 18_000                                 # ...not her own ceiling
+    flagged = [e for e in trip.events if "heads-up before the vote" in e.text]
+    assert [e.channel for e in flagged] == [f"dm:{members[3].id}"] and "over the ₹18,000 you gave me" in flagged[0].text
+    assert trip.state == TripState.VOTING                                           # one of five over: still goes to the vote
+    assert not any("18,000" in t for t in group_posts(trip))
+
+
 # ------------------------------------------------------------------ vote
 def test_private_vote_only_the_tally_is_posted_and_yes_voters_are_in():
     engine, members, trip, _ = make(silent=("Karan",))
@@ -99,14 +110,18 @@ def test_private_vote_only_the_tally_is_posted_and_yes_voters_are_in():
     assert len(posts) == 2 and "4 yes, 1 no" in posts[1] and "Karan" not in posts[1]
 
 
-def test_authorised_amount_is_share_times_one_plus_overshoot_after_the_resplit():
+def test_authorised_amount_is_heads_times_the_payers_own_ceiling_not_rounded_up():
     engine, members, trip, _ = make()
     vote_all(engine, trip, members, no=("Karan",))
     p = trip.plan()
     assert len(p.travellers) == 4 and p.heads() == 5 and p.per_head(members[0].id) == 19_980   # was 18,700 with six heads
     a = trip.authorisations[members[0].id]
-    assert a.amount == 22_000 and a.status == AuthStatus.PENDING
-    assert trip.authorisations[members[1].id].amount == 44_000                     # two heads, one payer
+    assert a.amount == 24_000 and a.status == AuthStatus.PENDING                   # Sayan's own ceiling, not share × 1.1
+    aabhas = trip.authorisations[members[1].id]
+    assert aabhas.amount == 44_000 and p.share(members[1].id) == 39_960             # 2 heads × ₹22,000; ₹4,040 headroom
+    assert trip.authorisations[members[2].id].amount == 20_000                     # Aditi: her ₹20,000, not the organiser's
+    dm = next(e.text for e in trip.events if e.channel == f"dm:{members[1].id}" and "Block ₹44,000" in e.text)
+    assert "2 × your ₹22,000 ceiling" in dm and "₹4,040 of headroom" in dm
 
 
 def test_failed_vote_revises_from_the_reasons_then_one_reminder_then_not_in():
@@ -174,10 +189,10 @@ def test_withdrawing_after_blocking_is_a_dropout_and_a_reprice_over_the_cap_goes
     engine.member_withdraws(trip, members[3].id)
     assert trip.state == TripState.AUTHORISING and trip.plan().heads() == 4 and trip.plan().share(members[0].id) == 18_700
     assert trip.authorisations[members[3].id].status == AuthStatus.RELEASED and members[3].id in trip.dropped
-    # (if Aditi also left, the lowest ceiling would rise to ₹24,000 and the two Kolkata payers would still fit)
-    # Where a withdrawal does break a cap: leisure, all five in, Aabhas's two heads leave, then Karan —
-    # three heads on two rooms pushes Sayan, Aditi and Riya past what they authorised
+    # Where a withdrawal does break a cap: leisure, all five in, Riya's ceiling is ₹20,000, Aabhas's two heads
+    # leave, then Karan — three heads on two rooms put Riya at ₹21,134, past the ₹20,000 she authorised
     engine, members, trip, _ = make(LEISURE)
+    trip.constraints[members[3].id].budget = 20_000
     vote_all(engine, trip, members)
     for m in (members[0], members[2], members[3]):
         engine.member_approves(trip, m.id)
@@ -187,6 +202,8 @@ def test_withdrawing_after_blocking_is_a_dropout_and_a_reprice_over_the_cap_goes
     assert trip.state == TripState.VOTING and trip.plan().version == 2
     assert len(trip.plan().travellers) == 3 and trip.plan().heads() == 3 and not trip.authorisations
     assert any("released — plan going back to the group" in e.text for e in trip.events)
+    post = next(t for t in group_posts(trip) if "past what you authorised" in t)
+    assert "puts 1 of you" in post and "Riya" not in post                          # who is over stays private
 
 
 def test_fare_moves_inside_the_cap_are_absorbed_and_shown_on_the_receipt():
@@ -229,21 +246,37 @@ def test_one_failed_debit_refunds_the_others_and_books_nothing():
     assert trip.state == TripState.BOOKED
 
 
-def test_expired_hold_is_re_called_before_any_debit():
+def test_the_96h_hold_outlasts_the_vote_and_the_block_windows():
     engine, members, trip, (voice, _, _) = make(silent=("Karan",))
+    stay = trip.plan().stays[0]
+    assert stay.hold_until == clock.now() + timedelta(hours=96)                     # asked for 96 h on the call
+    clock.advance(23); engine.tick(trip)                                           # the vote runs to its last hour...
+    vote_all(engine, trip, members, no=("Karan",))
+    clock.advance(47); engine.tick(trip)                                           # ...and the block to its last hour
+    for m in members[:4]:
+        engine.member_approves(trip, m.id)
+    assert trip.state == TripState.BOOKED and clock.now() < stay.hold_until
+    assert voice.attempts["Dona Maria Homestay, Assagao"] == 2                      # no re-hold needed
+
+
+def test_expired_hold_is_re_called_before_any_debit():
+    engine, members, trip, (voice, _, _) = make(silent=("Karan",), auth_window_h=96)   # the organiser gave a long window
     clock.advance(20); engine.tick(trip)                                           # people vote over a day...
     vote_all(engine, trip, members, no=("Karan",))
-    clock.advance(30); engine.tick(trip)                                           # ...and authorise over two
+    clock.advance(80); engine.tick(trip)                                           # ...and authorise over three
     for m in members[:4]:
-        engine.member_approves(trip, m.id)                                         # the 48h hold has lapsed by now
+        engine.member_approves(trip, m.id)                                         # the 96h hold has lapsed by now
     assert trip.state == TripState.BOOKED
     assert voice.attempts["Dona Maria Homestay, Assagao"] == 3
     assert any("expired" in e.text and "re-hold" in e.text for e in trip.events)
 
 
 # ------------------------------------------------------------------ after booking
-def booked():
+def booked(**ceilings):
     engine, members, trip, rails = make(silent=("Karan",))
+    for m in members:
+        if m.first in ceilings:
+            trip.constraints[m.id].budget = ceilings[m.first]
     vote_all(engine, trip, members, no=("Karan",))
     for m in members[:4]:
         engine.member_approves(trip, m.id)
@@ -263,7 +296,7 @@ def test_rebook_inside_the_cap_and_call_the_phone_only_stay_about_a_late_arrival
 
 
 def test_rebook_over_the_cap_texts_then_calls_then_tops_up_that_member_only():
-    engine, members, trip, (_, _, logistics) = booked()
+    engine, members, trip, (_, _, logistics) = booked(Riya=21_500)               # cap ₹21,500: ₹2,020 of headroom
     p = trip.plan()
     logistics.drift["Delhi"] = 1.6
     leg = next(l for l in p.legs_for(members[3].id) if l.destination == "Goa")
@@ -286,28 +319,32 @@ def test_member_exit_after_booking_goes_to_humans():
     assert "over to you" in group_posts(trip)[-1]
 
 
-# ------------------------------------------------------------------ the yes-voters set the budget; the pool pays
-def test_yes_voters_set_the_budget_and_the_plan_is_resized_to_fit_it():
+# ------------------------------------------------------------------ every payer has their own limit; the pool pays
+def test_each_share_is_checked_against_its_payers_own_ceiling():
     engine, members, trip, _ = make(silent=("Karan",))
-    assert trip.ceiling(members[2].id) == 20_000 and trip.ceiling(members[4].id) == 20_000   # stated / defaulted
-    assert trip.total_budget is None                                                # a proposal: nobody is in yet
+    assert trip.ceiling(members[2].id) == 20_000                                    # stated
+    assert trip.ceiling(members[4].id) == 22_000 == trip.limit()                   # silent: the organiser's ₹20,000 + 10%
+    assert trip.quote_limit(members[2].id) == 20_000 and trip.quote_limit(members[0].id) == 22_000   # min(limit, own)
+    assert not trip.scoped                                                          # a proposal: nobody is in yet
     vote_all(engine, trip, members, no=("Karan",))
-    assert trip.budget_floor == 20_000 and trip.total_budget == 100_000              # 5 heads × Aditi's ceiling
+    assert trip.scoped
     p = trip.plan()
-    assert len(p.travellers) == 4 and p.heads() == 5 and p.total() == 93_400 <= trip.total_budget
+    assert len(p.travellers) == 4 and p.heads() == 5 and p.total() == 93_400
     assert p.per_head(members[0].id) == 19_980 and p.share(members[1].id) == 39_960   # 3 rooms among 5, not 6
+    assert all(p.share(t) <= trip.cap(t) for t in p.travellers)
     post = group_posts(trip)[-1]
-    assert "₹1,00,000 (5 × ₹20,000" in post and "4 paying for 5" in post and "comes to ₹93,400" in post
+    assert "every share fits the ceiling its payer gave me" in post and "4 paying for 5" in post and "comes to ₹93,400" in post
 
 
-def test_a_low_ceiling_among_the_yes_voters_sends_the_plan_back_for_a_cheaper_version():
+def test_one_payer_over_their_own_ceiling_sends_the_plan_back_and_is_never_averaged_or_named():
     engine, members, trip, _ = make(silent=("Karan",))
-    trip.constraints[members[2].id].budget = 17_000                                   # Aditi: 5 × 17,000 = 85,000 < 93,400
+    trip.constraints[members[2].id].budget = 13_000        # Aditi: ₹12,700 fits among 6; ₹13,980 among 5 does not
     vote_all(engine, trip, members, no=("Karan",))
     assert trip.state == TripState.VOTING and trip.plan().version == 2
     assert trip.plan().note == "same stay, one night fewer" and len(trip.plan().travellers) == 4
-    assert trip.plan().total() == 83_800 <= trip.total_budget == 85_000
-    assert any("against a budget of ₹85,000" in e.text for e in trip.events if e.channel == "group")
+    assert trip.plan().share(members[2].id) == 12_060 <= trip.cap(members[2].id) == 13_000
+    post = next(e.text for e in trip.events if e.channel == "group" and "over your own ceiling" in e.text)
+    assert "puts 1 of you" in post and "Aditi" not in post and "₹13,000" not in post   # the group never learns whose
     assert not trip.authorisations                                                   # nobody was asked for money
 
 
@@ -345,7 +382,7 @@ def test_the_pool_never_goes_negative():
 
 # ------------------------------------------------------------------ calls are for P0 things only
 def test_every_call_is_p0_and_nothing_else_is():
-    engine, members, trip, (_, _, logistics) = booked()
+    engine, members, trip, (_, _, logistics) = booked(Riya=21_500)
     p = trip.plan()
     logistics.drift["Delhi"] = 1.6
     engine.disrupt(trip, next(l for l in p.legs_for(members[3].id) if l.destination == "Goa").id)

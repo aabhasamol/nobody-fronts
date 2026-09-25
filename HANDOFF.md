@@ -2,15 +2,15 @@
 
 Read `README.md`, then `docs/round2-answers.md`, then `app/engine.py`, then `docs/rails.md`. Then this.
 
-The submitted answers (`docs/round2-final.md`) and the final flow (`docs/quorum-flow-final.webp`,
-`docs/quorum-trip-flow.html`) are ahead of this code in places: each payer is checked against their own
-ceiling (the engine still uses the lowest ceiling among the yes-voters), a phone-only hold is asked for at
-least 96 h (the engine defaults to 48 h), and each payer's cap is heads × their own ceiling.
+The submitted answers are `docs/round2-final.md`; the final flow is `docs/quorum-flow-final.webp` and
+`docs/quorum-trip-flow.html`. The engine follows that flow's money rules: every payer has their own limit, the
+cap is heads × their own ceiling (not rounded up), and a phone-only hold is asked for at least 96 h. Not built
+yet from that flow: the per-payer receipt at CLOSED (blocked · charged · refunded · released).
 
 ## The one thing to protect
 
 The product is the loop in `Engine`: budget + overshoot → private gathering → one itinerary that fits →
-private vote, tally only → yes-voters authorise share × (1 + overshoot) → debit each share, all or nothing →
+private vote, tally only → yes-voters authorise heads × their own ceiling → debit each share, all or nothing →
 book → re-book inside the cap. Every change should make that loop more real (a real rail, a real channel,
 real fares), not wider. Do not add features the loop does not need.
 
@@ -46,9 +46,11 @@ real fares), not wider. Do not add features the loop does not need.
   a reels feed) and nothing else changes. Nudges are P2 texts riding on messages that had to go anyway.
 * BNPL is a lender's product on the rail (LazyPay via Pine Labs), never Quorum fronting: the instrument
   `BNPL` settles Quorum in full at capture. Its limit (₹30,000 in the mock) is [verify] with LazyPay.
-* The yes-voters set the budget: `Trip.set_budget` = the heads they pay for × the lowest ceiling among them. Before
-  the vote the proposal is held to the organiser's rough figure + overshoot per head; after it, the total is
-  the rule (`Engine._fit`). Re-sizing for whoever is in happens in `Engine._retarget`: rooms today; a car or
+* Every payer has their own limit (`Engine._fit`). Before the vote each quote per head must fit
+  `Trip.quote_limit` = min(budget × (1 + overshoot), their own ceiling); after it (`Trip.scoped`) each share
+  must fit `Trip.cap` = heads × their own ceiling, which is also what they block. A silent payer's ceiling is
+  the organiser's limit. One payer's excess is never averaged onto the others, and the group is told how
+  many are over, never who. Re-sizing for whoever is in happens in `Engine._retarget`: rooms today; a car or
   a group activity would re-size in the same place.
 * Time comes from `app/clock.py`. Never call `datetime.now()` in engine code.
 * `Event` log is the transcript. If it happened and the group or a member saw it, it goes through `_say`.

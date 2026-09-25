@@ -46,56 +46,56 @@ PATH: wedding — book, then two disruptions
                                     Names and dates of birth only if you say yes to the plan. Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan jus
 [Sat 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. Up to 24k. No hostels please. Trek + food.
 [Sat 10:00] DM→Sayan       agent      Got it, Sayan: just you, Kolkata → Goa → Kolkata, up to ₹24,000 a head. You'll get the plan with your own cost to vote o
-[Sat 10:00] DM→Aabhas      Aabhas Amo Two of us — Meera's coming. Kolkata and back. All dates work. 25k a head is fine. Old Goa, food.
-[Sat 10:00] DM→Aabhas      agent      Got it, Aabhas: 2 people (Aabhas, Meera), Kolkata → Goa → Kolkata, up to ₹25,000 a head. You'll get the plan with your o
+[Sat 10:00] DM→Aabhas      Aabhas Amo Two of us — Meera's coming. Kolkata and back. All dates work. 22k a head is fine. Old Goa, food.
+[Sat 10:00] DM→Aabhas      agent      Got it, Aabhas: 2 people (Aabhas, Meera), Kolkata → Goa → Kolkata, up to ₹22,000 a head. You'll get the plan with your o
 [Sat 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel. Kayaking, trek.
 [Sat 10:00] DM→Aditi       agent      Got it, Aditi: just you, Bengaluru → Goa → Mumbai, up to ₹20,000 a head. You'll get the plan with your own cost to vote 
 [Sat 10:00] DM→Riya        Riya Sen   Delhi both ways. 23k. Nothing fancy. Nightlife, and the reel spots.
 [Sat 10:00] DM→Riya        agent      Got it, Riya: just you, Delhi → Goa → Delhi, up to ₹23,000 a head. You'll get the plan with your own cost to vote on her
-[Sun 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways, ₹20,000 ceiling).
+[Sun 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways, ₹22,000 ceiling, the organiser's limit).
 [Sun 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
 [Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
-[Sun 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Tue 22 Sep 10:00
+[Sun 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Thu 24 Sep 10:00
 [Sun 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Sun 10:00] DM→Sayan       agent      Sayan, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400 a seat
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹6,4
                                     Thursday is the Anjuna flea, Saturday night the Arpora market, and the ros omelette carts open at 7 pm.
-                                    Your all-in: ₹18,700 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹20,600 — your share
+                                    Your all-in: ₹18,700 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹24,000 — your ₹24,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Mon 21 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sun 10:00] DM→Aabhas      agent      Aabhas, here's the plan v1 for Priya's wedding, Goa. Your cost for 2 people (Aabhas, Meera), from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400 a seat
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹6,4
                                     Thursday is the Anjuna flea, Saturday night the Arpora market, and the ros omelette carts open at 7 pm.
-                                    Your all-in: ₹18,700 a head, inside the ₹25,000 you gave me; ₹37,400 for the 2 of you. If it goes ahead you'd authorise 
+                                    Your all-in: ₹18,700 a head, inside the ₹22,000 you gave me; ₹37,400 for the 2 of you. If it goes ahead you'd authorise 
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Mon 21 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sun 10:00] DM→Aditi       agent      Aditi, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400 a seat
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹6,4
                                     The rail-track walk to Dudhsagar is banned now; the jeep-and-hike from Collem is the legal way, and it's worth it.
-                                    Your all-in: ₹12,700 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹14,000 — your share
+                                    Your all-in: ₹12,700 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹20,000 — your ₹20,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Mon 21 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sun 10:00] DM→Riya        agent      Riya, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Delhi:
                                      • Fri 02 Oct 05:00 IndiGo Delhi→Goa, lands 07:36 — ₹6,100 a seat
                                      • Tue 06 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹6,4
                                     The palm-lined Parra road from every second reel is a 10-minute scooter ride from Assagao.
-                                    Your all-in: ₹18,200 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹20,100 — your share
+                                    Your all-in: ₹18,200 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹23,000 — your ₹23,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Mon 21 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sun 10:00] DM→Karan       agent      Karan, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900 a seat
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹6,4
                                     Curlies to Hilltop is one night. The Arambol drum circle at sunset is another.
-                                    Your all-in: ₹12,200 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹13,500 — your share
+                                    Your all-in: ₹12,200 a head, inside the ₹22,000 you gave me. If it goes ahead you'd authorise up to ₹22,000 — your ₹22,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Mon 21 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sun 10:00] DM→Sayan       Sayan Das  Yes.
@@ -112,95 +112,95 @@ PATH: wedding — book, then two disruptions
 [Sun 10:00] DM→Riya        agent      Great. For the tickets I need, for you: full name as on ID and date of birth. Also: veg / non-veg / Jain. One message is
 [Sun 10:00] DM→Karan       Karan Meht No. Can't get leave that week, sorry.
 [Sun 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
-[Sun 10:00] RAIL logistics logistics  Budget set by the 4 payers who are in, 5 heads: 5 × ₹20,000 (lowest ceiling) = ₹1,00,000; plan re-sized for 5 comes to ₹
-[Sun 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Budget for the trip: ₹1,00,000 (5 × ₹20,000, the lowest ceiling a
-[Sun 10:00] RAIL payments  payments   Block blk_6f1b2b3d created for Sayan: ₹22,000 (share ₹19,980 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
+[Sun 10:00] RAIL logistics logistics  Re-sized for the 4 payers who are in, 5 heads: ₹93,400; Sayan ₹19,980 vs cap ₹24,000; Aabhas ₹39,960 vs cap ₹44,000; Adi
+[Sun 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Plan re-sized for 4 paying for 5 — comes to ₹93,400, and every sh
+[Sun 10:00] RAIL payments  payments   Block blk_d45f3ede created for Sayan: ₹24,000 (own ceiling ₹24,000; share ₹19,980, headroom ₹4,020), 4d validity, UPI Re
 [Sun 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹19,980 (it was ₹18,700 when the plan went to the vote; 5 are in, so the rooms split di
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹7,480
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹8,160
                                      • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹22
-[Sun 10:00] RAIL payments  payments   Block blk_64c155fd created for Aabhas: ₹44,000 (share ₹39,960 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at 
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹24
+[Sun 10:00] RAIL payments  payments   Block blk_bcfdeb4d created for Aabhas: ₹44,000 (2 × own ceiling ₹22,000; share ₹39,960, headroom ₹4,040), 4d validity, U
 [Sun 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹39,960 for the 2 of you (it was ₹37,400 when the plan went to the vote; 5 are in, so 
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
                                      • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹14,96
                                     Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹44
-[Sun 10:00] RAIL payments  payments   Block blk_1793ae5e created for Aditi: ₹15,400 (share ₹13,980 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
+[Sun 10:00] RAIL payments  payments   Block blk_ff93aa21 created for Aditi: ₹20,000 (own ceiling ₹20,000; share ₹13,980, headroom ₹6,020), 4d validity, UPI Re
 [Sun 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹13,980 (it was ₹12,700 when the plan went to the vote; 5 are in, so the rooms split di
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹5,240
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹6,800
                                      • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹15
-[Sun 10:00] RAIL payments  payments   Block blk_116f7962 created for Riya: ₹21,500 (share ₹19,480 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at th
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹20
+[Sun 10:00] RAIL payments  payments   Block blk_a07cbd37 created for Riya: ₹23,000 (own ceiling ₹23,000; share ₹19,480, headroom ₹3,520), 4d validity, UPI Res
 [Sun 10:00] DM→Riya        agent      Riya, your share of the plan is ₹19,480 (it was ₹18,200 when the plan went to the vote; 5 are in, so the rooms split dif
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹7,310
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹7,820
                                      • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹21
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹23
 [Sun 10:00] DM→Karan       agent      Karan, the others are going, so one fact in case it changes anything. If it was the dates, tell me which ones and I'll c
-[Sun 10:00] RAIL payments  payments   Aditi approved: blk_1793ae5e ACTIVE on payment link, paid now — ₹15,400 blocked (1/4 in)
-[Sun 10:00] DM→Aditi       agent      Received ₹15,400 via the payment link, paid now, Aditi. It sits in Quorum's account until everyone who's in has approved
-[Mon 10:00] DM→Sayan       agent      Sayan, a nudge — the UPI request and the payment link for ₹22,000 are still waiting for you. Use either by Tue 22 Sep, 1
+[Sun 10:00] RAIL payments  payments   Aditi approved: blk_ff93aa21 ACTIVE on payment link, paid now — ₹20,000 blocked (1/4 in)
+[Sun 10:00] DM→Aditi       agent      Received ₹20,000 via the payment link, paid now, Aditi. It sits in Quorum's account until everyone who's in has approved
+[Mon 10:00] DM→Sayan       agent      Sayan, a nudge — the UPI request and the payment link for ₹24,000 are still waiting for you. Use either by Tue 22 Sep, 1
 [Mon 10:00] DM→Aabhas      agent      Aabhas, a nudge — the UPI request and the payment link for ₹44,000 are still waiting for you. Use either by Tue 22 Sep, 
-[Mon 10:00] DM→Riya        agent      Riya, a nudge — the UPI request and the payment link for ₹21,500 are still waiting for you. Use either by Tue 22 Sep, 10
-[Mon 10:00] RAIL payments  payments   Sayan approved: blk_6f1b2b3d ACTIVE on UPI Reserve Pay — ₹22,000 blocked (2/4 in)
-[Mon 10:00] DM→Sayan       agent      Blocked ₹22,000 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Aabhas approved: blk_64c155fd ACTIVE on credit card hold, 3-month EMI at capture, hold valid till Thu 24 Sep — ₹44,000 b
+[Mon 10:00] DM→Riya        agent      Riya, a nudge — the UPI request and the payment link for ₹23,000 are still waiting for you. Use either by Tue 22 Sep, 10
+[Mon 10:00] RAIL payments  payments   Sayan approved: blk_d45f3ede ACTIVE on UPI Reserve Pay — ₹24,000 blocked (2/4 in)
+[Mon 10:00] DM→Sayan       agent      Blocked ₹24,000 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
+[Mon 10:00] RAIL payments  payments   Aabhas approved: blk_bcfdeb4d ACTIVE on credit card hold, 3-month EMI at capture, hold valid till Thu 24 Sep — ₹44,000 b
 [Mon 10:00] DM→Aabhas      agent      Blocked ₹44,000 on your credit card hold, 3-month EMI when it's captured, Aabhas — nothing charged. I'll book the moment
-[Mon 10:00] RAIL payments  payments   Riya approved: blk_116f7962 ACTIVE on credit card hold, hold valid till Thu 24 Sep — ₹21,500 blocked (4/4 in)
-[Mon 10:00] DM→Riya        agent      Blocked ₹21,500 on your credit card hold, Riya — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹19,952 is inside the ₹21,500 authorised
-[Mon 10:00] RAIL payments  payments   Debited ₹19,980 on blk_6f1b2b3d (UPI Reserve Pay); ₹2,020 headroom stays live for a re-booking
-[Mon 10:00] RAIL payments  payments   Debited ₹39,960 on blk_64c155fd (credit card hold); the remaining ₹4,040 of the hold is released — one capture per credi
-[Mon 10:00] RAIL payments  payments   Debited ₹13,980 on blk_1793ae5e (payment link, paid now); it was already in the pool — ₹1,420 of Aditi's prepayment stay
-[Mon 10:00] RAIL payments  payments   Debited ₹19,952 on blk_116f7962 (credit card hold); the remaining ₹1,548 of the hold is released — one capture per credi
-[Mon 10:00] RAIL payments  payments   Pool (Quorum's account) holds ₹95,292 for this trip; paying suppliers
+[Mon 10:00] RAIL payments  payments   Riya approved: blk_a07cbd37 ACTIVE on credit card hold, hold valid till Thu 24 Sep — ₹23,000 blocked (4/4 in)
+[Mon 10:00] DM→Riya        agent      Blocked ₹23,000 on your credit card hold, Riya — nothing charged. I'll book the moment the others have approved.
+[Mon 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹19,952 is inside the ₹23,000 authorised
+[Mon 10:00] RAIL payments  payments   Debited ₹19,980 on blk_d45f3ede (UPI Reserve Pay); ₹4,020 headroom stays live for a re-booking
+[Mon 10:00] RAIL payments  payments   Debited ₹39,960 on blk_bcfdeb4d (credit card hold); the remaining ₹4,040 of the hold is released — one capture per credi
+[Mon 10:00] RAIL payments  payments   Debited ₹13,980 on blk_ff93aa21 (payment link, paid now); it was already in the pool — ₹6,020 of Aditi's prepayment stay
+[Mon 10:00] RAIL payments  payments   Debited ₹19,952 on blk_a07cbd37 (credit card hold); the remaining ₹3,048 of the hold is released — one capture per credi
+[Mon 10:00] RAIL payments  payments   Pool (Quorum's account) holds ₹99,892 for this trip; paying suppliers
 [Mon 10:00] RAIL logistics logistics  Stay confirmed HOLD-175954: Dona Maria Homestay, Assagao, 2 twin rooms × 4 nights for 4 — phone hold converted
-[Mon 10:00] RAIL payments  payments   Paid Dona Maria Homestay, Assagao ₹38,400 from the pool (upi, HOLD-175954) — pool now ₹56,892
-[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹6,400 from the pool (b2b wallet, GZDPCF) — pool now ₹50,492
-[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, 54ERF5) — pool now ₹44,592
+[Mon 10:00] RAIL payments  payments   Paid Dona Maria Homestay, Assagao ₹38,400 from the pool (upi, HOLD-175954) — pool now ₹61,492
+[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹6,400 from the pool (b2b wallet, GZDPCF) — pool now ₹55,092
+[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, 54ERF5) — pool now ₹49,192
 [Mon 10:00] RAIL logistics logistics  Ticketed Sayan: IndiGo Kolkata→Goa GZDPCF, IndiGo Goa→Kolkata 54ERF5
 [Mon 10:00] DM→Sayan       agent      Your confirmations for Priya's wedding, Goa:
                                      • IndiGo Kolkata→Goa 02 Oct 06:00 — PNR GZDPCF — ₹6,400
                                      • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR 54ERF5 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹7,680 a head
                                     Charged: ₹19,980 on your UPI Reserve Pay into Quorum's account, paid on to the suppliers above; the rest of the block is
-[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹12,800 from the pool (b2b wallet, DHQD3D) — pool now ₹31,792
-[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹11,800 from the pool (b2b wallet, QCJU4K) — pool now ₹19,992
+[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹12,800 from the pool (b2b wallet, DHQD3D) — pool now ₹36,392
+[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹11,800 from the pool (b2b wallet, QCJU4K) — pool now ₹24,592
 [Mon 10:00] RAIL logistics logistics  Ticketed Aabhas ×2: IndiGo Kolkata→Goa DHQD3D, IndiGo Goa→Kolkata QCJU4K
 [Mon 10:00] DM→Aabhas      agent      Your confirmations for Priya's wedding, Goa, 2 seats:
                                      • IndiGo Kolkata→Goa 02 Oct 06:00 — PNR DHQD3D — ₹6,400 × 2
                                      • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR QCJU4K — ₹5,900 × 2
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹7,680 a head × 2
                                     Charged: ₹39,960 on your credit card hold into Quorum's account, paid on to the suppliers above; your issuer collects it
-[Mon 10:00] RAIL payments  payments   Paid Akasa ₹3,400 from the pool (b2b wallet, HVMGNZ) — pool now ₹16,592
-[Mon 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, GEDP95) — pool now ₹13,692
+[Mon 10:00] RAIL payments  payments   Paid Akasa ₹3,400 from the pool (b2b wallet, HVMGNZ) — pool now ₹21,192
+[Mon 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, GEDP95) — pool now ₹18,292
 [Mon 10:00] RAIL logistics logistics  Ticketed Aditi: Akasa Bengaluru→Goa HVMGNZ, Akasa Goa→Mumbai GEDP95
 [Mon 10:00] DM→Aditi       agent      Your confirmations for Priya's wedding, Goa:
                                      • Akasa Bengaluru→Goa 02 Oct 12:00 — PNR HVMGNZ — ₹3,400
                                      • Akasa Goa→Mumbai 06 Oct 08:00 — PNR GEDP95 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹7,680 a head
-                                    Charged: ₹13,980 on your payment link, paid now into Quorum's account, paid on to the suppliers above; the ₹1,420 left o
-[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹6,344 from the pool (b2b wallet, W77ZVR) — pool now ₹7,348
-[Mon 10:00] RAIL payments  payments   Paid Akasa ₹5,928 from the pool (b2b wallet, MRFV9X) — pool now ₹1,420
+                                    Charged: ₹13,980 on your payment link, paid now into Quorum's account, paid on to the suppliers above; the ₹6,020 left o
+[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹6,344 from the pool (b2b wallet, W77ZVR) — pool now ₹11,948
+[Mon 10:00] RAIL payments  payments   Paid Akasa ₹5,928 from the pool (b2b wallet, MRFV9X) — pool now ₹6,020
 [Mon 10:00] RAIL logistics logistics  Ticketed Riya: IndiGo Delhi→Goa W77ZVR, Akasa Goa→Delhi MRFV9X
 [Mon 10:00] DM→Riya        agent      Your confirmations for Priya's wedding, Goa:
                                      • IndiGo Delhi→Goa 02 Oct 05:00 — PNR W77ZVR — ₹6,344 (+₹244 vs the fare at the vote)
                                      • Akasa Goa→Delhi 06 Oct 20:00 — PNR MRFV9X — ₹5,928 (+₹228 vs the fare at the vote)
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹7,680 a head
                                     Charged: ₹19,952 on your credit card hold into Quorum's account, paid on to the suppliers above; the rest of the hold wa
-[Mon 10:00] RAIL payments  payments   (idea) Float: Aditi ₹15,400 × 1d prepaid sat with Quorum before booking — at 6.5% p.a. that is ≈ ₹3, Quorum's to keep an
-[Mon 10:00] RAIL payments  payments   ₹1,420 stays in the pool for this trip (prepaid headroom and rounding)
+[Mon 10:00] RAIL payments  payments   (idea) Float: Aditi ₹20,000 × 1d prepaid sat with Quorum before booking — at 6.5% p.a. that is ≈ ₹4, Quorum's to keep an
+[Mon 10:00] RAIL payments  payments   ₹6,020 stays in the pool for this trip (prepaid headroom and rounding)
 [Mon 10:00] GROUP          agent      Booked. Dona Maria Homestay, Assagao (HOLD-175954) for Sayan, Aabhas +1, Aditi, Riya (5 of you), 02–06 Oct. Flights tick
 [Mon 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Kolkata→Goa 02 Oct 06:00 PNR DHQD3D
-[Mon 10:00] RAIL payments  payments   IndiGo refunds ₹12,800 for DHQD3D (2 seats) into the pool — pool now ₹14,220
+[Mon 10:00] RAIL payments  payments   IndiGo refunds ₹12,800 for DHQD3D (2 seats) into the pool — pool now ₹18,820
 [Mon 10:00] RAIL logistics logistics  Re-booked IndiGo Kolkata→Goa 02 Oct 19:00 PNR 6UEH4L at ₹5,900 × 2 seats (₹12,800 refund covers it; ₹1,000 stays in the 
-[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹11,800 from the pool (b2b wallet, 6UEH4L) — pool now ₹2,420
+[Mon 10:00] RAIL payments  payments   Paid IndiGo ₹11,800 from the pool (b2b wallet, 6UEH4L) — pool now ₹7,020
 [Mon 10:00] RAIL voice     voice      LATE_ARRIVAL: Called Dona Maria Homestay, Assagao (0832629772): Aabhas now arrives 21:42 — CONFIRMED
 [Mon 10:00] GROUP          agent      Aabhas's IndiGo 06:00 was cancelled by the carrier. Re-booked on IndiGo 19:00 within what they'd already authorised — no
 [Mon 10:00] DM→Aabhas      agent      New PNR 6UEH4L — IndiGo Kolkata→Goa 02 Oct 19:00, lands 02 Oct 21:42. ₹1,000 of the cancelled fare stays in the pool for
 [Mon 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Delhi→Goa 02 Oct 05:00 PNR W77ZVR
-[Mon 10:00] RAIL payments  payments   IndiGo refunds ₹6,344 for W77ZVR (1 seat) into the pool — pool now ₹8,764
+[Mon 10:00] RAIL payments  payments   IndiGo refunds ₹6,344 for W77ZVR (1 seat) into the pool — pool now ₹13,364
 [Mon 10:00] DM→Riya        agent      Riya, IndiGo cancelled your Delhi→Goa 02 Oct 05:00. Your card hold was used up at booking, so beyond IndiGo's ₹6,344 ref
                                      1. Akasa 20:00, lands 22:36 — ₹9,120 (needs ₹2,776 more)
                                      2. Vistara 11:00, lands 13:42 — ₹13,120 (needs ₹6,776 more)
@@ -209,15 +209,15 @@ PATH: wedding — book, then two disruptions
 [Mon 10:30] RAIL voice     voice      DISRUPTION_UNANSWERED: Called Riya (9830044444) after 20 min without a reply — CONFIRMED
 [Mon 10:30] RAIL voice     voice        Riya chose option 1
 [Mon 10:30] DM→Riya        Riya Sen   (on the call) option 1
-[Mon 10:30] RAIL payments  payments   Top-up block blk_a82c04cb for Riya: ₹2,800 — PENDING
+[Mon 10:30] RAIL payments  payments   Top-up block blk_008d29c1 for Riya: ₹2,800 — PENDING
 [Mon 10:30] DM→Riya        agent      Riya, tap the card link to authorise ₹2,800 and I'll re-book you on Akasa 20:00 right away. Nobody else is being asked f
 [Mon 10:30] DM→Sayan       agent      Goa in 11 days, Sayan. Curlies to Hilltop is one night. The Arambol drum circle at sunset is another.
 [Mon 10:30] DM→Aabhas      agent      Goa in 11 days, Aabhas. Curlies to Hilltop is one night. The Arambol drum circle at sunset is another.
 [Mon 10:30] DM→Aditi       agent      Goa in 11 days, Aditi. Palolem's kayaks at sunrise are ₹300 an hour and there's nobody else on the water.
 [Mon 10:30] DM→Riya        agent      Goa in 11 days, Riya. Butterfly Beach is the reel spot with no road; a ₹500 boat from Palolem gets you there for sunset.
-[Mon 10:30] RAIL payments  payments   Riya approved top-up blk_a82c04cb (credit card hold, hold valid till Tue 22 Sep) — ₹2,800 blocked
+[Mon 10:30] RAIL payments  payments   Riya approved top-up blk_008d29c1 (credit card hold, hold valid till Tue 22 Sep) — ₹2,800 blocked
 [Mon 10:30] RAIL logistics logistics  Re-booked Akasa Delhi→Goa 02 Oct 20:00 PNR XK94CE at ₹9,120 (₹6,344 refund + ₹0 headroom + ₹2,776 top-up)
-[Mon 10:30] RAIL payments  payments   Paid Akasa ₹9,120 from the pool (b2b wallet, XK94CE) — pool now ₹2,420
+[Mon 10:30] RAIL payments  payments   Paid Akasa ₹9,120 from the pool (b2b wallet, XK94CE) — pool now ₹7,020
 [Mon 10:30] RAIL voice     voice      LATE_ARRIVAL: Called Dona Maria Homestay, Assagao (0832629772): Riya now arrives 22:36 — CONFIRMED
 [Mon 10:30] GROUP          agent      Riya's IndiGo 05:00 was cancelled by the carrier. Re-booked on Akasa 20:00 within what they'd already authorised — no ne
 [Mon 10:30] DM→Riya        agent      New PNR XK94CE — Akasa Delhi→Goa 02 Oct 20:00, lands 02 Oct 22:36. ₹2,776 more than the cancelled fare, taken from the h
@@ -271,8 +271,8 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
                                     Names and dates of birth only if you say yes to the plan. Reply by Tue 22 Sep, 10:00. If I don't hear back I'll plan jus
 [Mon 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. Up to 24k. No hostels please. Trek + food.
 [Mon 10:00] DM→Sayan       agent      Got it, Sayan: just you, Kolkata → Goa → Kolkata, up to ₹24,000 a head. You'll get the plan with your own cost to vote o
-[Mon 10:00] DM→Aabhas      Aabhas Amo Two of us — Meera's coming. Kolkata and back. All dates work. 25k a head is fine. Old Goa, food.
-[Mon 10:00] DM→Aabhas      agent      Got it, Aabhas: 2 people (Aabhas, Meera), Kolkata → Goa → Kolkata, up to ₹25,000 a head. You'll get the plan with your o
+[Mon 10:00] DM→Aabhas      Aabhas Amo Two of us — Meera's coming. Kolkata and back. All dates work. 22k a head is fine. Old Goa, food.
+[Mon 10:00] DM→Aabhas      agent      Got it, Aabhas: 2 people (Aabhas, Meera), Kolkata → Goa → Kolkata, up to ₹22,000 a head. You'll get the plan with your o
 [Mon 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel. Kayaking, trek.
 [Mon 10:00] DM→Aditi       agent      Got it, Aditi: just you, Bengaluru → Goa → Mumbai, up to ₹20,000 a head. You'll get the plan with your own cost to vote 
 [Mon 10:00] DM→Riya        Riya Sen   Delhi both ways. 23k. Nothing fancy. Nightlife, and the reel spots.
@@ -284,56 +284,56 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Mon 10:00]   sys          system     Fisherman's Rest, Morjim: unavailable after 1 call(s); moving to the next stay.
 [Mon 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
 [Mon 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
-[Mon 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Wed 23 Sep 10:00
+[Mon 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Fri 25 Sep 10:00
 [Mon 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Mon 10:00] DM→Sayan       agent      Sayan, here's the plan v1 for Goa, October. Your cost for you, from Kolkata:
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900 a seat
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Fri 25 Sep, 10:00) — ₹6,4
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     Thursday is the Anjuna flea, Saturday night the Arpora market, and the ros omelette carts open at 7 pm.
-                                    Your all-in: ₹19,400 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹21,400 — your share
+                                    Your all-in: ₹19,400 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹24,000 — your ₹24,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Tue 22 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Mon 10:00] DM→Aabhas      agent      Aabhas, here's the plan v1 for Goa, October. Your cost for 2 people (Aabhas, Meera), from Kolkata:
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900 a seat
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Fri 25 Sep, 10:00) — ₹6,4
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     Thursday is the Anjuna flea, Saturday night the Arpora market, and the ros omelette carts open at 7 pm.
-                                    Your all-in: ₹19,400 a head, inside the ₹25,000 you gave me; ₹38,800 for the 2 of you. If it goes ahead you'd authorise 
+                                    Your all-in: ₹19,400 a head, inside the ₹22,000 you gave me; ₹38,800 for the 2 of you. If it goes ahead you'd authorise 
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Tue 22 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Mon 10:00] DM→Aditi       agent      Aditi, here's the plan v1 for Goa, October. Your cost for you, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400 a seat
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Fri 25 Sep, 10:00) — ₹6,4
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     The rail-track walk to Dudhsagar is banned now; the jeep-and-hike from Collem is the legal way, and it's worth it.
-                                    Your all-in: ₹13,900 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹15,300 — your share
+                                    Your all-in: ₹13,900 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹20,000 — your ₹20,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Tue 22 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Mon 10:00] DM→Riya        agent      Riya, here's the plan v1 for Goa, October. Your cost for you, from Delhi:
                                      • Fri 02 Oct 20:00 Akasa Delhi→Goa, lands 22:36 — ₹5,700 a seat
                                      • Tue 06 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Fri 25 Sep, 10:00) — ₹6,4
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     The palm-lined Parra road from every second reel is a 10-minute scooter ride from Assagao.
-                                    Your all-in: ₹19,000 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹20,900 — your share
+                                    Your all-in: ₹19,000 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹23,000 — your ₹23,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Tue 22 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Mon 10:00] DM→Karan       agent      Karan, here's the plan v1 for Goa, October. Your cost for you, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900 a seat
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Fri 25 Sep, 10:00) — ₹6,4
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     Thursday is the Anjuna flea, Saturday night the Arpora market, and the ros omelette carts open at 7 pm.
-                                    Your all-in: ₹13,400 a head, inside the ₹19,000 you gave me. If it goes ahead you'd authorise up to ₹14,800 — your share
+                                    Your all-in: ₹13,400 a head, inside the ₹19,000 you gave me. If it goes ahead you'd authorise up to ₹19,000 — your ₹19,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Tue 22 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Mon 10:00] DM→Sayan       Sayan Das  Yes.
@@ -352,56 +352,56 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Tue 10:00] RAIL logistics logistics  0 stays quoted in Goa, 4 nights (0 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Tue 10:00] RAIL logistics logistics  1 stays quoted in Goa, 3 nights (1 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Tue 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832676510), hi-IN, attempt 1 — CONFIRMED
-[Tue 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Thu 24 Sep 10:00
+[Tue 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Sat 26 Sep 10:00
 [Tue 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Tue 10:00] DM→Sayan       agent      Sayan, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost for you, from Kolkata:
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900 a seat
                                      • Mon 05 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹4,8
+                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹4,8
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     The rail-track walk to Dudhsagar is banned now; the jeep-and-hike from Collem is the legal way, and it's worth it.
-                                    Your all-in: ₹17,800 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹19,600 — your share
+                                    Your all-in: ₹17,800 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹24,000 — your ₹24,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Wed 23 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Tue 10:00] DM→Aabhas      agent      Aabhas, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost for 2 people (Aabhas, Meera), from K
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900 a seat
                                      • Mon 05 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹4,8
+                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹4,8
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     Reis Magos is the fort nobody visits, and it has the best view of the Mandovi.
-                                    Your all-in: ₹17,800 a head, inside the ₹25,000 you gave me; ₹35,600 for the 2 of you. If it goes ahead you'd authorise 
+                                    Your all-in: ₹17,800 a head, inside the ₹22,000 you gave me; ₹35,600 for the 2 of you. If it goes ahead you'd authorise 
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Wed 23 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Tue 10:00] DM→Aditi       agent      Aditi, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost for you, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400 a seat
                                      • Mon 05 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹4,8
+                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹4,8
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     Palolem's kayaks at sunrise are ₹300 an hour and there's nobody else on the water.
-                                    Your all-in: ₹12,300 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹13,600 — your share
+                                    Your all-in: ₹12,300 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹20,000 — your ₹20,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Wed 23 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Tue 10:00] DM→Riya        agent      Riya, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost for you, from Delhi:
                                      • Fri 02 Oct 20:00 Akasa Delhi→Goa, lands 22:36 — ₹5,700 a seat
                                      • Mon 05 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700 a seat
-                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹4,8
+                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹4,8
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     Vagator's clubs run past 3 on Saturdays; the cab back to Assagao is ₹250 if you book it before midnight.
-                                    Your all-in: ₹17,400 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹19,200 — your share
+                                    Your all-in: ₹17,400 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹23,000 — your ₹23,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Wed 23 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Tue 10:00] DM→Karan       agent      Karan, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost for you, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900 a seat
                                      • Mon 05 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Thu 24 Sep, 10:00) — ₹4,8
+                                     • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 6 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹4,8
                                      • Dudhsagar jeep-and-hike from Collem — ₹1,200 a head, booked with the trip
                                      • On the day, if you like: Saturday night market, Arpora; Hilltop / Curlies night; Parra road and Butterfly Beach boat
                                     Curlies to Hilltop is one night. The Arambol drum circle at sunset is another.
-                                    Your all-in: ₹11,800 a head, inside the ₹19,000 you gave me. If it goes ahead you'd authorise up to ₹13,000 — your share
+                                    Your all-in: ₹11,800 a head, inside the ₹19,000 you gave me. If it goes ahead you'd authorise up to ₹19,000 — your ₹19,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Wed 23 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Tue 10:00] DM→Sayan       Sayan Das  Yes.
@@ -419,56 +419,56 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Tue 10:00] DM→Karan       Karan Meht Yes.
 [Tue 10:00] DM→Karan       agent      Thanks — counted.
 [Tue 10:00] DM→Karan       agent      Great. For the tickets I need, for you: full name as on ID and date of birth. Also: veg / non-veg / Jain. One message is
-[Tue 10:00] RAIL logistics logistics  Budget set by the 5 payers who are in, 6 heads: 6 × ₹19,000 (lowest ceiling) = ₹1,14,000; plan re-sized for 6 comes to ₹
-[Tue 10:00] GROUP          agent      Vote on plan v2: 5 yes, 0 no — passes (3 of 5 needed). Budget for the trip: ₹1,14,000 (6 × ₹19,000, the lowest ceiling a
-[Tue 10:00] RAIL payments  payments   Block blk_88270a6b created for Sayan: ₹19,600 (share ₹17,800 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
-[Tue 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹17,800, ₹17,800 a head against the ₹24,000 you gave me. Block ₹19,600 — your share plu
+[Tue 10:00] RAIL logistics logistics  Re-sized for the 5 payers who are in, 6 heads: ₹94,900; Sayan ₹17,800 vs cap ₹24,000; Aabhas ₹35,600 vs cap ₹44,000; Adi
+[Tue 10:00] GROUP          agent      Vote on plan v2: 5 yes, 0 no — passes (3 of 5 needed). Plan re-sized for 5 paying for 6 — comes to ₹94,900, and every sh
+[Tue 10:00] RAIL payments  payments   Block blk_bd8bf23e created for Sayan: ₹24,000 (own ceiling ₹24,000; share ₹17,800, headroom ₹6,200), 4d validity, UPI Re
+[Tue 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹17,800, ₹17,800 a head against the ₹24,000 you gave me. Block ₹24,000 — your ₹24,000 c
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹6,670
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹8,160
+                                     • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹24
+[Tue 10:00] RAIL payments  payments   Block blk_731b5ecf created for Aabhas: ₹44,000 (2 × own ceiling ₹22,000; share ₹35,600, headroom ₹8,400), 4d validity, U
+[Tue 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹35,600 for the 2 of you, ₹17,800 a head against the ₹22,000 you gave me. Block ₹44,00
+                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹14,96
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹44
+[Tue 10:00] RAIL payments  payments   Block blk_e41c1185 created for Aditi: ₹20,000 (own ceiling ₹20,000; share ₹12,300, headroom ₹7,700), 4d validity, UPI Re
+[Tue 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,300, ₹12,300 a head against the ₹20,000 you gave me. Block ₹20,000 — your ₹20,000 c
+                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹6,800
+                                     • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹20
+[Tue 10:00] RAIL payments  payments   Block blk_49e50907 created for Riya: ₹23,000 (own ceiling ₹23,000; share ₹17,400, headroom ₹5,600), 4d validity, UPI Res
+[Tue 10:00] DM→Riya        agent      Riya, your share of the plan is ₹17,400, ₹17,400 a head against the ₹23,000 you gave me. Block ₹23,000 — your ₹23,000 ce
+                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹7,820
+                                     • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹23
+[Tue 10:00] RAIL payments  payments   Block blk_8882c5c8 created for Karan: ₹19,000 (own ceiling ₹19,000; share ₹11,800, headroom ₹7,200), 4d validity, UPI Re
+[Tue 10:00] DM→Karan       agent      Karan, your share of the plan is ₹11,800, ₹11,800 a head against the ₹19,000 you gave me. Block ₹19,000 — your ₹19,000 c
+                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹6,460
                                      • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
                                     Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹19
-[Tue 10:00] RAIL payments  payments   Block blk_69469a8a created for Aabhas: ₹39,200 (share ₹35,600 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at 
-[Tue 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹35,600 for the 2 of you, ₹17,800 a head against the ₹25,000 you gave me. Block ₹39,20
-                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹13,33
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹39
-[Tue 10:00] RAIL payments  payments   Block blk_c456729f created for Aditi: ₹13,600 (share ₹12,300 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
-[Tue 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,300, ₹12,300 a head against the ₹20,000 you gave me. Block ₹13,600 — your share plu
-                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹4,630
-                                     • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹13
-[Tue 10:00] RAIL payments  payments   Block blk_bb55329e created for Riya: ₹19,200 (share ₹17,400 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at th
-[Tue 10:00] DM→Riya        agent      Riya, your share of the plan is ₹17,400, ₹17,400 a head against the ₹23,000 you gave me. Block ₹19,200 — your share plus
-                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹6,530
-                                     • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹19
-[Tue 10:00] RAIL payments  payments   Block blk_87fa60cf created for Karan: ₹13,000 (share ₹11,800 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
-[Tue 10:00] DM→Karan       agent      Karan, your share of the plan is ₹11,800, ₹11,800 a head against the ₹19,000 you gave me. Block ₹13,000 — your share plu
-                                     • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹4,420
-                                     • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹13
-[Tue 10:00] RAIL payments  payments   Sayan approved: blk_88270a6b ACTIVE on UPI Reserve Pay — ₹19,600 blocked (1/5 in)
-[Tue 10:00] DM→Sayan       agent      Blocked ₹19,600 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
-[Tue 10:00] RAIL payments  payments   Aabhas approved: blk_69469a8a ACTIVE on UPI Reserve Pay — ₹39,200 blocked (2/5 in)
-[Tue 10:00] DM→Aabhas      agent      Blocked ₹39,200 on your UPI Reserve Pay, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Tue 10:00] RAIL payments  payments   Aditi approved: blk_c456729f ACTIVE on UPI Reserve Pay — ₹13,600 blocked (3/5 in)
-[Tue 10:00] DM→Aditi       agent      Blocked ₹13,600 on your UPI Reserve Pay, Aditi — nothing charged. I'll book the moment the others have approved.
-[Tue 10:00] RAIL payments  payments   Karan approved: blk_87fa60cf ACTIVE on UPI Reserve Pay — ₹13,000 blocked (4/5 in)
-[Tue 10:00] DM→Karan       agent      Blocked ₹13,000 on your UPI Reserve Pay, Karan — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Mandate blk_bb55329e released — Riya is out, nothing charged
+[Tue 10:00] RAIL payments  payments   Sayan approved: blk_bd8bf23e ACTIVE on UPI Reserve Pay — ₹24,000 blocked (1/5 in)
+[Tue 10:00] DM→Sayan       agent      Blocked ₹24,000 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
+[Tue 10:00] RAIL payments  payments   Aabhas approved: blk_731b5ecf ACTIVE on UPI Reserve Pay — ₹44,000 blocked (2/5 in)
+[Tue 10:00] DM→Aabhas      agent      Blocked ₹44,000 on your UPI Reserve Pay, Aabhas — nothing charged. I'll book the moment the others have approved.
+[Tue 10:00] RAIL payments  payments   Aditi approved: blk_e41c1185 ACTIVE on UPI Reserve Pay — ₹20,000 blocked (3/5 in)
+[Tue 10:00] DM→Aditi       agent      Blocked ₹20,000 on your UPI Reserve Pay, Aditi — nothing charged. I'll book the moment the others have approved.
+[Tue 10:00] RAIL payments  payments   Karan approved: blk_8882c5c8 ACTIVE on UPI Reserve Pay — ₹19,000 blocked (4/5 in)
+[Tue 10:00] DM→Karan       agent      Blocked ₹19,000 on your UPI Reserve Pay, Karan — nothing charged. I'll book the moment the others have approved.
+[Thu 10:00] RAIL payments  payments   Mandate blk_49e50907 released — Riya is out, nothing charged
 [Thu 10:00] DM→Riya        agent      Riya, the deadline passed without your approval, so I've taken you off this plan. Nothing was charged. Tell Sayan if tha
-[Thu 10:00] RAIL logistics logistics  Re-priced for 5 heads: ₹82,300 against a budget of 5 × ₹19,000 = ₹95,000
-[Thu 10:00] DM→Sayan       agent      Sayan, Riya dropped out, so the rooms now split among 5: your share is ₹18,760, up from ₹17,800 and still inside the ₹19
-[Thu 10:00] DM→Aabhas      agent      Aabhas, Riya dropped out, so the rooms now split among 5: your share is ₹37,520, up from ₹35,600 and still inside the ₹3
-[Thu 10:00] DM→Aditi       agent      Aditi, Riya dropped out, so the rooms now split among 5: your share is ₹13,260, up from ₹12,300 and still inside the ₹13
-[Thu 10:00] DM→Karan       agent      Karan, Riya dropped out, so the rooms now split among 5: your share is ₹12,760, up from ₹11,800 and still inside the ₹13
-[Thu 10:00] RAIL payments  payments   Debited ₹18,760 on blk_88270a6b (UPI Reserve Pay); ₹840 headroom stays live for a re-booking
-[Thu 10:00] RAIL payments  payments   Debited ₹37,520 on blk_69469a8a (UPI Reserve Pay); ₹1,680 headroom stays live for a re-booking
-[Thu 10:00] RAIL payments  payments   Debited ₹13,260 on blk_c456729f (UPI Reserve Pay); ₹340 headroom stays live for a re-booking
-[Thu 10:00] RAIL payments  payments   Debited ₹12,760 on blk_87fa60cf (UPI Reserve Pay); ₹240 headroom stays live for a re-booking
+[Thu 10:00] RAIL logistics logistics  Re-priced for 5 heads: ₹82,300; each share checked against what its payer authorised
+[Thu 10:00] DM→Sayan       agent      Sayan, Riya dropped out, so the rooms now split among 5: your share is ₹18,760, up from ₹17,800 and still inside the ₹24
+[Thu 10:00] DM→Aabhas      agent      Aabhas, Riya dropped out, so the rooms now split among 5: your share is ₹37,520, up from ₹35,600 and still inside the ₹4
+[Thu 10:00] DM→Aditi       agent      Aditi, Riya dropped out, so the rooms now split among 5: your share is ₹13,260, up from ₹12,300 and still inside the ₹20
+[Thu 10:00] DM→Karan       agent      Karan, Riya dropped out, so the rooms now split among 5: your share is ₹12,760, up from ₹11,800 and still inside the ₹19
+[Thu 10:00] RAIL payments  payments   Debited ₹18,760 on blk_bd8bf23e (UPI Reserve Pay); ₹5,240 headroom stays live for a re-booking
+[Thu 10:00] RAIL payments  payments   Debited ₹37,520 on blk_731b5ecf (UPI Reserve Pay); ₹6,480 headroom stays live for a re-booking
+[Thu 10:00] RAIL payments  payments   Debited ₹13,260 on blk_e41c1185 (UPI Reserve Pay); ₹6,740 headroom stays live for a re-booking
+[Thu 10:00] RAIL payments  payments   Debited ₹12,760 on blk_8882c5c8 (UPI Reserve Pay); ₹6,240 headroom stays live for a re-booking
 [Thu 10:00] RAIL payments  payments   Pool (Quorum's account) holds ₹82,300 for this trip; paying suppliers
 [Thu 10:00] RAIL logistics logistics  Stay confirmed HOLD-554710: Dona Maria Homestay, Assagao, 2 twin rooms × 3 nights for 4 — phone hold converted
 [Thu 10:00] RAIL payments  payments   Paid Dona Maria Homestay, Assagao ₹28,800 from the pool (upi, HOLD-554710) — pool now ₹53,500
@@ -513,16 +513,13 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Thu 10:00] DM→Karan       agent      Goa in 8 days, Karan. Chapora Fort is the Dil Chahta Hai fort. The sunset scene is a 15-minute walk from Vagator.
 [Thu 10:00] RAIL logistics logistics  Karan missed Akasa Mumbai→Goa 02 Oct 08:00 PNR FV9X6U — no refund on a missed departure
 [Thu 10:00] DM→Karan       agent      Karan, you've missed Akasa 08:00. No refund on that one, but here's how you still get to Goa, soonest first:
-                                     1. IndiGo 13:00 → arrives 02 Oct 14:06 — ₹3,200 (needs ₹2,960 more than your headroom)
-                                     2. Uber Outstation cab, whole car 09:00 → arrives 02 Oct 19:43 — ₹9,400 (needs ₹9,160 more than your headroom)
-                                     3. Air India 19:00 → arrives 02 Oct 20:12 — ₹3,900 (needs ₹3,660 more than your headroom)
+                                     1. IndiGo 13:00 → arrives 02 Oct 14:06 — ₹3,200 (inside your headroom)
+                                     2. Uber Outstation cab, whole car 09:00 → arrives 02 Oct 19:43 — ₹9,400 (needs ₹3,160 more than your headroom)
+                                     3. Air India 19:00 → arrives 02 Oct 20:12 — ₹3,900 (inside your headroom)
                                     Reply 1, 2 or 3 within 20 minutes; if I can't reach you here I'll call. Everyone else's plan stands.
 [Thu 10:00] GROUP          agent      Karan missed the Akasa 08:00 from Mumbai. I've sent them the ways to still get there today; nothing changes for anyone e
 [Thu 10:00] DM→Karan       Karan Meht 1
-[Thu 10:00] RAIL payments  payments   Top-up block blk_70f2a1a1 for Karan: ₹3,000 — PENDING
-[Thu 10:00] DM→Karan       agent      Karan, approve the UPI request for ₹3,000 and I'll re-book you on IndiGo 13:00 right away. Nobody else is being asked fo
-[Thu 10:00] RAIL payments  payments   Karan approved top-up blk_70f2a1a1 (UPI Reserve Pay) — ₹3,000 blocked
-[Thu 10:00] RAIL logistics logistics  Re-booked IndiGo Mumbai→Goa 02 Oct 13:00 PNR 94CEWX at ₹3,200 (no refund; ₹240 headroom + ₹2,960 top-up)
+[Thu 10:00] RAIL logistics logistics  Re-booked IndiGo Mumbai→Goa 02 Oct 13:00 PNR 94CEWX at ₹3,200 (no refund; ₹3,200 headroom)
 [Thu 10:00] RAIL payments  payments   Paid IndiGo ₹3,200 from the pool (b2b wallet, 94CEWX) — pool now ₹0
 [Thu 10:00] GROUP          agent      Karan's Akasa 08:00 was cancelled by the carrier. Re-booked on IndiGo 13:00 within what they'd already authorised — no n
 [Thu 10:00] DM→Karan       agent      New PNR 94CEWX — IndiGo Mumbai→Goa 02 Oct 13:00, lands 02 Oct 14:06. ₹3,200 taken from the headroom you authorised; a mi
@@ -580,56 +577,56 @@ PATH: wall — one debit fails, everyone is refunded
                                     Names and dates of birth only if you say yes to the plan. Reply by Sat 26 Sep, 10:00. If I don't hear back I'll plan jus
 [Fri 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. Up to 24k. No hostels please. Trek + food.
 [Fri 10:00] DM→Sayan       agent      Got it, Sayan: just you, Kolkata → Goa → Kolkata, up to ₹24,000 a head. You'll get the plan with your own cost to vote o
-[Fri 10:00] DM→Aabhas      Aabhas Amo Two of us — Meera's coming. Kolkata and back. All dates work. 25k a head is fine. Old Goa, food.
-[Fri 10:00] DM→Aabhas      agent      Got it, Aabhas: 2 people (Aabhas, Meera), Kolkata → Goa → Kolkata, up to ₹25,000 a head. You'll get the plan with your o
+[Fri 10:00] DM→Aabhas      Aabhas Amo Two of us — Meera's coming. Kolkata and back. All dates work. 22k a head is fine. Old Goa, food.
+[Fri 10:00] DM→Aabhas      agent      Got it, Aabhas: 2 people (Aabhas, Meera), Kolkata → Goa → Kolkata, up to ₹22,000 a head. You'll get the plan with your o
 [Fri 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel. Kayaking, trek.
 [Fri 10:00] DM→Aditi       agent      Got it, Aditi: just you, Bengaluru → Goa → Mumbai, up to ₹20,000 a head. You'll get the plan with your own cost to vote 
 [Fri 10:00] DM→Riya        Riya Sen   Delhi both ways. 23k. Nothing fancy. Nightlife, and the reel spots.
 [Fri 10:00] DM→Riya        agent      Got it, Riya: just you, Delhi → Goa → Delhi, up to ₹23,000 a head. You'll get the plan with your own cost to vote on her
-[Sat 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways, ₹20,000 ceiling).
+[Sat 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways, ₹22,000 ceiling, the organiser's limit).
 [Sat 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Sat 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
 [Sat 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
-[Sat 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Mon 28 Sep 10:00
+[Sat 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Wed 30 Sep 10:00
 [Sat 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Sat 10:00] DM→Sayan       agent      Sayan, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400 a seat
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Mon 28 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 30 Sep, 10:00) — ₹6,4
                                     Thursday is the Anjuna flea, Saturday night the Arpora market, and the ros omelette carts open at 7 pm.
-                                    Your all-in: ₹18,700 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹20,600 — your share
+                                    Your all-in: ₹18,700 a head, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹24,000 — your ₹24,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Sun 27 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sat 10:00] DM→Aabhas      agent      Aabhas, here's the plan v1 for Priya's wedding, Goa. Your cost for 2 people (Aabhas, Meera), from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400 a seat
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Mon 28 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 30 Sep, 10:00) — ₹6,4
                                     Thursday is the Anjuna flea, Saturday night the Arpora market, and the ros omelette carts open at 7 pm.
-                                    Your all-in: ₹18,700 a head, inside the ₹25,000 you gave me; ₹37,400 for the 2 of you. If it goes ahead you'd authorise 
+                                    Your all-in: ₹18,700 a head, inside the ₹22,000 you gave me; ₹37,400 for the 2 of you. If it goes ahead you'd authorise 
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Sun 27 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sat 10:00] DM→Aditi       agent      Aditi, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400 a seat
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Mon 28 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 30 Sep, 10:00) — ₹6,4
                                     The rail-track walk to Dudhsagar is banned now; the jeep-and-hike from Collem is the legal way, and it's worth it.
-                                    Your all-in: ₹12,700 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹14,000 — your share
+                                    Your all-in: ₹12,700 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹20,000 — your ₹20,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Sun 27 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sat 10:00] DM→Riya        agent      Riya, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Delhi:
                                      • Fri 02 Oct 05:00 IndiGo Delhi→Goa, lands 07:36 — ₹6,100 a seat
                                      • Tue 06 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Mon 28 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 30 Sep, 10:00) — ₹6,4
                                     The palm-lined Parra road from every second reel is a 10-minute scooter ride from Assagao.
-                                    Your all-in: ₹18,200 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹20,100 — your share
+                                    Your all-in: ₹18,200 a head, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹23,000 — your ₹23,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Sun 27 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sat 10:00] DM→Karan       agent      Karan, here's the plan v1 for Priya's wedding, Goa. Your cost for you, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900 a seat
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900 a seat
-                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Mon 28 Sep, 10:00) — ₹6,4
+                                     • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 6 (confirmed by phone, held till Wed 30 Sep, 10:00) — ₹6,4
                                     Curlies to Hilltop is one night. The Arambol drum circle at sunset is another.
-                                    Your all-in: ₹12,200 a head, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹13,500 — your share
+                                    Your all-in: ₹12,200 a head, inside the ₹22,000 you gave me. If it goes ahead you'd authorise up to ₹22,000 — your ₹22,0
                                     Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged only when everythin
                                     Take the time you need, until Sun 27 Sep, 10:00 — ask me anything here. Yes or no is between us; only the count goes to 
 [Sat 10:00] DM→Sayan       Sayan Das  Yes.
@@ -646,51 +643,51 @@ PATH: wall — one debit fails, everyone is refunded
 [Sat 10:00] DM→Riya        agent      Great. For the tickets I need, for you: full name as on ID and date of birth. Also: veg / non-veg / Jain. One message is
 [Sat 10:00] DM→Karan       Karan Meht No. Can't get leave that week, sorry.
 [Sat 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
-[Sat 10:00] RAIL logistics logistics  Budget set by the 4 payers who are in, 5 heads: 5 × ₹20,000 (lowest ceiling) = ₹1,00,000; plan re-sized for 5 comes to ₹
-[Sat 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Budget for the trip: ₹1,00,000 (5 × ₹20,000, the lowest ceiling a
-[Sat 10:00] RAIL payments  payments   Block blk_4f25fddb created for Sayan: ₹22,000 (share ₹19,980 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
+[Sat 10:00] RAIL logistics logistics  Re-sized for the 4 payers who are in, 5 heads: ₹93,400; Sayan ₹19,980 vs cap ₹24,000; Aabhas ₹39,960 vs cap ₹44,000; Adi
+[Sat 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Plan re-sized for 4 paying for 5 — comes to ₹93,400, and every sh
+[Sat 10:00] RAIL payments  payments   Block blk_6f4b2b68 created for Sayan: ₹24,000 (own ceiling ₹24,000; share ₹19,980, headroom ₹4,020), 4d validity, UPI Re
 [Sat 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹19,980 (it was ₹18,700 when the plan went to the vote; 5 are in, so the rooms split di
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹7,480
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹8,160
                                      • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹22
-[Sat 10:00] RAIL payments  payments   Block blk_bfd764c7 created for Aabhas: ₹44,000 (share ₹39,960 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at 
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹24
+[Sat 10:00] RAIL payments  payments   Block blk_d56e15ea created for Aabhas: ₹44,000 (2 × own ceiling ₹22,000; share ₹39,960, headroom ₹4,040), 4d validity, U
 [Sat 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹39,960 for the 2 of you (it was ₹37,400 when the plan went to the vote; 5 are in, so 
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
                                      • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹14,96
                                     Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹44
-[Sat 10:00] RAIL payments  payments   Block blk_a6351be7 created for Aditi: ₹15,400 (share ₹13,980 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
+[Sat 10:00] RAIL payments  payments   Block blk_8f39f52d created for Aditi: ₹20,000 (own ceiling ₹20,000; share ₹13,980, headroom ₹6,020), 4d validity, UPI Re
 [Sat 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹13,980 (it was ₹12,700 when the plan went to the vote; 5 are in, so the rooms split di
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹5,240
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹6,800
                                      • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹15
-[Sat 10:00] RAIL payments  payments   Block blk_56061b5a created for Riya: ₹21,500 (share ₹19,480 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at th
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹20
+[Sat 10:00] RAIL payments  payments   Block blk_e4295b0a created for Riya: ₹23,000 (own ceiling ₹23,000; share ₹19,480, headroom ₹3,520), 4d validity, UPI Res
 [Sat 10:00] DM→Riya        agent      Riya, your share of the plan is ₹19,480 (it was ₹18,200 when the plan went to the vote; 5 are in, so the rooms split dif
                                      • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so
-                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹7,310
+                                     • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you want it (₹7,820
                                      • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you.
-                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹21
+                                    Only what you actually owe is kept, into Quorum's account from which I pay the airline and the stay, never more than ₹23
 [Sat 10:00] DM→Karan       agent      Karan, the others are going, so one fact in case it changes anything. If it was the dates, tell me which ones and I'll c
-[Sat 10:00] RAIL payments  payments   Aditi approved: blk_a6351be7 ACTIVE on payment link, paid now — ₹15,400 blocked (1/4 in)
-[Sat 10:00] DM→Aditi       agent      Received ₹15,400 via the payment link, paid now, Aditi. It sits in Quorum's account until everyone who's in has approved
-[Sun 10:00] DM→Sayan       agent      Sayan, a nudge — the UPI request and the payment link for ₹22,000 are still waiting for you. Use either by Mon 28 Sep, 1
+[Sat 10:00] RAIL payments  payments   Aditi approved: blk_8f39f52d ACTIVE on payment link, paid now — ₹20,000 blocked (1/4 in)
+[Sat 10:00] DM→Aditi       agent      Received ₹20,000 via the payment link, paid now, Aditi. It sits in Quorum's account until everyone who's in has approved
+[Sun 10:00] DM→Sayan       agent      Sayan, a nudge — the UPI request and the payment link for ₹24,000 are still waiting for you. Use either by Mon 28 Sep, 1
 [Sun 10:00] DM→Aabhas      agent      Aabhas, a nudge — the UPI request and the payment link for ₹44,000 are still waiting for you. Use either by Mon 28 Sep, 
-[Sun 10:00] DM→Riya        agent      Riya, a nudge — the UPI request and the payment link for ₹21,500 are still waiting for you. Use either by Mon 28 Sep, 10
-[Sun 10:00] RAIL payments  payments   Sayan approved: blk_4f25fddb ACTIVE on UPI Reserve Pay — ₹22,000 blocked (2/4 in)
-[Sun 10:00] DM→Sayan       agent      Blocked ₹22,000 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Aabhas approved: blk_bfd764c7 ACTIVE on credit card hold, 3-month EMI at capture, hold valid till Wed 30 Sep — ₹44,000 b
+[Sun 10:00] DM→Riya        agent      Riya, a nudge — the UPI request and the payment link for ₹23,000 are still waiting for you. Use either by Mon 28 Sep, 10
+[Sun 10:00] RAIL payments  payments   Sayan approved: blk_6f4b2b68 ACTIVE on UPI Reserve Pay — ₹24,000 blocked (2/4 in)
+[Sun 10:00] DM→Sayan       agent      Blocked ₹24,000 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
+[Sun 10:00] RAIL payments  payments   Aabhas approved: blk_d56e15ea ACTIVE on credit card hold, 3-month EMI at capture, hold valid till Wed 30 Sep — ₹44,000 b
 [Sun 10:00] DM→Aabhas      agent      Blocked ₹44,000 on your credit card hold, 3-month EMI when it's captured, Aabhas — nothing charged. I'll book the moment
-[Sun 10:00] RAIL payments  payments   Riya approved: blk_56061b5a ACTIVE on credit card hold, hold valid till Wed 30 Sep — ₹21,500 blocked (4/4 in)
-[Sun 10:00] DM→Riya        agent      Blocked ₹21,500 on your credit card hold, Riya — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹19,952 is inside the ₹21,500 authorised
-[Sun 10:00] RAIL payments  payments   Debited ₹19,980 on blk_4f25fddb (UPI Reserve Pay); ₹2,020 headroom stays live for a re-booking
-[Sun 10:00] RAIL payments  payments   Debited ₹39,960 on blk_bfd764c7 (credit card hold); the remaining ₹4,040 of the hold is released — one capture per credi
-[Sun 10:00] RAIL payments  payments   Debited ₹13,980 on blk_a6351be7 (payment link, paid now); it was already in the pool — ₹1,420 of Aditi's prepayment stay
-[Sun 10:00] RAIL payments  payments   Presentation for Riya on blk_56061b5a FAILED: issuer declined: card authorisation reversed by the issuer
-[Sun 10:00] RAIL payments  payments   Refunded ₹19,980 to Sayan (blk_4f25fddb)
-[Sun 10:00] RAIL payments  payments   Refunded ₹39,960 to Aabhas (blk_bfd764c7)
-[Sun 10:00] RAIL payments  payments   Refunded ₹13,980 to Aditi (blk_a6351be7)
+[Sun 10:00] RAIL payments  payments   Riya approved: blk_e4295b0a ACTIVE on credit card hold, hold valid till Wed 30 Sep — ₹23,000 blocked (4/4 in)
+[Sun 10:00] DM→Riya        agent      Blocked ₹23,000 on your credit card hold, Riya — nothing charged. I'll book the moment the others have approved.
+[Sun 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹19,952 is inside the ₹23,000 authorised
+[Sun 10:00] RAIL payments  payments   Debited ₹19,980 on blk_6f4b2b68 (UPI Reserve Pay); ₹4,020 headroom stays live for a re-booking
+[Sun 10:00] RAIL payments  payments   Debited ₹39,960 on blk_d56e15ea (credit card hold); the remaining ₹4,040 of the hold is released — one capture per credi
+[Sun 10:00] RAIL payments  payments   Debited ₹13,980 on blk_8f39f52d (payment link, paid now); it was already in the pool — ₹6,020 of Aditi's prepayment stay
+[Sun 10:00] RAIL payments  payments   Presentation for Riya on blk_e4295b0a FAILED: issuer declined: card authorisation reversed by the issuer
+[Sun 10:00] RAIL payments  payments   Refunded ₹19,980 to Sayan (blk_6f4b2b68)
+[Sun 10:00] RAIL payments  payments   Refunded ₹39,960 to Aabhas (blk_d56e15ea)
+[Sun 10:00] RAIL payments  payments   Refunded ₹13,980 to Aditi (blk_8f39f52d)
 [Sun 10:00] GROUP          agent      Stopping. Riya's debit failed, so I've refunded the 3 that had gone through and booked nothing. Nobody is out of pocket.
 [Sun 10:00] DM→Sayan       agent      Riya's bank declined the presentation (issuer declined: card authorisation reversed by the issuer). Everyone else has be
 

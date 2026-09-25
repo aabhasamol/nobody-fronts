@@ -33,9 +33,11 @@ def leg_desc(l: Leg) -> str:
     return f"{l.carrier} {l.origin}→{l.destination} {l.depart:%d %b %H:%M}"
 
 
-def cap_for(trip: Trip, share: int) -> int:
-    import math
-    return int(math.ceil(share * (1 + trip.overshoot) / 100.0) * 100)
+def cap_desc(trip: Trip, member_id: str) -> str:
+    """How a payer's cap is made: heads × their own ceiling, not rounded up."""
+    k = trip.party(member_id)
+    return (f"{k} × your {fmt_inr(trip.ceiling(member_id))} ceiling" if k > 1
+            else f"your {fmt_inr(trip.ceiling(member_id))} ceiling")
 
 
 # ------------------------------------------------------------------ kickoff + gathering
@@ -45,8 +47,8 @@ def hello_group(trip: Trip, hook: str | None = None) -> str:
             f"{trip.start:%d}–{trip.end:%d %b}, a {trip.occasion} trip, around {fmt_inr(trip.budget)} a head all-in, "
             f"at most {fmt_pct(trip.overshoot)} over." + (f" {hook}" if hook else "") +
             f" I'll DM each of you for where you're travelling from and your own ceiling, then send you one plan with "
-            f"your own cost to vote on privately. Only the tally comes back here. Whoever says yes sets the budget; "
-            f"nothing is booked and no money moves until everyone who's in has authorised their own share.")
+            f"your own cost to vote on privately. Only the tally comes back here. Each share has to fit the ceiling its "
+            f"payer gave me, and nobody's extra is spread over the rest; nothing is booked and no money moves until everyone who's in has authorised their own share.")
 
 
 def dm_gather(trip: Trip, m: Member, deadline: datetime) -> str:
@@ -59,7 +61,8 @@ def dm_gather(trip: Trip, m: Member, deadline: datetime) -> str:
             f"6. Pick what you're into: {', '.join(INTERESTS)}. Anything non-negotiable — no hostels, direct flights, veg?\n"
             f"Names and dates of birth only if you say yes to the plan. Reply by {fmt_dt(deadline)}. If I don't hear back "
             f"I'll plan just you, {m.home_city} → {trip.destination} → {m.home_city} on those dates, with "
-            f"{fmt_inr(trip.budget)} as your ceiling.")
+            f"{fmt_inr(trip.limit())} as your ceiling — {trip.organiser().first}'s figure plus the {fmt_pct(trip.overshoot)} "
+            f"they allowed.")
 
 
 def party_desc(c) -> str:
@@ -73,7 +76,7 @@ def dm_gather_ack(trip: Trip, m: Member, c) -> str:
     if not c.available:
         return f"Noted, {m.first} — you're out for these dates. I'll plan for the others."
     return (f"Got it, {m.first}: {party_desc(c)}, {c.start_city} → {trip.destination} → {c.return_city}, up to "
-            f"{fmt_inr(c.budget or trip.budget)} a head. You'll get the plan with your own cost to vote on here, not in the group.")
+            f"{fmt_inr(trip.ceiling(m.id))} a head. You'll get the plan with your own cost to vote on here, not in the group.")
 
 
 # ------------------------------------------------------------------ planning
@@ -94,9 +97,11 @@ def dm_no_fit(trip: Trip, p: Plan | None, over: list[Member]) -> str:
 
 def dm_leg_over_limit(trip: Trip, m: Member, p: Plan) -> str:
     c = trip.constraints[m.id]
+    limit = trip.quote_limit(m.id)
+    which = "you gave me" if limit < trip.limit() else "the plan is built to"
     return (f"{m.first}, a heads-up before the vote: your flights from {c.start_city} come to "
             f"{fmt_inr(p.travel(m.id))}, which puts your all-in at {fmt_inr(p.per_head(m.id))} — over the "
-            f"{fmt_inr(trip.limit())} the plan is built to. Everyone else's share stays theirs; yours isn't averaged "
+            f"{fmt_inr(limit)} {which}. Everyone else's share stays theirs; yours isn't averaged "
             f"in. Vote no if that doesn't work and say what would — a train, or other dates.")
 
 
@@ -125,8 +130,9 @@ def dm_vote(trip: Trip, m: Member, p: Plan, deadline: datetime, hook: str | None
     ceiling = trip.ceiling(m.id)
     vs = "inside" if per_head <= ceiling else "over"
     each = f"{fmt_inr(per_head)} a head, {vs} the {fmt_inr(ceiling)} you gave me" + (f"; {fmt_inr(share)} for the {k} of you" if k > 1 else "")
-    lines.append(f"Your all-in: {each}. If it goes ahead you'd authorise up to {fmt_inr(cap_for(trip, share))} — your "
-                 f"share plus {fmt_pct(trip.overshoot)} so I can re-book you if a fare moves or a flight cancels.")
+    lines.append(f"Your all-in: {each}. If it goes ahead you'd authorise up to {fmt_inr(trip.cap(m.id))} — "
+                 f"{cap_desc(trip, m.id)}. Only your share is charged; the rest is headroom so I can re-book you if a "
+                 f"fare moves or a flight cancels.")
     lines.append(f"Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged "
                  f"only when everything books, and released or refunded in full if the trip doesn't happen. Flights "
                  f"are non-refundable once booked; the stay's terms are above.")
@@ -197,19 +203,19 @@ def group_go(trip: Trip, intro: str, changes: list[str]) -> str:
     p = trip.plan()
     n, h = len(p.travellers), p.heads()
     heads = f"{h} of you" if h == n else f"{n} paying for {h}"
-    s = (f"{intro} Budget for the trip: {fmt_inr(trip.total_budget)} ({h} × {fmt_inr(trip.budget_floor)}, the lowest "
-         f"ceiling among the {n} who are in). Plan re-sized for {heads}" + (f": {'; '.join(changes)}" if changes else "") +
-         f" — comes to {fmt_inr(p.total())}, inside it. I've DM'd each of the {n} how to block their own share: a UPI "
+    s = (f"{intro} Plan re-sized for {heads}" + (f": {'; '.join(changes)}" if changes else "") +
+         f" — comes to {fmt_inr(p.total())}, and every share fits the ceiling its payer gave me. I've DM'd each of the {n} how to block their own share: a UPI "
          f"mandate, or a payment link. Nothing is charged until everyone who's in has approved, by "
          f"{fmt_dt(trip.auth_deadline)}; then I book everything and pay the suppliers from Quorum's account. The "
          f"details are in your DMs — take your time, and ask me there.")
     return s
 
 
-def why_over_budget(trip: Trip, p: Plan) -> str:
-    h = p.heads()
-    return (f"For the {h} who are in, the plan comes to {fmt_inr(p.total())} against a budget of {fmt_inr(trip.total_budget)} "
-            f"({h} × {fmt_inr(trip.budget_floor)}, the lowest ceiling among them).")
+def why_over_ceiling(trip: Trip, p: Plan, over: list[Member]) -> str:
+    """Posted to the group, so it names nobody: whose ceiling it is stays private."""
+    n = len(over)
+    return (f"Re-sized for the {p.heads()} who are in, the plan puts {n} of you over your own ceiling. Nobody's extra "
+            f"goes onto anyone else.")
 
 
 def dm_organiser_decides(trip: Trip) -> str:
@@ -241,8 +247,8 @@ def dm_authorise(trip: Trip, m: Member, p: Plan, share: int, cap: int, old_share
     later = (f"\n • Pay later: LazyPay at booking, repay after the trip on their terms; Quorum is paid in full so nobody waits on you."
              if cap <= INSTRUMENTS["BNPL"]["max_amount"] else "")
     return (f"{m.first}, your share of the plan is {fmt_inr(share)}{for_whom}{moved}, {fmt_inr(p.per_head(m.id))} a head "
-            f"against the {fmt_inr(trip.ceiling(m.id))} you gave me. Block {fmt_inr(cap)} — your share plus the "
-            f"{fmt_pct(trip.overshoot)} headroom {trip.organiser().first} allowed — any of these:\n"
+            f"against the {fmt_inr(trip.ceiling(m.id))} you gave me. Block {fmt_inr(cap)} — {cap_desc(trip, m.id)}, "
+            f"so {fmt_inr(cap - share)} of headroom beyond your share — any of these:\n"
             f" • UPI mandate: approve the request I've sent. It's blocked in your account, not charged, and the headroom "
             f"stays live so I can re-book you if a flight cancels, no new tap.\n"
             f" • Payment link: pay with what you like. A credit card is only held — one capture at booking, EMI if you "
@@ -285,8 +291,9 @@ def dm_repriced(trip: Trip, m: Member, old: int, new: int, who: list[Member], jo
 
 
 def why_reprice_over(trip: Trip, who: list[Member], over: list[Member]) -> str:
-    return (f"{', '.join(w.first for w in who)} dropped out and the re-price for {len(trip.in_members())} pushes "
-            f"{', '.join(o.first for o in over)} past what they authorised.")
+    """Posted to the group: says how many are over, never who."""
+    return (f"{', '.join(w.first for w in who)} dropped out and the re-price for {len(trip.in_members())} puts "
+            f"{len(over)} of you past what you authorised. Nobody's extra goes onto anyone else.")
 
 
 def why_nobody_left(trip: Trip) -> str:

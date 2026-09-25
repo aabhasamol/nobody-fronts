@@ -32,7 +32,7 @@ def test_dm_offers_upi_or_card_with_emi_tenures():
     dm = next(e.text for e in reversed(trip.events) if e.channel == f"dm:{members[0].id}" and "Block ₹" in e.text)
     assert "UPI mandate: approve the request" in dm and "Payment link: pay with what you like" in dm
     assert "Anything that can't hold pays now" in dm and "refunded in full if the trip doesn't happen" in dm
-    months, monthly = payments.emi_offers(22_000)[0]
+    months, monthly = payments.emi_offers(24_000)[0]                             # Sayan's cap: his ₹24,000 ceiling
     assert months == 3 and f"₹{monthly:,} × 3" in dm
 
 
@@ -42,12 +42,12 @@ def test_card_hold_takes_one_capture_and_keeps_no_headroom_upi_reserve_does():
     for m, via in ((sayan, "UPI_RESERVE"), (aabhas, "UPI_RESERVE"), (aditi, "UPI_RESERVE"), (riya, "CARD_PREAUTH")):
         engine.member_approves(trip, m.id, via)
     assert trip.state == TripState.BOOKED
-    assert trip.authorisations[sayan.id].headroom() == 2_020                     # cap 22,000 − share 19,980, still live
+    assert trip.authorisations[sayan.id].headroom() == 4_020                     # cap 24,000 − share 19,980, still live
     assert trip.authorisations[riya.id].headroom() == 0                          # one capture; the rest was released
     assert trip.authorisations[riya.id].captured_amount == 19_480 and payments.pool() == 0
     rails = "\n".join(e.text for e in trip.events if e.channel == "rail:payments")
-    assert "remaining ₹2,020 of the hold is released — one capture per credit card hold" in rails
-    assert "₹2,020 headroom stays live for a re-booking" in rails
+    assert "remaining ₹3,520 of the hold is released — one capture per credit card hold" in rails   # 23,000 − 19,480
+    assert "₹4,020 headroom stays live for a re-booking" in rails
 
 
 def test_emi_is_settled_to_quorum_in_full_and_shown_on_the_receipt():
@@ -114,19 +114,19 @@ def test_prepaid_link_money_sits_in_the_pool_and_comes_back_if_the_trip_lapses()
     sayan, aabhas, aditi, riya = members[:4]
     engine.member_approves(trip, aditi.id, "PREPAID")                             # a method that can't hold: paid now
     a = trip.authorisations[aditi.id]
-    assert a.prepaid and a.status == AuthStatus.BLOCKED and payments.pool() == 15_400
-    assert any("Received ₹15,400 via the payment link, paid now" in e.text for e in trip.events if e.channel == f"dm:{aditi.id}")
+    assert a.prepaid and a.status == AuthStatus.BLOCKED and payments.pool() == 20_000   # her cap: her own ₹20,000 ceiling
+    assert any("Received ₹20,000 via the payment link, paid now" in e.text for e in trip.events if e.channel == f"dm:{aditi.id}")
     for m, via in ((sayan, "UPI_RESERVE"), (aabhas, "CARD_PREAUTH"), (riya, "UPI_RESERVE")):
         engine.member_approves(trip, m.id, via)
     assert trip.state == TripState.BOOKED
-    assert a.captured_amount == 13_980 and a.headroom() == 1_420                  # her prepayment's spare stays as cash
-    assert payments.pool() == 1_420                                               # everything else paid out to the rupee
+    assert a.captured_amount == 13_980 and a.headroom() == 6_020                  # her prepayment's spare stays as cash
+    assert payments.pool() == 6_020                                               # everything else paid out to the rupee
     rails = "\n".join(e.text for e in trip.events if e.channel == "rail:payments")
     assert "it was already in the pool" in rails and "(idea) Float:" in rails and "Quorum's to keep and Quorum's to lose" in rails
-    assert "₹1,420 left of your prepayment comes back after the trip" in "\n".join(e.text for e in trip.events if e.channel == f"dm:{aditi.id}")
+    assert "₹6,020 left of your prepayment comes back after the trip" in "\n".join(e.text for e in trip.events if e.channel == f"dm:{aditi.id}")
     # and a prepayment released before booking is refunded in full
     engine, members, trip, (_, payments, _) = authorising()
     engine.member_approves(trip, members[2].id, "PREPAID")
-    assert payments.pool() == 15_400
+    assert payments.pool() == 20_000
     engine.member_withdraws(trip, members[2].id)
     assert payments.pool() == 0 and trip.authorisations[members[2].id].status == AuthStatus.RELEASED

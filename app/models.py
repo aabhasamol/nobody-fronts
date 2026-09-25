@@ -33,7 +33,7 @@ class TripState(str, Enum):
     GATHERING = "GATHERING"        # private DMs out: start city, return city, dates, must-haves
     PLANNING = "PLANNING"          # trip side (stays, supplier calls) and travel side (per member) being built
     VOTING = "VOTING"              # one itinerary DM'd to each member; private yes/no; only the tally is posted
-    AUTHORISING = "AUTHORISING"    # every yes-voter blocks share × (1 + overshoot) by UPI mandate
+    AUTHORISING = "AUTHORISING"    # every yes-voter blocks their cap: heads × their own ceiling
     BOOKING = "BOOKING"            # re-price at live fares, debit each share, book legs and stays
     BOOKED = "BOOKED"              # tickets and vouchers out; legs watched until the trip is over
     LAPSED = "LAPSED"              # nothing booked, nothing charged: vote failed for good, or a capture rolled back
@@ -75,7 +75,7 @@ class Constraint(BaseModel):
     details: dict[str, str] = Field(default_factory=dict) # after a yes: names and DOB for tickets, food, medical, pets
     earliest: Optional[date] = None
     latest: Optional[date] = None
-    budget: Optional[int] = None             # INR per head, all-in: the most this member will pay for the trip
+    budget: Optional[int] = None             # INR per head, all-in: the most this member will pay; None = the organiser's limit
     must_haves: list[str] = Field(default_factory=list)
     replied_at: Optional[datetime] = None
     defaulted: bool = False
@@ -248,7 +248,7 @@ INSTRUMENTS = {
 class Authorisation(BaseModel):
     member_id: str
     plan_id: str
-    amount: int                              # INR — the cap: share × (1 + overshoot), or a top-up
+    amount: int                              # INR — the cap: heads × the payer's own ceiling, or a top-up
     purpose: str = "SHARE"                   # SHARE / TOP_UP
     instrument: Optional[str] = None         # one of INSTRUMENTS, chosen by the member when they approve
     emi_months: Optional[int] = None         # card only: the share paid to the issuer in instalments; Quorum is settled in full
@@ -320,15 +320,14 @@ class Trip(BaseModel):
     end: date
     occasion: str = "leisure"                # leisure / wedding / offsite / pilgrimage
     budget: int                              # INR per head, all-in: the organiser's rough figure the proposal is built to
-    overshoot: float = 0.10                  # the most the proposal may go above that, per head; also the mandate headroom
+    overshoot: float = 0.10                  # the most the proposal may go above that, per head; applies before the vote only
     auth_window_h: int = 48                  # how long yes-voters get to block their share: the organiser decides
     persona_override: Optional[str] = None   # bachelors / families; otherwise deduced from the parties
     used_hooks: dict[str, list[str]] = Field(default_factory=dict)   # member id (or "group") → lore already sent
     drips_sent: list[str] = Field(default_factory=list)              # countdown texts already sent
     lore_sent: list[str] = Field(default_factory=list)               # dates (ISO) a daily place fact went out
     flip_until: Optional[datetime] = None    # how long a no-voter can still say yes after the tally
-    budget_floor: Optional[int] = None       # after the vote: the lowest ceiling among those who are in
-    total_budget: Optional[int] = None       # after the vote: (number in) × budget_floor — what the plan must fit
+    scoped: bool = False                     # after the vote: every share is held to its payer's own cap
     state: TripState = TripState.INITIATED
     constraints: dict[str, Constraint] = Field(default_factory=dict)
     gather_deadline: Optional[datetime] = None
@@ -362,8 +361,18 @@ class Trip(BaseModel):
         return int(round(self.budget * (1 + self.overshoot)))
 
     def ceiling(self, member_id: str) -> int:
+        """This payer's own per-head ceiling. Unstated (or silent) = the organiser's limit, budget × (1 + overshoot)."""
         c = self.constraints.get(member_id)
-        return c.budget if c and c.budget else self.budget
+        return c.budget if c and c.budget else self.limit()
+
+    def quote_limit(self, member_id: str) -> int:
+        """Before the vote a payer's quote per head must fit both the organiser's limit and their own ceiling."""
+        return min(self.limit(), self.ceiling(member_id))
+
+    def cap(self, member_id: str) -> int:
+        """What this payer blocks after the vote: heads × their own ceiling, not rounded up. Their share must fit it;
+        headroom is the cap minus what has been charged."""
+        return self.party(member_id) * self.ceiling(member_id)
 
     def party(self, member_id: str) -> int:
         c = self.constraints.get(member_id)
@@ -379,11 +388,6 @@ class Trip(BaseModel):
 
     def heads(self, member_ids: list[str]) -> int:
         return sum(self.party(m) for m in member_ids)
-
-    def set_budget(self, member_ids: list[str]) -> None:
-        """The trip's budget is set by the payers who are in: the heads they pay for × the lowest per-head ceiling."""
-        self.budget_floor = min(self.ceiling(m) for m in member_ids) if member_ids else None
-        self.total_budget = self.heads(member_ids) * self.budget_floor if member_ids else None
 
     def majority(self) -> int:
         return len(self.members) // 2 + 1

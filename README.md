@@ -7,16 +7,18 @@ Round 1 said what the agent does. This repository is the agent, assembled: the f
 three rail interfaces (voice / payments / logistics), a mock implementation of each so the whole thing runs
 offline, and real adapters for **Gnani** (text-to-speech and speech-to-text, the two verbs a P0 call is built
 from) and **Pine Labs Online** (UPI One-Time Mandates — block now, debit at booking, release otherwise). The eight Round-2 answers as submitted are in
-`docs/round2-final.md` (source: `docs/Quorum_Round_2_Final.docx`); `docs/round2-answers.md` is the working
-draft this code was built from. The final state flow is `docs/quorum-flow-final.webp`, with an interactive
+`docs/round2-final.md` (source: `docs/Quorum_Round_2_Final.docx`), and the engine follows the final flow's
+money rules; `docs/round2-answers.md` is the working draft that led to them. The final state flow is `docs/quorum-flow-final.webp`, with an interactive
 walk-through in `docs/quorum-trip-flow.html`.
 
 ## The flow, in one line
 
-The organiser gives a **rough budget** and a **maximum overshoot** → the agent builds **one itinerary inside
-that budget** → **each payer votes on it privately**, and only the tally reaches the group → **the yes-voters
-set the trip's budget** (the heads they pay for × the lowest per-head ceiling among them) and the plan is
-**re-sized for exactly those heads** and must fit → **each payer blocks their own share × (1 + overshoot)**, by
+The organiser gives a **rough budget** and a **maximum overshoot**, and each payer gives **their own per-head
+ceiling** → the agent builds **one itinerary** where every payer's quote per head fits both budget × (1 +
+overshoot) and their own ceiling (the only place the overshoot applies) → **each payer votes on it privately**,
+and only the tally reaches the group → the plan is **re-sized for exactly the yes-voters** and each share must
+fit **heads × that payer's own ceiling**; nobody's excess is averaged onto the group → **each payer blocks that
+cap, not rounded up** (headroom = cap − what has been charged), by
 UPI mandate or a payment link (a card is held, EMI if they like; pay later via LazyPay if the share is
 inside its limit; anything that can't hold pays now into the pool) → the agent **captures each share into
 Quorum's account and pays every supplier from it**, by the deadline the organiser set.
@@ -80,9 +82,9 @@ shows the wall: three debits refunded, nothing booked.
 |---|---|---|
 | INITIATED | Organiser adds Quorum to the group: destination, dates, occasion, rough budget per head, maximum overshoot | — |
 | GATHERING | Private DM to each member: how many people they're paying for (names help), start city, return city, dates they can't do, their own per-head ceiling, must-haves. Reply deadline; silence = just them, home city both ways, at the organiser's figure | — |
-| PLANNING | Trip side: stays ranked by the occasion's priority; stays with no online inventory get a **supplier call** (availability, group rate, refund terms, 48-hour hold; retry once; the call's price wins). Travel side: per member, out and back, searched separately. Total must fit budget × (1 + overshoot) per head | logistics, **voice** |
+| PLANNING | Trip side: stays ranked by the occasion's priority; stays with no online inventory get a **supplier call** (availability, group rate, refund terms, a hold of at least 96 hours; retry once; the call's price wins). Travel side: per member, out and back, searched separately. Each payer's quote per head must fit budget × (1 + overshoot) and their own ceiling; one who doesn't is told privately | logistics, **voice** |
 | VOTING | One itinerary DM'd to each member: their legs, the stay split, on leisure trips the one pre-booked activity the group shares (an essential) and the things to do on the day, their all-in against their own ceiling, what they'd authorise, and one line about the place. Yes/no with a reason, privately. One reminder text. Majority of members ⇒ passes; else up to two revisions built from the reasons; then the organiser decides. When it passes, everyone who said no or nothing gets one private nudge with their own number and 12 hours to flip in | — |
-| AUTHORISING | The yes-voters set the budget: the heads they pay for × the lowest per-head ceiling among them. The plan is re-sized for exactly those heads (rooms re-split, seats per payer; the same hook is where a car or an activity would re-size) and must fit that budget, else it goes back to the group as a revision. Then every yes-voter blocks share × (1 + overshoot) their way: a UPI mandate (Reserve Pay keeps the headroom live; an OTM takes one capture), or a payment link (a card is held for one capture, EMI tenures quoted; a method that can't hold pays now and the money waits in the pool, refunded if the trip lapses). Yes-voters who don't block drop out and the rest are re-sized and re-checked: inside ⇒ proceed, over ⇒ back to the group. Nobody can revoke from their own app; they ask Quorum, which releases | **payments** |
+| AUTHORISING | The plan is re-sized for exactly the yes-voters' heads (rooms re-split, seats per payer; the same hook is where a car or an activity would re-size) and each share must fit heads × that payer's own ceiling, else it goes back to the group as a revision (the group hears how many are over, never who). Then every yes-voter blocks that cap, heads × their own ceiling, their way: a UPI mandate (Reserve Pay keeps the headroom live; an OTM takes one capture), or a payment link (a card is held for one capture, EMI tenures quoted; a method that can't hold pays now and the money waits in the pool, refunded if the trip lapses). Yes-voters who don't block drop out and the rest are re-sized and re-checked: inside ⇒ proceed, over ⇒ back to the group. Nobody can revoke from their own app; they ask Quorum, which releases | **payments** |
 | BOOKING | Re-price at live fares (inside the cap: absorbed, shown on the receipt; over: only that member is asked to top up). Re-hold an expired phone hold. Debit every share into **the pool, Quorum's merchant account**; **one failure refunds the rest and stops**. Book legs and stays and **pay each supplier from the pool**, logged per booking. The pool can never go negative: nobody fronts, Quorum included | payments, logistics, voice |
 | BOOKED | Tickets and vouchers in DMs; the group gets one post. A cancelled leg's refund comes back into the pool and the re-booked ticket is paid from it, inside the member's cap (a late arrival gets the phone-only stay a call); if every alternative is over the cap: a text with options, then an **escalation call** after 20 minutes, then a top-up from that member. A **missed** departure is the member's: every way to still get there (later flights, a train, an Uber Outstation cab) goes to them soonest-first, no refund, paid from their headroom or a top-up. One fact about the place per traveller per day from booking to departure (P2, 09:00, never repeated); countdown texts with PNR at T-7 and T-1 | logistics, voice, payments |
 | LAPSED / CLOSED | Nothing booked, nothing charged | — |
@@ -179,7 +181,7 @@ static/index.html  demo UI
 demo.py            three terminal transcripts (docs/demo_transcript.txt is its output)
 tests/             the loop and every unhappy turn against the mocks; the voice rail's parsers and file loop
 docs/round2-final.md    the eight Round-2 answers as submitted (Quorum_Round_2_Final.docx)
-docs/round2-answers.md  the working draft this code implements
+docs/round2-answers.md  the working draft the final answers came from
 docs/quorum-flow-final.webp, docs/quorum-trip-flow.html  the final state flow: diagram and interactive walk-through
 docs/rails.md      what exists, what we ask, where it breaks
 HANDOFF.md         next tasks, in priority order, for whoever builds next
