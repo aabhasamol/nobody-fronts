@@ -336,6 +336,7 @@ class Trip(BaseModel):
     votes: dict[str, Vote] = Field(default_factory=dict)
     vote_deadline: Optional[datetime] = None
     reminded: list[str] = Field(default_factory=list)
+    taking_time: list[str] = Field(default_factory=list)   # asked for time to decide: no halfway nudge, the deadline still stands
     awaiting_organiser: Optional[str] = None # why the agent stopped and asked: no_fit / vote_failed
     stays_out: list[str] = Field(default_factory=list)  # phone-only stays that had no rooms or never answered
     authorisations: dict[str, Authorisation] = Field(default_factory=dict)

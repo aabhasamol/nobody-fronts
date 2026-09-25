@@ -34,6 +34,7 @@ The loop, in one sentence: the organiser gives a rough budget and a maximum over
 14. **The place does the convincing:** every message that had to go anyway carries one line about the destination, never repeated to the same person. The outs get one private nudge and 12 hours to flip in.
 15. **Missed departures are the member's:** every way to still get there today (later flights, a train, an Uber Outstation cab) goes to them, no refund, their headroom or a top-up.
 16. **Fewest bottlenecks:** six taps to build the plan; names, dates of birth, food and medical only after a yes.
+17. **The group is fun, the DM is where the decision is made:** a DM carries everything needed to weigh a yes (number, coverage, when money moves, what's refundable, deadline, what silence means) and then leaves the person alone. `member_takes_time` (POST `/time`) suppresses the halfway reminder; the deadline never moves. No guilt lines, no names in the group, never a call to chase.
 
 ---
 

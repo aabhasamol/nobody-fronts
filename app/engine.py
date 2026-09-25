@@ -318,6 +318,25 @@ class Engine:
         if all(t in trip.votes for t in p.travellers):
             self.tally(trip)
 
+    def member_takes_time(self, trip: Trip, member_id: str, text: Optional[str] = None) -> None:
+        """"I need to think." Allowed while their vote or their block is open. They get the facts they need to decide
+        (the deadline, what silence means, what money moves when) and no further nudge before the deadline. The
+        deadline itself does not move: the plan is fair to the others only if it closes when it said it would."""
+        m = trip.member(member_id)
+        if trip.state == TripState.VOTING:
+            assert member_id in trip.plan().travellers and member_id not in trip.votes, "nothing open to decide"
+            deadline, stage = trip.vote_deadline, "vote"
+        elif trip.state == TripState.AUTHORISING:
+            a = trip.authorisations.get(member_id)
+            assert a and a.status == AuthStatus.PENDING, "nothing open to decide"
+            deadline, stage = trip.auth_deadline, "block"
+        else:
+            raise AssertionError(f"nothing to decide in {trip.state}")
+        self._say(trip, f"dm:{m.id}", text or "Need a bit of time to think this over.", actor=m.name)
+        if member_id not in trip.taking_time:
+            trip.taking_time.append(member_id)
+        self._say(trip, f"dm:{m.id}", M.dm_time_ack(trip, m, deadline, stage))
+
     def close_vote(self, trip: Trip) -> None:
         if trip.state != TripState.VOTING:
             return
@@ -898,7 +917,7 @@ class Engine:
                 self.close_vote(trip)
             elif now >= trip.vote_deadline - timedelta(hours=VOTE_WINDOW_H / 2):
                 for t in trip.plan().travellers:
-                    if t not in trip.votes and t not in trip.reminded:      # one reminder text, never a call
+                    if t not in trip.votes and t not in trip.reminded and t not in trip.taking_time:   # one text, never a call; none if they asked for time
                         trip.reminded.append(t)
                         self._say(trip, f"dm:{t}", M.dm_vote_reminder(trip.member(t), trip.vote_deadline))
         if trip.state == TripState.AUTHORISING and trip.auth_deadline:
@@ -907,7 +926,7 @@ class Engine:
             elif now >= trip.auth_deadline - timedelta(hours=AUTH_WINDOW_H / 2):
                 for m in trip.in_members():                                   # one reminder text, never a call
                     a = trip.authorisations.get(m.id)
-                    if a and a.status == AuthStatus.PENDING and m.id not in trip.reminded:
+                    if a and a.status == AuthStatus.PENDING and m.id not in trip.reminded and m.id not in trip.taking_time:
                         trip.reminded.append(m.id)
                         self._say(trip, f"dm:{m.id}", M.dm_authorise_reminder(m, a, trip.auth_deadline, self._hook(trip, m.id)))
         for d in list(trip.pending.values()):

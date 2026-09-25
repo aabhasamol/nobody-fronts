@@ -38,6 +38,13 @@ it's booked every traveller gets one fact about the place a day, and a countdown
 before carries their PNR. `app/lore.py` is the
 table; swap in a real source and nothing else changes.
 
+**The group is where the trip is fun; the DM is where the decision is made.** People say yes only after
+weighing money, dates, work and who else is going, so every DM gives them what they need to weigh it — their
+own number, what it covers, what money moves when, what is refundable, the deadline, what silence means — and
+then leaves them alone: one reminder, none if they said they need time (`member_takes_time`), never a call to
+chase, no guilt, and a no is never named or questioned in the group. The agent wants the trip to happen inside
+realistic boundaries; the deadline is the boundary, not the pressure.
+
 Trip and travel are planned separately: the stay is shared and the occasion decides what it optimises
 (a wedding ranks stays by distance to the venue and lands you before the first function; a leisure trip
 ranks by price); travel is per member, outbound and return searched separately, from and back to *their*

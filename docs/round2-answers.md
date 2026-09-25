@@ -79,6 +79,12 @@ KP's points are still in it: trip and travel are planned separately, and the occ
    reel, the quiet beach for the parents. At decision time the outs get one private nudge with their own
    number and 12 hours to flip in; after booking, one fact about the place a day until departure, and a
    countdown text with their PNR a week out and the day before.
+12. **The group is where the trip is fun; the DM is where the decision is made.** People decide only after
+   weighing money, dates, work and who else is going. So the DM gives them everything to weigh it — their own
+   number, what it covers, what money moves when, what's refundable, the deadline, what silence means — and
+   then leaves them alone: one reminder, none if they say they need time, never a call to chase, no guilt,
+   and a no is never named or questioned in the group. The agent wants the trip to happen, inside realistic
+   boundaries: the deadline is the boundary, not the pressure.
 9. **Two ways to block, the payer's choice:** a UPI mandate (nothing moves until booking; Reserve Pay keeps
    the headroom live), or a payment link — a credit card is only held (one capture at booking, EMI if they
    like), and any method that can't hold pays now, the money waiting in Quorum's account and refunded in full
@@ -224,7 +230,11 @@ extension of its supplier contracts. Alternative: ixigo, for trains.
   commands: `revise`, `raise budget to 22k`, `close trip`.
 * **Members, in private WhatsApp DMs:** answer the gathering questions (text or voice note) — including how
   many people they're paying for — receive the itinerary with their own cost, and vote yes/no with a reason.
-  Nobody sees anyone else's vote, reason or party, only the tally.
+  Nobody sees anyone else's vote, reason or party, only the tally. The DM is built for weighing it up, not for
+  pushing: their own number, what money moves when, what's refundable, the deadline and what silence means, in
+  one message. "Need time" gets the facts again and no further nudge; the deadline stands. The group chat
+  stays the fun place: the kickoff, the tally, the booking and one line about the place, never a name or a
+  deadline threat.
 * **Members, in their UPI app or on a payment link:** approving the mandate, or holding a card, is the "I'm
   in". No transfer to the organiser: the money settles into Quorum's account and Quorum pays the suppliers.
 * **The group chat:** gets four posts: kickoff, the tally, the booking confirmation with tickets, and any

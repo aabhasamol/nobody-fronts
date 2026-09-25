@@ -3,6 +3,13 @@
 House rules: short sentences, one ask per message, always a default and a deadline, never a group poll.
 The group chat gets four kinds of post: kickoff, the tally, the booking, and any disruption. Everything
 else is a private DM.
+
+The group is where the trip is fun; the DM is where the decision is made. People decide only once they have
+weighed everything — money, dates, work, who else is going — so a DM gives them everything they need to
+weigh it (their own number, what it covers, what money moves when, what is refundable, the deadline, what
+silence means) and then leaves them alone: one reminder, none if they asked for time, never a call to
+chase, never guilt, and a no is never questioned or named in the group. The agent wants the trip to happen,
+inside realistic boundaries; the deadline is the boundary, not the pressure.
 """
 from __future__ import annotations
 from datetime import datetime
@@ -120,9 +127,12 @@ def dm_vote(trip: Trip, m: Member, p: Plan, deadline: datetime, hook: str | None
     each = f"{fmt_inr(per_head)} a head, {vs} the {fmt_inr(ceiling)} you gave me" + (f"; {fmt_inr(share)} for the {k} of you" if k > 1 else "")
     lines.append(f"Your all-in: {each}. If it goes ahead you'd authorise up to {fmt_inr(cap_for(trip, share))} — your "
                  f"share plus {fmt_pct(trip.overshoot)} so I can re-book you if a fare moves or a flight cancels.")
-    lines.append(f"Reply yes or no by {fmt_dt(deadline)}. If no, say what would make it a yes. Only the tally goes to "
-                 f"the group. Whoever says yes sets the budget: the heads you're paying for × the lowest ceiling among "
-                 f"you, and I re-size the plan for exactly who's in.")
+    lines.append(f"Money: nothing now. If it passes, you'd block that amount in your UPI app or on a link; it's charged "
+                 f"only when everything books, and released or refunded in full if the trip doesn't happen. Flights "
+                 f"are non-refundable once booked; the stay's terms are above.")
+    lines.append(f"Take the time you need, until {fmt_dt(deadline)} — ask me anything here. Yes or no is between us; "
+                 f"only the count goes to the group, and if it's a no, a word on why helps me revise. If I don't hear "
+                 f"back I'll count you as not in this time.")
     return "\n".join(lines)
 
 
@@ -141,12 +151,13 @@ def dm_details_ack(m: Member) -> str:
 
 def dm_nudge_out(trip: Trip, m: Member, reason: str, per_head_if_in: int, hook: str | None, until: datetime) -> str:
     r = reason.lower()
-    answer = ("With you in it's cheaper for everyone, you included" if any(w in r for w in ("expens", "cheap", "cost", "price", "budget", "₹"))
+    answer = ("With more people the rooms split better, so it costs less than what you voted on" if any(w in r for w in ("expens", "cheap", "cost", "price", "budget", "₹"))
               else "If it was the dates, tell me which ones and I'll check the fares" if any(w in r for w in ("date", "leave", "off work", "exam"))
               else "If something in the plan put you off, say what and I'll see if it can change")
-    return (f"{m.first}, the others are going. {answer}: your all-in would be {fmt_inr(per_head_if_in)} a head."
-            + (f" {hook}" if hook else "") +
-            f" Say yes by {fmt_dt(until)} and you're in on the same terms; after that the plan is booked for those who said yes.")
+    return (f"{m.first}, the others are going, so one fact in case it changes anything. {answer}: your all-in would be "
+            f"{fmt_inr(per_head_if_in)} a head." + (f" {hook}" if hook else "") +
+            f" Say yes by {fmt_dt(until)} and you're in on the same terms. No pressure — if it stays a no, that's the "
+            f"end of it and nobody in the group hears why.")
 
 
 def dm_vote_ack(m: Member, yes: bool) -> str:
@@ -155,7 +166,18 @@ def dm_vote_ack(m: Member, yes: bool) -> str:
 
 def dm_vote_reminder(m: Member, deadline: datetime) -> str:
     return (f"{m.first}, a nudge — yes or no on the plan by {fmt_dt(deadline)}? If I don't hear back I'll count "
-            f"you as not in this time.")
+            f"you as not in this time. If you're still weighing it, say so and I'll leave you to it until then.")
+
+
+def dm_time_ack(trip: Trip, m: Member, deadline: datetime, stage: str) -> str:
+    """The facts someone needs to decide, then silence until the deadline."""
+    if stage == "vote":
+        what = (f"Your number and the plan are above; nothing is charged by a yes. If I don't hear back by then I'll "
+                f"count you as not in this time, and nobody in the group hears either way.")
+    else:
+        what = (f"Your share is blocked, not charged, and only once everyone who's in has approved; if you don't "
+                f"approve by then you're simply not on this one, nothing is charged, and nobody is told why.")
+    return f"Of course, {m.first}. The deadline stays {fmt_dt(deadline)}. {what} I won't nudge you again before then; ask me anything here."
 
 
 def group_tally(trip: Trip, yes: int, no: int, silent: int, passed: bool, revising: bool = False) -> str:
@@ -179,8 +201,8 @@ def group_go(trip: Trip, intro: str, changes: list[str]) -> str:
          f"ceiling among the {n} who are in). Plan re-sized for {heads}" + (f": {'; '.join(changes)}" if changes else "") +
          f" — comes to {fmt_inr(p.total())}, inside it. I've DM'd each of the {n} how to block their own share: a UPI "
          f"mandate, or a payment link. Nothing is charged until everyone who's in has approved, by "
-         f"{fmt_dt(trip.auth_deadline)}; then I book everything and pay the suppliers from Quorum's account. Anyone "
-         f"who doesn't approve by then is simply not on the trip.")
+         f"{fmt_dt(trip.auth_deadline)}; then I book everything and pay the suppliers from Quorum's account. The "
+         f"details are in your DMs — take your time, and ask me there.")
     return s
 
 
@@ -234,7 +256,8 @@ def dm_authorise(trip: Trip, m: Member, p: Plan, share: int, cap: int, old_share
 
 def dm_authorise_reminder(m: Member, a: Authorisation, deadline: datetime, hook: str | None = None) -> str:
     return (f"{m.first}, a nudge — the UPI request and the payment link for {fmt_inr(a.amount)} are still waiting for "
-            f"you. Use either by {fmt_dt(deadline)} or I'll take you off the plan; nothing is charged either way."
+            f"you. Use either by {fmt_dt(deadline)}, or I'll assume you're sitting this one out; nothing is charged "
+            f"either way, and nobody is told why."
             + (f" {hook}" if hook else ""))
 
 
