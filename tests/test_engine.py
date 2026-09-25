@@ -153,19 +153,19 @@ def test_dropout_at_the_deadline_reprices_the_rest_and_proceeds_inside_their_cap
     assert any("dropped out, so the rooms now split" in e.text for e in trip.events if e.channel == f"dm:{members[0].id}")
 
 
-def test_revoked_mandate_is_a_dropout_and_a_reprice_over_the_cap_goes_back_to_the_group():
+def test_withdrawing_after_blocking_is_a_dropout_and_a_reprice_over_the_cap_goes_back_to_the_group():
     engine, members, trip, _ = make()
     vote_all(engine, trip, members, no=("Karan",))
     for m in members[:4]:
         engine.member_approves(trip, m.id) if m.first != "Riya" else None
     engine.member_approves(trip, members[3].id)                                   # everyone in... (booking fires)
     assert trip.state == TripState.BOOKED
-    # the same thing with Riya revoking instead of approving: three left, two rooms, shares go over the caps
+    # the same thing with Riya asking out after blocking: three left, two rooms, shares go over the caps
     engine, members, trip, _ = make()
     vote_all(engine, trip, members, no=("Karan",))
-    for m in members[:3]:
-        engine.member_approves(trip, m.id)
-    engine.member_revokes(trip, members[3].id)
+    for m in members[:4]:
+        engine.member_approves(trip, m.id) if m.first != "Aditi" else None
+    engine.member_withdraws(trip, members[3].id)
     assert trip.state == TripState.VOTING and trip.plan().version == 2
     assert len(trip.plan().travellers) == 3 and not trip.authorisations
     assert any("released — plan going back to the group" in e.text for e in trip.events)

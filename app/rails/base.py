@@ -58,12 +58,16 @@ class PaymentsRail(ABC):
 
     @abstractmethod
     def refresh(self, auth: Authorisation) -> Authorisation:
-        """Poll the rail for the mandate's current status (PENDING → BLOCKED, or REVOKED / EXPIRED)."""
+        """Poll the rail for the block's current status (PENDING → BLOCKED, or REVOKED / EXPIRED)."""
+
+    @abstractmethod
+    def emi_offers(self, amount: int) -> list[tuple[int, int]]:
+        """(months, monthly INR) tenures a credit card could pay this amount in. Pine Labs: Offer Discovery."""
 
     @abstractmethod
     def capture(self, auth: Authorisation, amount: int) -> Authorisation:
-        """Present `amount` against a blocked mandate. Cumulative presentations never exceed auth.amount.
-        Raises CaptureFailed if the bank declines."""
+        """Debit `amount` against a block: a UPI presentation, or a card capture. Cumulative debits never exceed
+        auth.amount, and a single-capture instrument accepts one. Raises CaptureFailed if the bank declines."""
 
     @abstractmethod
     def refund(self, auth: Authorisation) -> Authorisation:

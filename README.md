@@ -14,8 +14,8 @@ this code is what they describe.
 The organiser gives a **rough budget** and a **maximum overshoot** → the agent builds **one itinerary inside
 that budget** → **each member votes on it privately**, and only the tally reaches the group → **the yes-voters
 set the trip's budget** (their number × the lowest ceiling among them) and the plan is **re-sized for exactly
-them** and must fit → **each authorises their own share × (1 + overshoot)** by UPI mandate → the agent
-**debits each share into Quorum's account and pays every supplier from it**.
+them** and must fit → **each blocks their own share × (1 + overshoot)**, by UPI mandate or a credit-card hold
+with EMI if they like → the agent **captures each share into Quorum's account and pays every supplier from it**.
 
 Trip and travel are planned separately: the stay is shared and the occasion decides what it optimises
 (a wedding ranks stays by distance to the venue and lands you before the first function; a leisure trip
@@ -28,7 +28,7 @@ into anyone else's.
 ```bash
 pip install -r requirements.txt
 python demo.py                      # three transcripts: wedding (book + two disruptions), leisure (failed vote → revision → dropout), the payments wall
-pytest -q                           # 36 tests: the loop, every unhappy turn, the pool, and the voice rail on files
+pytest -q                           # 43 tests: the loop, every unhappy turn, the pool, the instruments, and the voice rail on files
 ./run.sh                            # web UI at http://localhost:8000
 python scripts/speech_demo.py --dry-run          # what the real Gnani loop would cost (≈ ₹1.13 once, then ₹0)
 QUORUM_VOICE=gnani python demo.py                # the same demo with real TTS/STT; replies from cache/replies/<callee>/
@@ -81,7 +81,7 @@ wait — and the UI badges the calls.
 | Rail | Mock (default) | Real adapter | Status |
 |------|----------------|--------------|--------|
 | Voice | `MockVoice` — Dona Maria Homestay doesn't pick up once, then confirms at ₹400/night over the figure we had; Fisherman's Rest is full; escalation calls reach the member, who takes option 1 | `GnaniSpeechVoice` — Gnani TTS speaks each line, Gnani STT transcribes each reply, rules read the fields (rooms, rate, refund terms, hold; the option chosen). The phone line is a separate three-method seam, `Telephony`; the default `FileTelephony` writes the agent's audio to files and takes replies from recordings | **Runs today** with the key in `app/keys.py`: record the homestay owner's answers on a phone into `cache/replies/dona-maria-homestay-assagao/`, run `python scripts/speech_demo.py --call cache/replies/dona-maria-homestay-assagao`, read the fields. A carrier (Exotel, Twilio) behind `Telephony` is a day's work |
-| Payments | `MockPayments` — in-memory OT mandates with `approve()`, `revoke()`, cumulative `capture()`, `refund()`, `fail_capture_for` to bounce one debit, and **the pool**: captures settle into it, `pay_supplier()` draws on it and refuses to go negative | `PineLabsPayments` — customer → OT subscription → CREATE_MANDATE → presentation(s) → refund; supplier payouts are recorded as instructions until a B2B travel wallet or bank transfer is wired | Written against docs; needs UAT keys with OTM enabled. To verify in the sandbox: a second presentation on the same OT mandate, and the refund endpoint |
+| Payments | `MockPayments` — a block per member that the member fixes as **UPI Reserve Pay** (multi-debit), a **UPI one-time mandate** (one capture) or a **credit-card hold** (one capture, 7-day life, EMI tenures offered); cumulative `capture()`, `refund()`, `fail_capture_for` to bounce one debit, and **the pool**: captures settle into it, `pay_supplier()` draws on it and refuses to go negative | `PineLabsPayments` — one pre-authorised **payment link** per member (`pre_auth: "true"`, CARD + UPI, expiring at the deadline) → Capture Order / Cancel Order → Refunds; Offer Discovery for EMI tenures; Payouts for suppliers | Written against pinelabs.com/docs; needs UAT keys with Pay by Link + pre-authorization enabled. Every path is marked [verify] in the file |
 | Logistics | `MockLogistics` — hand-written fares for Kolkata / Bengaluru / Delhi / Mumbai ↔ Goa, five stays (two phone-only), `drift` to move live fares | none yet | Delhivery's role in this opening is distances (ranking stays by km to the venue), not parcels; `km_to_venue` is hand-written today |
 
 Switch with `QUORUM_VOICE=gnani` and `QUORUM_PAYMENTS=pinelabs` (see `.env.example`). **Keys:** the Gnani
@@ -94,12 +94,13 @@ git-ignored.
 
 Short version — full argument in `docs/rails.md` and `docs/round2-answers.md` §4:
 
-* **Pine Labs.** Quorum is the merchant of record: members' mandates settle into Quorum's account, the
-  pool, and Quorum pays suppliers from it. The ask is a **group order with escrow**: N UPI one-time mandates
-  bound to one order, a shared expiry, an **atomic capture** into a per-order escrow, and settlement to the
-  suppliers (or to Quorum's wallet) only when the order is secured. Today `Engine._capture_all` loops one
-  presentation per member and, when the fourth fails, refunds the three that went through. That is a
-  compensating rollback with three counterparties, not atomicity. `python demo.py` shows it happening.
+* **Pine Labs.** Quorum is the merchant of record: members' blocks (card holds, UPI mandates, Reserve Pay)
+  settle into Quorum's account, the pool, and Quorum pays suppliers from it. The ask is a **group order with
+  escrow**: N blocks bound to one order, a shared expiry, an **atomic capture** into a per-order escrow, and
+  settlement to the suppliers only when the order is secured. Pine Labs already has the two halves: split
+  settlement holds one payer's money and releases it on a call, and P3P lets an agent spend inside one
+  consumer's mandate. Today `Engine._capture_all` loops one capture per member and, when the fourth fails,
+  refunds the three that went through. `python demo.py` shows it happening.
 * **Gnani.** Its API is text-to-speech and speech-to-text, and that is what we use. Three asks: (1)
   **normalised entities in the transcript** — amounts, dates, yes/no — so "teen hazaar do sau" comes back as
   3200 and "haan… matlab nahi" as a no; today `app/rails/gnani.py` reads fields with rules and number-words

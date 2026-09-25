@@ -166,16 +166,47 @@ class Vote(BaseModel):
     at: datetime
 
 
+# How a member blocks their share. The engine treats them alike; the differences are in what happens after the
+# first debit, and each rail adapter maps them onto its own APIs.
+# Facts from pinelabs.com/docs (Sept 2026): a UPI one-time mandate blocks up to ₹1 lakh for up to 60 days, takes one
+# capture (partial allowed) and the merchant releases the rest; the customer cannot revoke it from their UPI app.
+# UPI Reserve Pay takes multiple debits against one reserved amount. A card pre-authorisation lives 5–7 days and
+# takes one capture. None of them can be undone by the member alone: they ask Quorum, and Quorum releases.
+INSTRUMENTS = {
+    "UPI_RESERVE": dict(label="UPI Reserve Pay", multi_debit=True, max_validity_days=60, max_amount=100_000,
+                        note="block once in the bank account, debit more than once inside the block: the headroom stays live"),
+    "UPI_OTM": dict(label="UPI one-time mandate", multi_debit=False, max_validity_days=60, max_amount=100_000,
+                    note="block once, one capture (partial allowed); the uncaptured balance is released"),
+    "CARD_PREAUTH": dict(label="credit card hold", multi_debit=False, max_validity_days=7, max_amount=None,
+                         note="pre-authorisation on the card, one capture within 5–7 days; the rest of the hold is released at capture"),
+}
+
+
 class Authorisation(BaseModel):
     member_id: str
     plan_id: str
     amount: int                              # INR — the cap: share × (1 + overshoot), or a top-up
     purpose: str = "SHARE"                   # SHARE / TOP_UP
+    instrument: Optional[str] = None         # one of INSTRUMENTS, chosen by the member when they approve
+    emi_months: Optional[int] = None         # card only: the share paid to the issuer in instalments; Quorum is settled in full
     status: AuthStatus = AuthStatus.PENDING
-    rail_ref: Optional[str] = None           # Pine Labs subscription_id (OT mandate)
+    rail_ref: Optional[str] = None           # Pine Labs subscription_id (UPI) or order_id (card pre-auth)
     order_ref: Optional[str] = None          # Pine Labs order_id
     created_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None    # when the block lapses on its own (a card hold: 5–7 days)
     captured_amount: int = 0                 # cumulative presentations, never above `amount`
+
+    @property
+    def multi_debit(self) -> bool:
+        return bool(self.instrument and INSTRUMENTS[self.instrument]["multi_debit"])
+
+    def headroom(self) -> int:
+        """What can still be debited without a new approval. A single-capture instrument has none once captured."""
+        if self.status not in (AuthStatus.BLOCKED, AuthStatus.CAPTURED):
+            return 0
+        if self.captured_amount and not self.multi_debit:
+            return 0
+        return self.amount - self.captured_amount
 
 
 class Payout(BaseModel):

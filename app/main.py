@@ -111,18 +111,25 @@ def vote(trip_id: str, member_id: str, body: VoteIn):
     return _view(trip_id)
 
 
+class ApproveIn(BaseModel):
+    via: str = "UPI_RESERVE"                 # UPI_RESERVE | UPI_OTM | CARD_PREAUTH
+    emi_months: Optional[int] = None         # card only
+
+
 @app.post("/trips/{trip_id}/members/{member_id}/approve")
-def approve(trip_id: str, member_id: str):
-    """The member tapped Approve in their UPI app — on their share block, or on a top-up."""
+def approve(trip_id: str, member_id: str, body: Optional[ApproveIn] = None):
+    """The member approved the block: in their UPI app, or on the card page — their share, or a top-up."""
     trip = _trip(trip_id)
-    _guard(lambda: engine.member_approves(trip, member_id))
+    body = body or ApproveIn()
+    _guard(lambda: engine.member_approves(trip, member_id, body.via, body.emi_months))
     return _view(trip_id)
 
 
-@app.post("/trips/{trip_id}/members/{member_id}/revoke")
-def revoke(trip_id: str, member_id: str):
+@app.post("/trips/{trip_id}/members/{member_id}/withdraw")
+def withdraw(trip_id: str, member_id: str):
+    """The member asks Quorum to release their block. (A mandate or card hold can't be revoked from their own app.)"""
     trip = _trip(trip_id)
-    _guard(lambda: engine.member_revokes(trip, member_id))
+    _guard(lambda: engine.member_withdraws(trip, member_id))
     return _view(trip_id)
 
 
@@ -275,5 +282,7 @@ def _view(trip_id: str) -> dict:
     d["totals"] = {p.id: p.total() for p in t.plans}
     d["pool"] = payments.pool()
     d["ceilings"] = {m.id: t.ceiling(m.id) for m in t.members}
+    d["emi_offers"] = {mid: payments.emi_offers(a.amount) for mid, a in list(t.authorisations.items()) + list(t.top_ups.items())
+                       if a.status.value == "PENDING"}
     d["knobs"] = {"drift": getattr(logistics, "drift", {}), "fail_capture_for": sorted(getattr(payments, "fail_capture_for", []))}
     return d

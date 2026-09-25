@@ -41,16 +41,21 @@ real fares), not wider. Do not add features the loop does not need.
 ## Next tasks, in order
 
 1. **Pine Labs UAT end to end** (highest value; unblocks the Round-2 demo on a real rail)
-   * Sign up at the Pine Labs Online dashboard, get UAT client id/secret/merchant id, ask for OTM enablement.
-   * Set `QUORUM_PAYMENTS=pinelabs`, run `demo.py`. Fix field names in `app/rails/pinelabs.py` against the
-     live responses (token field, `data` envelope, `customer_id` path) — they were written from docs.
+   * Sign up at the Pine Labs Online dashboard, get UAT client id/secret/merchant id; ask for Pay by Link,
+     pre-authorization, UPI OTM / Reserve Pay and Payouts to be enabled on the MID.
+   * Set `QUORUM_PAYMENTS=pinelabs`, run `demo.py`. The adapter creates one pre-authorised payment link per
+     member; fix response field names (`payment_link_id`, `payment_link_url`, `order_id`, `status`, the
+     method used) and the Capture / Cancel Order paths against the live reference — every one is [verify].
+   * Confirm whether pay-by-link with `pre_auth` runs UPI as a one-time mandate or as an immediate debit; if
+     immediate, route UPI to the OTM / Reserve Pay flow and keep the link for cards.
+   * EMI: confirm the flow for a member who chose EMI — void the hold and complete a `CREDIT_EMI` checkout
+     for the exact share at booking (needs the member's AFA), or capture and let the issuer convert.
    * Make `capture()` block on presentation status until `SUCCESS` and raise `CaptureFailed` on `FAILED`,
      instead of recording `CAPTURED` optimistically. Wire `/webhooks/pinelabs` to reconcile.
-   * **Verify three things the engine assumes:** (a) a *second* presentation on the same OT mandate — the
-     share at booking, then a re-booking difference inside the headroom (`Engine._present`). If OTM is one
-     debit only, present share + headroom together and refund, or move the difference to a top-up mandate.
-     (b) The refund endpoint and body (`PineLabsPayments.refund`, marked [verify]). (c) Whether a merchant
-     can cancel an `ACTIVE` OT subscription, and the minimum `validity_days`.
+   * **Confirmed from the docs, no longer to verify:** an OTM takes one capture (partial allowed) and the
+     merchant releases the rest; the member cannot revoke from their app; Reserve Pay is the multi-debit
+     instrument. **Still to verify:** Reserve Pay's endpoints, the refund body, and Payouts beneficiary
+     registration.
    * Then run the wall for real: `payments.fail_capture_for` has no UAT equivalent, so use a test VPA that
      declines. Showing the rollback fail honestly is worth more than pretending it cannot.
    * **Payouts.** `PineLabsPayments.pay_supplier` only records an instruction. The real thing is a B2B travel

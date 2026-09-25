@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 import math
 import random
 from ..clock import clock
-from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, new_id
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, INSTRUMENTS, new_id
 from .base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 
@@ -73,9 +73,11 @@ class MockVoice(VoiceRail):
 
 # --------------------------------------------------------------------------- payments
 class MockPayments(PaymentsRail):
-    """Each `create_block` mints a fake OT mandate. `approve()` and `revoke()` are what the member's UPI app
-    would do; the demo UI calls them on their behalf. Put a member id in `fail_capture_for` to make their
-    presentation bounce, which is how the demo shows the partial-capture wall."""
+    """Each `create_block` mints a pending block; `approve(auth, via, emi_months)` is what the member does in
+    their UPI app or on the card page, and fixes the instrument: UPI Reserve Pay (multi-debit), a UPI one-time
+    mandate (one debit) or a credit-card pre-authorisation (one capture, 7-day window, optional EMI). `revoke()`
+    is the member cancelling in-app. Put a member id in `fail_capture_for` to make their debit bounce, which is
+    how the demo shows the partial-capture wall."""
 
     def __init__(self):
         self.ledger: dict[str, dict] = {}
@@ -84,27 +86,36 @@ class MockPayments(PaymentsRail):
         self.payouts: list[Payout] = []
 
     def create_block(self, member: Member, amount: int, validity_days: int, reference: str) -> Authorisation:
-        sub = new_id("otsub")
+        sub = new_id("blk")
         order = new_id("ord")
         self.ledger[sub] = {"member": member.id, "amount": amount, "status": "CREATED",
                             "expires": clock.now() + timedelta(days=validity_days), "captured": 0}
         return Authorisation(member_id=member.id, plan_id=reference, amount=amount,
                              status=AuthStatus.PENDING, rail_ref=sub, order_ref=order, created_at=clock.now())
 
-    def approve(self, auth: Authorisation) -> None:
-        """Simulates the member tapping 'Approve' in their UPI app."""
-        self.ledger[auth.rail_ref]["status"] = "ACTIVE"
+    def approve(self, auth: Authorisation, via: str = "UPI_RESERVE", emi_months: int | None = None) -> None:
+        """Simulates the member approving: in their UPI app, or on the card page (3-D Secure), with EMI if chosen."""
+        assert via in INSTRUMENTS, f"unknown instrument {via}"
+        assert emi_months is None or via == "CARD_PREAUTH", "EMI is a card thing"
+        limit = INSTRUMENTS[via]["max_amount"]
+        assert limit is None or auth.amount <= limit, f"a {INSTRUMENTS[via]['label']} blocks at most ₹{limit:,}"
+        row = self.ledger[auth.rail_ref]
+        row["status"], row["instrument"] = "ACTIVE", via
+        auth.instrument, auth.emi_months = via, emi_months
+        cap = INSTRUMENTS[via]["max_validity_days"]
+        if cap is not None:                                    # a card hold lives 5–7 days whatever we asked for
+            row["expires"] = min(row["expires"], clock.now() + timedelta(days=cap))
+        auth.expires_at = row["expires"]
 
-    def revoke(self, auth: Authorisation) -> None:
-        """Simulates the member revoking the mandate in their UPI app."""
-        self.ledger[auth.rail_ref]["status"] = "REVOKED"
+    def emi_offers(self, amount: int) -> list[tuple[int, int]]:
+        """Mock of Offer Discovery: three tenures, issuer interest folded in roughly (13–15 % p.a.)."""
+        return [(3, math.ceil(amount * 1.02 / 3 / 10) * 10), (6, math.ceil(amount * 1.04 / 6 / 10) * 10),
+                (9, math.ceil(amount * 1.06 / 9 / 10) * 10)]
 
     def refresh(self, auth: Authorisation) -> Authorisation:
         row = self.ledger[auth.rail_ref]
         if row["status"] == "ACTIVE" and auth.status == AuthStatus.PENDING:
             auth.status = AuthStatus.BLOCKED
-        elif row["status"] == "REVOKED" and auth.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
-            auth.status = AuthStatus.REVOKED
         elif clock.now() > row["expires"] and auth.status in (AuthStatus.PENDING, AuthStatus.BLOCKED):
             auth.status = AuthStatus.EXPIRED
             row["status"] = "EXPIRED"
@@ -112,13 +123,15 @@ class MockPayments(PaymentsRail):
 
     def capture(self, auth: Authorisation, amount: int) -> Authorisation:
         row = self.ledger[auth.rail_ref]
-        assert row["status"] in ("ACTIVE", "SUCCESS"), f"presentation on a {row['status']} mandate"
-        assert auth.captured_amount + amount <= auth.amount, "presentation above the authorised cap"
+        assert row["status"] in ("ACTIVE", "SUCCESS"), f"debit on a {row['status']} block"
+        assert auth.captured_amount + amount <= auth.amount, "debit above the authorised cap"
+        assert auth.multi_debit or auth.captured_amount == 0, f"{auth.instrument} allows one capture"
         if row["member"] in self.fail_capture_for:
-            raise CaptureFailed("issuer declined: U30 debit failed at the remitter bank")
+            raise CaptureFailed("issuer declined: " + ("card authorisation reversed by the issuer"
+                                                       if auth.instrument == "CARD_PREAUTH" else "U30 debit failed at the remitter bank"))
         row["status"] = "SUCCESS"
         row["captured"] += amount
-        self._pool += amount                                   # settles into Quorum's account
+        self._pool += amount                                   # settles into Quorum's account, in full, EMI or not
         auth.status = AuthStatus.CAPTURED
         auth.captured_amount += amount
         return auth

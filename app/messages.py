@@ -6,7 +6,7 @@ else is a private DM.
 """
 from __future__ import annotations
 from datetime import datetime
-from .models import Trip, Member, Plan, Leg, Stay, CallRecord, Authorisation
+from .models import Trip, Member, Plan, Leg, Stay, CallRecord, Authorisation, INSTRUMENTS
 
 
 def fmt_dt(d: datetime) -> str:
@@ -163,18 +163,24 @@ def group_back_to_group(trip: Trip, why: str) -> str:
 
 
 # ------------------------------------------------------------------ authorising
-def dm_authorise(trip: Trip, m: Member, p: Plan, share: int, cap: int, old_share: int) -> str:
+def dm_authorise(trip: Trip, m: Member, p: Plan, share: int, cap: int, old_share: int,
+                 emi: list[tuple[int, int]]) -> str:
     n = len(p.travellers)
     moved = ""
     if old_share != share:
         moved = (f" (it was {fmt_inr(old_share)} when the plan went to the vote; {n} are in, so the rooms split "
                  f"differently)")
+    tenures = ", ".join(f"{fmt_inr(monthly)} × {months}" for months, monthly in emi)
     return (f"{m.first}, your share of the plan is {fmt_inr(share)}{moved}, inside the {fmt_inr(trip.ceiling(m.id))} "
-            f"you gave me. Approve the UPI request I've sent: it blocks {fmt_inr(cap)} — your share plus the "
-            f"{fmt_pct(trip.overshoot)} headroom {trip.organiser().first} allowed, so I can re-book you if a fare moves "
-            f"or a flight cancels — and charges nothing now. Only what you actually owe is debited, into Quorum's "
-            f"account from which I pay the airline and the stay, never more than {fmt_inr(cap)}, and only once "
-            f"everyone who's in has approved by {fmt_dt(trip.auth_deadline)}. Otherwise the block is released.")
+            f"you gave me. Block {fmt_inr(cap)} — your share plus the {fmt_pct(trip.overshoot)} headroom "
+            f"{trip.organiser().first} allowed — either way:\n"
+            f" • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays "
+            f"live so I can re-book you if a flight cancels, no new tap.\n"
+            f" • Credit card: tap the card link to hold it. One capture at booking; EMI if you like ({tenures} months). "
+            f"A card hold is used up at capture, so a re-booking beyond the airline's refund would need one more tap.\n"
+            f"Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay "
+            f"the airline and the stay, never more than {fmt_inr(cap)}, and only once everyone who's in has approved "
+            f"by {fmt_dt(trip.auth_deadline)}. Otherwise the block is released.")
 
 
 def dm_authorise_reminder(m: Member, a: Authorisation, deadline: datetime) -> str:
@@ -183,7 +189,8 @@ def dm_authorise_reminder(m: Member, a: Authorisation, deadline: datetime) -> st
 
 
 def dm_authorise_ack(m: Member, a: Authorisation) -> str:
-    return f"Blocked {fmt_inr(a.amount)}, {m.first} — nothing charged. I'll book the moment the others have approved."
+    how = INSTRUMENTS[a.instrument]["label"] + (f", {a.emi_months}-month EMI when it's captured" if a.emi_months else "")
+    return f"Blocked {fmt_inr(a.amount)} on your {how}, {m.first} — nothing charged. I'll book the moment the others have approved."
 
 
 def dm_dropped(trip: Trip, m: Member, why: str) -> str:
@@ -214,9 +221,9 @@ def why_hold_lost(s: Stay) -> str:
 
 
 # ------------------------------------------------------------------ booking
-def dm_topup_request(trip: Trip, m: Member, cap: int, why: str) -> str:
-    return (f"{m.first}, approve the UPI request for {fmt_inr(cap)} and I'll {why} right away. Nobody else is being "
-            f"asked for anything.")
+def dm_topup_request(trip: Trip, m: Member, cap: int, why: str, instrument: str | None) -> str:
+    ask = ("tap the card link to authorise" if instrument == "CARD_PREAUTH" else "approve the UPI request for")
+    return (f"{m.first}, {ask} {fmt_inr(cap)} and I'll {why} right away. Nobody else is being asked for anything.")
 
 
 def dm_confirmation(trip: Trip, m: Member, p: Plan) -> str:
@@ -230,9 +237,13 @@ def dm_confirmation(trip: Trip, m: Member, p: Plan) -> str:
     n = len(p.travellers)
     for s in p.stays:
         lines.append(f" • {s.name}, {s.nights} nights, twin sharing — ref {s.booking_ref} — {fmt_inr(s.per_head(n))}")
-    charged = trip.authorisations[m.id].captured_amount + (trip.top_ups[m.id].captured_amount if m.id in trip.top_ups else 0)
-    lines.append(f"Charged: {fmt_inr(charged)} via your UPI mandate into Quorum's account, paid on to the suppliers above; "
-                 f"the rest of the block is released when the trip ends.")
+    a = trip.authorisations[m.id]
+    charged = a.captured_amount + (trip.top_ups[m.id].captured_amount if m.id in trip.top_ups else 0)
+    how = INSTRUMENTS[a.instrument]["label"]
+    tail = (f"; your issuer collects it as {a.emi_months} monthly instalments" if a.emi_months else
+            "; the rest of the block is released when the trip ends" if a.multi_debit else
+            "; the rest of the hold was released at capture")
+    lines.append(f"Charged: {fmt_inr(charged)} on your {how} into Quorum's account, paid on to the suppliers above{tail}.")
     return "\n".join(lines)
 
 
@@ -273,9 +284,12 @@ def dm_rebooked(m: Member, old: Leg, new: Leg, extra: int) -> str:
     return f"New PNR {new.pnr} — {leg_desc(new)}, lands {new.arrive:%H:%M}. {money}"
 
 
-def dm_disruption_options(trip: Trip, m: Member, old: Leg, options: list[Leg], budget: int, minutes: int) -> str:
-    lines = [f"{m.first}, {old.carrier} cancelled your {old.origin}→{old.destination} {old.depart:%d %b %H:%M}. "
-             f"Every alternative is over what you authorised. Options:"]
+def dm_disruption_options(trip: Trip, m: Member, old: Leg, options: list[Leg], budget: int, minutes: int,
+                          auth: Authorisation) -> str:
+    why = (f"Your card hold was used up at booking, so beyond {old.carrier}'s {fmt_inr(old.price)} refund this needs one "
+           f"more tap." if auth.instrument == "CARD_PREAUTH" else
+           f"Every alternative is over what you authorised, even with {old.carrier}'s {fmt_inr(old.price)} refund.")
+    lines = [f"{m.first}, {old.carrier} cancelled your {old.origin}→{old.destination} {old.depart:%d %b %H:%M}. {why} Options:"]
     for i, o in enumerate(options, 1):
         lines.append(f" {i}. {o.carrier} {o.depart:%H:%M}, lands {o.arrive:%H:%M} — {fmt_inr(o.price)} "
                      f"(needs {fmt_inr(o.price - budget)} more)")

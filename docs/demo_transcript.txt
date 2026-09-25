@@ -95,27 +95,39 @@ PATH: wedding — book, then two disruptions
 [Sun 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
 [Sun 10:00] RAIL logistics logistics  Budget set by the 4 who are in: 4 × ₹20,000 (lowest ceiling) = ₹80,000; plan re-sized for 4 comes to ₹68,300 (2 twin roo
 [Sun 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Budget for the trip: ₹80,000 (4 × ₹20,000, the lowest ceiling amo
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_2a096f1e created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   Block blk_0c04f64e created for Sayan: ₹20,600 (share ₹18,700 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
 [Sun 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_8e157809 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹7,010 × 3, ₹3,580 × 6, ₹2,430 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Sun 10:00] RAIL payments  payments   Block blk_f16b8b34 created for Aabhas: ₹20,600 (share ₹18,700 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at 
 [Sun 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split d
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_eca58a40 created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹7,010 × 3, ₹3,580 × 6, ₹2,430 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Sun 10:00] RAIL payments  payments   Block blk_a729fc91 created for Aditi: ₹14,000 (share ₹12,700 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
 [Sun 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,700 (it was ₹13,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_cd60bdea created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹4,760 × 3, ₹2,430 × 6, ₹1,650 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Sun 10:00] RAIL payments  payments   Block blk_b127f76f created for Riya: ₹20,100 (share ₹18,200 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at th
 [Sun 10:00] DM→Riya        agent      Riya, your share of the plan is ₹18,200 (it was ₹19,480 when the plan went to the vote; 4 are in, so the rooms split dif
-[Sun 10:00] RAIL payments  payments   Sayan approved: mandate otsub_2a096f1e ACTIVE — ₹20,600 blocked (1/4 in)
-[Sun 10:00] DM→Sayan       agent      Blocked ₹20,600, Sayan — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_8e157809 ACTIVE — ₹20,600 blocked (2/4 in)
-[Sun 10:00] DM→Aabhas      agent      Blocked ₹20,600, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Aditi approved: mandate otsub_eca58a40 ACTIVE — ₹14,000 blocked (3/4 in)
-[Sun 10:00] DM→Aditi       agent      Blocked ₹14,000, Aditi — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Riya approved: mandate otsub_cd60bdea ACTIVE — ₹20,100 blocked (4/4 in)
-[Sun 10:00] DM→Riya        agent      Blocked ₹20,100, Riya — nothing charged. I'll book the moment the others have approved.
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹6,840 × 3, ₹3,490 × 6, ₹2,370 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Sun 10:00] RAIL payments  payments   Sayan approved: blk_0c04f64e ACTIVE on UPI Reserve Pay — ₹20,600 blocked (1/4 in)
+[Sun 10:00] DM→Sayan       agent      Blocked ₹20,600 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
+[Sun 10:00] RAIL payments  payments   Aabhas approved: blk_f16b8b34 ACTIVE on credit card hold, 3-month EMI at capture, hold valid till Thu 24 Sep — ₹20,600 b
+[Sun 10:00] DM→Aabhas      agent      Blocked ₹20,600 on your credit card hold, 3-month EMI when it's captured, Aabhas — nothing charged. I'll book the moment
+[Sun 10:00] RAIL payments  payments   Aditi approved: blk_a729fc91 ACTIVE on UPI Reserve Pay — ₹14,000 blocked (3/4 in)
+[Sun 10:00] DM→Aditi       agent      Blocked ₹14,000 on your UPI Reserve Pay, Aditi — nothing charged. I'll book the moment the others have approved.
+[Sun 10:00] RAIL payments  payments   Riya approved: blk_b127f76f ACTIVE on credit card hold, hold valid till Thu 24 Sep — ₹20,100 blocked (4/4 in)
+[Sun 10:00] DM→Riya        agent      Blocked ₹20,100 on your credit card hold, Riya — nothing charged. I'll book the moment the others have approved.
 [Sun 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹18,672 is inside the ₹20,100 authorised
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_2a096f1e: ₹18,700 debited (₹1,900 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_8e157809: ₹18,700 debited (₹1,900 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_eca58a40: ₹12,700 debited (₹1,300 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_cd60bdea: ₹18,672 debited (₹1,428 headroom left)
+[Sun 10:00] RAIL payments  payments   Debited ₹18,700 on blk_0c04f64e (UPI Reserve Pay); ₹1,900 headroom stays live for a re-booking
+[Sun 10:00] RAIL payments  payments   Debited ₹18,700 on blk_f16b8b34 (credit card hold); the remaining ₹1,900 of the hold is released — one capture per credi
+[Sun 10:00] RAIL payments  payments   Debited ₹12,700 on blk_a729fc91 (UPI Reserve Pay); ₹1,300 headroom stays live for a re-booking
+[Sun 10:00] RAIL payments  payments   Debited ₹18,672 on blk_b127f76f (credit card hold); the remaining ₹1,428 of the hold is released — one capture per credi
 [Sun 10:00] RAIL payments  payments   Pool (Quorum's account) holds ₹68,772 for this trip; paying suppliers
 [Sun 10:00] RAIL logistics logistics  Stay confirmed HOLD-175954: Dona Maria Homestay, Assagao, 2 twin rooms × 4 nights for 4 — phone hold converted
 [Sun 10:00] RAIL payments  payments   Paid Dona Maria Homestay, Assagao ₹25,600 from the pool (upi, HOLD-175954) — pool now ₹43,172
@@ -126,7 +138,7 @@ PATH: wedding — book, then two disruptions
                                      • IndiGo Kolkata→Goa 02 Oct 06:00 — PNR GZDPCF — ₹6,400
                                      • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR 54ERF5 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹18,700 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹18,700 on your UPI Reserve Pay into Quorum's account, paid on to the suppliers above; the rest of the block is
 [Sun 10:00] RAIL payments  payments   Paid IndiGo ₹6,400 from the pool (b2b wallet, DHQD3D) — pool now ₹24,472
 [Sun 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, QCJU4K) — pool now ₹18,572
 [Sun 10:00] RAIL logistics logistics  Ticketed Aabhas: IndiGo Kolkata→Goa DHQD3D, IndiGo Goa→Kolkata QCJU4K
@@ -134,7 +146,7 @@ PATH: wedding — book, then two disruptions
                                      • IndiGo Kolkata→Goa 02 Oct 06:00 — PNR DHQD3D — ₹6,400
                                      • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR QCJU4K — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹18,700 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹18,700 on your credit card hold into Quorum's account, paid on to the suppliers above; your issuer collects it
 [Sun 10:00] RAIL payments  payments   Paid Akasa ₹3,400 from the pool (b2b wallet, HVMGNZ) — pool now ₹15,172
 [Sun 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, GEDP95) — pool now ₹12,272
 [Sun 10:00] RAIL logistics logistics  Ticketed Aditi: Akasa Bengaluru→Goa HVMGNZ, Akasa Goa→Mumbai GEDP95
@@ -142,7 +154,7 @@ PATH: wedding — book, then two disruptions
                                      • Akasa Bengaluru→Goa 02 Oct 12:00 — PNR HVMGNZ — ₹3,400
                                      • Akasa Goa→Mumbai 06 Oct 08:00 — PNR GEDP95 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹12,700 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹12,700 on your UPI Reserve Pay into Quorum's account, paid on to the suppliers above; the rest of the block is
 [Sun 10:00] RAIL payments  payments   Paid IndiGo ₹6,344 from the pool (b2b wallet, W77ZVR) — pool now ₹5,928
 [Sun 10:00] RAIL payments  payments   Paid Akasa ₹5,928 from the pool (b2b wallet, MRFV9X) — pool now ₹0
 [Sun 10:00] RAIL logistics logistics  Ticketed Riya: IndiGo Delhi→Goa W77ZVR, Akasa Goa→Delhi MRFV9X
@@ -150,7 +162,7 @@ PATH: wedding — book, then two disruptions
                                      • IndiGo Delhi→Goa 02 Oct 05:00 — PNR W77ZVR — ₹6,344 (+₹244 vs the fare at the vote)
                                      • Akasa Goa→Delhi 06 Oct 20:00 — PNR MRFV9X — ₹5,928 (+₹228 vs the fare at the vote)
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹18,672 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹18,672 on your credit card hold into Quorum's account, paid on to the suppliers above; the rest of the hold wa
 [Sun 10:00] GROUP          agent      Booked. Dona Maria Homestay, Assagao (HOLD-175954) for Sayan, Aabhas, Aditi, Riya, 02–06 Oct. Flights ticketed from each
 [Sun 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Kolkata→Goa 02 Oct 06:00 PNR DHQD3D
 [Sun 10:00] RAIL payments  payments   IndiGo refunds ₹6,400 for DHQD3D into the pool — pool now ₹6,400
@@ -161,18 +173,18 @@ PATH: wedding — book, then two disruptions
 [Sun 10:00] DM→Aabhas      agent      New PNR 6UEH4L — IndiGo Kolkata→Goa 02 Oct 19:00, lands 21:42. ₹500 of the cancelled fare stays in the pool for you and 
 [Sun 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Delhi→Goa 02 Oct 05:00 PNR W77ZVR
 [Sun 10:00] RAIL payments  payments   IndiGo refunds ₹6,344 for W77ZVR into the pool — pool now ₹6,844
-[Sun 10:00] DM→Riya        agent      Riya, IndiGo cancelled your Delhi→Goa 02 Oct 05:00. Every alternative is over what you authorised. Options:
-                                     1. Akasa 20:00, lands 22:36 — ₹9,120 (needs ₹1,348 more)
-                                     2. Vistara 11:00, lands 13:42 — ₹13,120 (needs ₹5,348 more)
+[Sun 10:00] DM→Riya        agent      Riya, IndiGo cancelled your Delhi→Goa 02 Oct 05:00. Your card hold was used up at booking, so beyond IndiGo's ₹6,344 ref
+                                     1. Akasa 20:00, lands 22:36 — ₹9,120 (needs ₹2,776 more)
+                                     2. Vistara 11:00, lands 13:42 — ₹13,120 (needs ₹6,776 more)
                                     Reply 1 or 2 within 20 minutes; if I can't reach you here I'll call. The rest of the group is unaffected.
 [Sun 10:00] GROUP          agent      Riya's flight was cancelled and every alternative is over their authorised cap. I've DM'd them two options; the rest of 
 [Sun 10:30] RAIL voice     voice      DISRUPTION_UNANSWERED: Called Riya (9830044444) after 20 min without a reply — CONFIRMED
 [Sun 10:30] RAIL voice     voice        Riya chose option 1
 [Sun 10:30] DM→Riya        Riya Sen   (on the call) option 1
-[Sun 10:30] RAIL payments  payments   Top-up mandate otsub_f71394b0 for Riya: ₹1,400 — PENDING
-[Sun 10:30] DM→Riya        agent      Riya, approve the UPI request for ₹1,400 and I'll re-book you on Akasa 20:00 right away. Nobody else is being asked for 
-[Sun 10:30] RAIL payments  payments   Riya approved top-up otsub_f71394b0 — ₹1,400 blocked
-[Sun 10:30] RAIL logistics logistics  Re-booked Akasa Delhi→Goa 02 Oct 20:00 PNR XK94CE at ₹9,120 (₹6,344 refund + ₹1,428 headroom + ₹1,348 top-up)
+[Sun 10:30] RAIL payments  payments   Top-up block blk_17862666 for Riya: ₹2,800 — PENDING
+[Sun 10:30] DM→Riya        agent      Riya, tap the card link to authorise ₹2,800 and I'll re-book you on Akasa 20:00 right away. Nobody else is being asked f
+[Sun 10:30] RAIL payments  payments   Riya approved top-up blk_17862666 (credit card hold, hold valid till Mon 21 Sep) — ₹2,800 blocked
+[Sun 10:30] RAIL logistics logistics  Re-booked Akasa Delhi→Goa 02 Oct 20:00 PNR XK94CE at ₹9,120 (₹6,344 refund + ₹0 headroom + ₹2,776 top-up)
 [Sun 10:30] RAIL payments  payments   Paid Akasa ₹9,120 from the pool (b2b wallet, XK94CE) — pool now ₹500
 [Sun 10:30] RAIL voice     voice      LATE_ARRIVAL: Called Dona Maria Homestay, Assagao (0832629772): Riya now arrives 22:36 — CONFIRMED
 [Sun 10:30] GROUP          agent      Riya's IndiGo 05:00 was cancelled by the carrier. Re-booked on Akasa 20:00 within what they'd already authorised — no ne
@@ -325,35 +337,50 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Mon 10:00] DM→Karan       agent      Thanks — counted.
 [Mon 10:00] RAIL logistics logistics  Budget set by the 5 who are in: 5 × ₹19,000 (lowest ceiling) = ₹95,000; plan re-sized for 5 comes to ₹75,900
 [Mon 10:00] GROUP          agent      Vote on plan v2: 5 yes, 0 no — passes (3 of 5 needed). Budget for the trip: ₹95,000 (5 × ₹19,000, the lowest ceiling amo
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_49987b40 created for Sayan: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹17,560, inside the ₹24,000 you gave me. Approve the UPI request I've sent: it blocks ₹
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_210b21a6 created for Aabhas: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹17,560, inside the ₹25,000 you gave me. Approve the UPI request I've sent: it blocks 
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_162fce43 created for Aditi: ₹13,300 block (share ₹12,060 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,060, inside the ₹20,000 you gave me. Approve the UPI request I've sent: it blocks ₹
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_e6b1c552 created for Riya: ₹18,900 block (share ₹17,160 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Riya        agent      Riya, your share of the plan is ₹17,160, inside the ₹23,000 you gave me. Approve the UPI request I've sent: it blocks ₹1
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_08d5f02d created for Karan: ₹12,800 block (share ₹11,560 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Karan       agent      Karan, your share of the plan is ₹11,560, inside the ₹19,000 you gave me. Approve the UPI request I've sent: it blocks ₹
-[Mon 10:00] RAIL payments  payments   Sayan approved: mandate otsub_49987b40 ACTIVE — ₹19,400 blocked (1/5 in)
-[Mon 10:00] DM→Sayan       agent      Blocked ₹19,400, Sayan — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_210b21a6 ACTIVE — ₹19,400 blocked (2/5 in)
-[Mon 10:00] DM→Aabhas      agent      Blocked ₹19,400, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Aditi approved: mandate otsub_162fce43 ACTIVE — ₹13,300 blocked (3/5 in)
-[Mon 10:00] DM→Aditi       agent      Blocked ₹13,300, Aditi — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Karan approved: mandate otsub_08d5f02d ACTIVE — ₹12,800 blocked (4/5 in)
-[Mon 10:00] DM→Karan       agent      Blocked ₹12,800, Karan — nothing charged. I'll book the moment the others have approved.
-[Wed 10:00] RAIL payments  payments   Mandate otsub_e6b1c552 released — Riya is out, nothing charged
+[Mon 10:00] RAIL payments  payments   Block blk_678bb132 created for Sayan: ₹19,400 (share ₹17,560 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
+[Mon 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹17,560, inside the ₹24,000 you gave me. Block ₹19,400 — your share plus the 10% headro
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹6,600 × 3, ₹3,370 × 6, ₹2,290 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Mon 10:00] RAIL payments  payments   Block blk_634bd294 created for Aabhas: ₹19,400 (share ₹17,560 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at 
+[Mon 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹17,560, inside the ₹25,000 you gave me. Block ₹19,400 — your share plus the 10% headr
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹6,600 × 3, ₹3,370 × 6, ₹2,290 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Mon 10:00] RAIL payments  payments   Block blk_547a0d54 created for Aditi: ₹13,300 (share ₹12,060 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
+[Mon 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,060, inside the ₹20,000 you gave me. Block ₹13,300 — your share plus the 10% headro
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹4,530 × 3, ₹2,310 × 6, ₹1,570 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Mon 10:00] RAIL payments  payments   Block blk_aef3a664 created for Riya: ₹18,900 (share ₹17,160 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at th
+[Mon 10:00] DM→Riya        agent      Riya, your share of the plan is ₹17,160, inside the ₹23,000 you gave me. Block ₹18,900 — your share plus the 10% headroo
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹6,430 × 3, ₹3,280 × 6, ₹2,230 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Mon 10:00] RAIL payments  payments   Block blk_b768d6e5 created for Karan: ₹12,800 (share ₹11,560 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
+[Mon 10:00] DM→Karan       agent      Karan, your share of the plan is ₹11,560, inside the ₹19,000 you gave me. Block ₹12,800 — your share plus the 10% headro
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹4,360 × 3, ₹2,220 × 6, ₹1,510 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Mon 10:00] RAIL payments  payments   Sayan approved: blk_678bb132 ACTIVE on UPI Reserve Pay — ₹19,400 blocked (1/5 in)
+[Mon 10:00] DM→Sayan       agent      Blocked ₹19,400 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
+[Mon 10:00] RAIL payments  payments   Aabhas approved: blk_634bd294 ACTIVE on UPI Reserve Pay — ₹19,400 blocked (2/5 in)
+[Mon 10:00] DM→Aabhas      agent      Blocked ₹19,400 on your UPI Reserve Pay, Aabhas — nothing charged. I'll book the moment the others have approved.
+[Mon 10:00] RAIL payments  payments   Aditi approved: blk_547a0d54 ACTIVE on UPI Reserve Pay — ₹13,300 blocked (3/5 in)
+[Mon 10:00] DM→Aditi       agent      Blocked ₹13,300 on your UPI Reserve Pay, Aditi — nothing charged. I'll book the moment the others have approved.
+[Mon 10:00] RAIL payments  payments   Karan approved: blk_b768d6e5 ACTIVE on UPI Reserve Pay — ₹12,800 blocked (4/5 in)
+[Mon 10:00] DM→Karan       agent      Blocked ₹12,800 on your UPI Reserve Pay, Karan — nothing charged. I'll book the moment the others have approved.
+[Wed 10:00] RAIL payments  payments   Mandate blk_aef3a664 released — Riya is out, nothing charged
 [Wed 10:00] DM→Riya        agent      Riya, the deadline passed without your approval, so I've taken you off this plan. Nothing was charged. Tell Sayan if tha
 [Wed 10:00] RAIL logistics logistics  Re-priced for 4: ₹54,900 against a budget of 4 × ₹19,000 = ₹76,000 (2 twin rooms at Dona Maria Homestay, Assagao instead
 [Wed 10:00] DM→Sayan       agent      Sayan, Riya dropped out, so the rooms now split among 4: your share is ₹16,600, down from ₹17,560 and still inside the ₹
 [Wed 10:00] DM→Aabhas      agent      Aabhas, Riya dropped out, so the rooms now split among 4: your share is ₹16,600, down from ₹17,560 and still inside the 
 [Wed 10:00] DM→Aditi       agent      Aditi, Riya dropped out, so the rooms now split among 4: your share is ₹11,100, down from ₹12,060 and still inside the ₹
 [Wed 10:00] DM→Karan       agent      Karan, Riya dropped out, so the rooms now split among 4: your share is ₹10,600, down from ₹11,560 and still inside the ₹
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_49987b40: ₹16,600 debited (₹2,800 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_210b21a6: ₹16,600 debited (₹2,800 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_162fce43: ₹11,100 debited (₹2,200 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_08d5f02d: ₹10,600 debited (₹2,200 headroom left)
+[Wed 10:00] RAIL payments  payments   Debited ₹16,600 on blk_678bb132 (UPI Reserve Pay); ₹2,800 headroom stays live for a re-booking
+[Wed 10:00] RAIL payments  payments   Debited ₹16,600 on blk_634bd294 (UPI Reserve Pay); ₹2,800 headroom stays live for a re-booking
+[Wed 10:00] RAIL payments  payments   Debited ₹11,100 on blk_547a0d54 (UPI Reserve Pay); ₹2,200 headroom stays live for a re-booking
+[Wed 10:00] RAIL payments  payments   Debited ₹10,600 on blk_b768d6e5 (UPI Reserve Pay); ₹2,200 headroom stays live for a re-booking
 [Wed 10:00] RAIL payments  payments   Pool (Quorum's account) holds ₹54,900 for this trip; paying suppliers
 [Wed 10:00] RAIL logistics logistics  Stay confirmed HOLD-554710: Dona Maria Homestay, Assagao, 2 twin rooms × 3 nights for 4 — phone hold converted
 [Wed 10:00] RAIL payments  payments   Paid Dona Maria Homestay, Assagao ₹19,200 from the pool (upi, HOLD-554710) — pool now ₹35,700
@@ -364,7 +391,7 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
                                      • IndiGo Kolkata→Goa 02 Oct 19:00 — PNR 4ERF5D — ₹5,900
                                      • IndiGo Goa→Kolkata 05 Oct 19:00 — PNR HQD3DQ — ₹5,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹16,600 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹16,600 on your UPI Reserve Pay into Quorum's account, paid on to the suppliers above; the rest of the block is
 [Wed 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, CJU4KH) — pool now ₹18,000
 [Wed 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, VMGNZG) — pool now ₹12,100
 [Wed 10:00] RAIL logistics logistics  Ticketed Aabhas: IndiGo Kolkata→Goa CJU4KH, IndiGo Goa→Kolkata VMGNZG
@@ -372,7 +399,7 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
                                      • IndiGo Kolkata→Goa 02 Oct 19:00 — PNR CJU4KH — ₹5,900
                                      • IndiGo Goa→Kolkata 05 Oct 19:00 — PNR VMGNZG — ₹5,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹16,600 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹16,600 on your UPI Reserve Pay into Quorum's account, paid on to the suppliers above; the rest of the block is
 [Wed 10:00] RAIL payments  payments   Paid Akasa ₹3,400 from the pool (b2b wallet, EDP95W) — pool now ₹8,700
 [Wed 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, 77ZVRM) — pool now ₹5,800
 [Wed 10:00] RAIL logistics logistics  Ticketed Aditi: Akasa Bengaluru→Goa EDP95W, Akasa Goa→Mumbai 77ZVRM
@@ -380,7 +407,7 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
                                      • Akasa Bengaluru→Goa 02 Oct 12:00 — PNR EDP95W — ₹3,400
                                      • Akasa Goa→Mumbai 05 Oct 08:00 — PNR 77ZVRM — ₹2,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹11,100 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹11,100 on your UPI Reserve Pay into Quorum's account, paid on to the suppliers above; the rest of the block is
 [Wed 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, RFV9X6) — pool now ₹2,900
 [Wed 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, UEH4LX) — pool now ₹0
 [Wed 10:00] RAIL logistics logistics  Ticketed Karan: Akasa Mumbai→Goa RFV9X6, Akasa Goa→Mumbai UEH4LX
@@ -388,7 +415,7 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
                                      • Akasa Mumbai→Goa 02 Oct 08:00 — PNR RFV9X6 — ₹2,900
                                      • Akasa Goa→Mumbai 05 Oct 08:00 — PNR UEH4LX — ₹2,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹10,600 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+                                    Charged: ₹10,600 on your UPI Reserve Pay into Quorum's account, paid on to the suppliers above; the rest of the block is
 [Wed 10:00] GROUP          agent      Booked. Dona Maria Homestay, Assagao (HOLD-554710) for Sayan, Aabhas, Aditi, Karan, 02–05 Oct. Flights ticketed from eac
 
 FINAL STATE: BOOKED   captured=₹54,900
@@ -489,31 +516,43 @@ PATH: wall — one debit fails, everyone is refunded
 [Thu 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
 [Thu 10:00] RAIL logistics logistics  Budget set by the 4 who are in: 4 × ₹20,000 (lowest ceiling) = ₹80,000; plan re-sized for 4 comes to ₹68,300 (2 twin roo
 [Thu 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Budget for the trip: ₹80,000 (4 × ₹20,000, the lowest ceiling amo
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_d8c8c7f5 created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   Block blk_aa688712 created for Sayan: ₹20,600 (share ₹18,700 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
 [Thu 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_b1cd5cde created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹7,010 × 3, ₹3,580 × 6, ₹2,430 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Thu 10:00] RAIL payments  payments   Block blk_c6ed73bd created for Aabhas: ₹20,600 (share ₹18,700 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at 
 [Thu 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split d
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_615dfc8f created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹7,010 × 3, ₹3,580 × 6, ₹2,430 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Thu 10:00] RAIL payments  payments   Block blk_972d1e2d created for Aditi: ₹14,000 (share ₹12,700 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at t
 [Thu 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,700 (it was ₹13,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_d6b33b68 created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹4,760 × 3, ₹2,430 × 6, ₹1,650 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Thu 10:00] RAIL payments  payments   Block blk_bf5d265f created for Riya: ₹20,100 (share ₹18,200 × 1.10), 4d validity, UPI Reserve Pay or card pre-auth at th
 [Thu 10:00] DM→Riya        agent      Riya, your share of the plan is ₹18,200 (it was ₹19,480 when the plan went to the vote; 4 are in, so the rooms split dif
-[Thu 10:00] RAIL payments  payments   Sayan approved: mandate otsub_d8c8c7f5 ACTIVE — ₹20,600 blocked (1/4 in)
-[Thu 10:00] DM→Sayan       agent      Blocked ₹20,600, Sayan — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_b1cd5cde ACTIVE — ₹20,600 blocked (2/4 in)
-[Thu 10:00] DM→Aabhas      agent      Blocked ₹20,600, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Aditi approved: mandate otsub_615dfc8f ACTIVE — ₹14,000 blocked (3/4 in)
-[Thu 10:00] DM→Aditi       agent      Blocked ₹14,000, Aditi — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Riya approved: mandate otsub_d6b33b68 ACTIVE — ₹20,100 blocked (4/4 in)
-[Thu 10:00] DM→Riya        agent      Blocked ₹20,100, Riya — nothing charged. I'll book the moment the others have approved.
+                                     • UPI: approve the request I've sent. It's blocked in your account, not charged, and the headroom stays live so I can r
+                                     • Credit card: tap the card link to hold it. One capture at booking; EMI if you like (₹6,840 × 3, ₹3,490 × 6, ₹2,370 × 
+                                    Nothing is charged now. Only what you actually owe is debited, into Quorum's account from which I pay the airline and th
+[Thu 10:00] RAIL payments  payments   Sayan approved: blk_aa688712 ACTIVE on UPI Reserve Pay — ₹20,600 blocked (1/4 in)
+[Thu 10:00] DM→Sayan       agent      Blocked ₹20,600 on your UPI Reserve Pay, Sayan — nothing charged. I'll book the moment the others have approved.
+[Thu 10:00] RAIL payments  payments   Aabhas approved: blk_c6ed73bd ACTIVE on credit card hold, 3-month EMI at capture, hold valid till Mon 28 Sep — ₹20,600 b
+[Thu 10:00] DM→Aabhas      agent      Blocked ₹20,600 on your credit card hold, 3-month EMI when it's captured, Aabhas — nothing charged. I'll book the moment
+[Thu 10:00] RAIL payments  payments   Aditi approved: blk_972d1e2d ACTIVE on UPI Reserve Pay — ₹14,000 blocked (3/4 in)
+[Thu 10:00] DM→Aditi       agent      Blocked ₹14,000 on your UPI Reserve Pay, Aditi — nothing charged. I'll book the moment the others have approved.
+[Thu 10:00] RAIL payments  payments   Riya approved: blk_bf5d265f ACTIVE on credit card hold, hold valid till Mon 28 Sep — ₹20,100 blocked (4/4 in)
+[Thu 10:00] DM→Riya        agent      Blocked ₹20,100 on your credit card hold, Riya — nothing charged. I'll book the moment the others have approved.
 [Thu 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹18,672 is inside the ₹20,100 authorised
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_d8c8c7f5: ₹18,700 debited (₹1,900 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_b1cd5cde: ₹18,700 debited (₹1,900 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_615dfc8f: ₹12,700 debited (₹1,300 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation for Riya on otsub_d6b33b68 FAILED: issuer declined: U30 debit failed at the remitter bank
-[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Sayan (otsub_d8c8c7f5)
-[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Aabhas (otsub_b1cd5cde)
-[Thu 10:00] RAIL payments  payments   Refunded ₹12,700 to Aditi (otsub_615dfc8f)
+[Thu 10:00] RAIL payments  payments   Debited ₹18,700 on blk_aa688712 (UPI Reserve Pay); ₹1,900 headroom stays live for a re-booking
+[Thu 10:00] RAIL payments  payments   Debited ₹18,700 on blk_c6ed73bd (credit card hold); the remaining ₹1,900 of the hold is released — one capture per credi
+[Thu 10:00] RAIL payments  payments   Debited ₹12,700 on blk_972d1e2d (UPI Reserve Pay); ₹1,300 headroom stays live for a re-booking
+[Thu 10:00] RAIL payments  payments   Presentation for Riya on blk_bf5d265f FAILED: issuer declined: card authorisation reversed by the issuer
+[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Sayan (blk_aa688712)
+[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Aabhas (blk_c6ed73bd)
+[Thu 10:00] RAIL payments  payments   Refunded ₹12,700 to Aditi (blk_972d1e2d)
 [Thu 10:00] GROUP          agent      Stopping. Riya's debit failed, so I've refunded the 3 that had gone through and booked nothing. Nobody is out of pocket.
-[Thu 10:00] DM→Sayan       agent      Riya's bank declined the presentation (issuer declined: U30 debit failed at the remitter bank). Everyone else has been r
+[Thu 10:00] DM→Sayan       agent      Riya's bank declined the presentation (issuer declined: card authorisation reversed by the issuer). Everyone else has be
 
 FINAL STATE: LAPSED   captured=₹0

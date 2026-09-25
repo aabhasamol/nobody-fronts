@@ -3,10 +3,12 @@
     python demo.py
 
   1. wedding   — phone-only homestay (no answer → retry → confirmed at the call's rate), vote passes 4–1,
-                 the stay re-splits for the four who are in, fares move inside the cap, everything books;
-                 then a cancelled flight re-booked inside the cap (late arrival → the homestay gets a call),
-                 and a second cancellation whose alternatives exceed the cap → text → no reply → escalation
-                 call → top-up from that member only.
+                 the four who are in set the budget and the stay re-splits for them; two block by UPI Reserve
+                 Pay, one holds a credit card, one holds a card with 3-month EMI; fares move inside the cap;
+                 everything books and the pool pays every supplier. Then a cancelled flight re-booked from the
+                 carrier's refund alone (late arrival → the homestay gets a call), and a second cancellation for
+                 the card-holder whose hold was used up at capture → text → no reply → escalation call → a fresh
+                 card tap for the difference, from that member only.
   2. leisure   — one stay unavailable on the call; the vote fails on price; the revision drops a night; the
                  vote passes; one yes-voter never authorises, drops out, and the rest re-price downwards.
   3. wall      — the fourth of four debits fails: the three that went through are refunded, nothing is booked.
@@ -56,8 +58,10 @@ def run_wedding(fail_capture_for=None):
     if fail_capture_for:
         payments.fail_capture_for.add(riya.id)
     logistics.drift["Delhi"] = 1.04                            # fares moved a little since the vote
-    for m in (sayan, aabhas, aditi, riya):
-        engine.member_approves(t, m.id)
+    engine.member_approves(t, sayan.id, "UPI_RESERVE")
+    engine.member_approves(t, aabhas.id, "CARD_PREAUTH", emi_months=3)
+    engine.member_approves(t, aditi.id, "UPI_RESERVE")
+    engine.member_approves(t, riya.id, "CARD_PREAUTH")
     n = show(t, n)
     if fail_capture_for:
         print(f"\nFINAL STATE: {t.state.value}   captured=₹{sum(a.captured_amount for a in t.authorisations.values()):,}")
@@ -74,7 +78,7 @@ def run_wedding(fail_capture_for=None):
     n = show(t, n)
     clock.advance(0.5); engine.tick(t)                          # 30 minutes, no reply → escalation call
     n = show(t, n)
-    engine.member_approves(t, riya.id)                          # Riya approves the top-up in her UPI app
+    engine.member_approves(t, riya.id, "CARD_PREAUTH")          # Riya taps the card link for the difference
     show(t, n)
     print(f"\nFINAL STATE: {t.state.value}   captured=₹{sum(a.captured_amount for a in t.authorisations.values()) + sum(a.captured_amount for a in t.top_ups.values()):,}")
 

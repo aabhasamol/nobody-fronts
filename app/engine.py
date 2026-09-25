@@ -24,7 +24,7 @@ from typing import Optional
 from . import messages as M
 from .clock import clock
 from .models import (Trip, Member, Constraint, Plan, Leg, Stay, Vote, Authorisation, AuthStatus, Decision,
-                     TripState, Event, CallRecord)
+                     TripState, Event, CallRecord, INSTRUMENTS)
 from .rails.base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 GATHER_WINDOW_H = 24         # how long members get to answer the private DM
@@ -357,41 +357,53 @@ class Engine:
             cap = ceil100(share * (1 + trip.overshoot))
             auth = self.payments.create_block(m, cap, validity_days, reference=p.id)
             trip.authorisations[m.id] = auth
-            self._rail(trip, "payments", f"OT mandate {auth.rail_ref} created for {m.first}: ₹{cap:,} block "
-                                         f"(share ₹{share:,} × {1 + trip.overshoot:.2f}), {validity_days}d validity — PENDING")
-            self._say(trip, f"dm:{m.id}", M.dm_authorise(trip, m, p, share, cap, old.get(m.id, share)))
+            self._rail(trip, "payments", f"Block {auth.rail_ref} created for {m.first}: ₹{cap:,} "
+                                         f"(share ₹{share:,} × {1 + trip.overshoot:.2f}), {validity_days}d validity, "
+                                         f"UPI Reserve Pay or card pre-auth at the member's choice — PENDING")
+            self._say(trip, f"dm:{m.id}", M.dm_authorise(trip, m, p, share, cap, old.get(m.id, share),
+                                                         self.payments.emi_offers(cap)))
 
-    def _approve(self, auth: Authorisation) -> Authorisation:
+    def _approve(self, auth: Authorisation, via: str, emi_months: Optional[int]) -> Authorisation:
+        assert via in INSTRUMENTS, f"unknown instrument {via}"
         if hasattr(self.payments, "approve"):                  # mock / simulator convenience
-            self.payments.approve(auth)
+            self.payments.approve(auth, via, emi_months)
         return self.payments.refresh(auth)
 
-    def member_approves(self, trip: Trip, member_id: str) -> Authorisation:
-        """The member approved a UPI request in their app: their share block, or a top-up they were asked for."""
+    @staticmethod
+    def _instrument_line(auth: Authorisation) -> str:
+        s = INSTRUMENTS[auth.instrument]["label"]
+        if auth.emi_months:
+            s += f", {auth.emi_months}-month EMI at capture"
+        if auth.expires_at and not auth.multi_debit:
+            s += f", hold valid till {auth.expires_at:%a %d %b}"
+        return s
+
+    def member_approves(self, trip: Trip, member_id: str, via: str = "UPI_RESERVE",
+                        emi_months: Optional[int] = None) -> Authorisation:
+        """The member approved a block: in their UPI app (Reserve Pay or a one-time mandate) or on the card page
+        (a pre-authorisation, with EMI at capture if they chose it). Their share block, or a top-up asked of them."""
         m = trip.member(member_id)
         top = trip.top_ups.get(member_id)
         if top is not None and top.status == AuthStatus.PENDING:
-            self._approve(top)
-            self._rail(trip, "payments", f"{m.first} approved top-up {top.rail_ref} — ₹{top.amount:,} blocked")
+            self._approve(top, via, emi_months)
+            self._rail(trip, "payments", f"{m.first} approved top-up {top.rail_ref} ({self._instrument_line(top)}) — ₹{top.amount:,} blocked")
             self._complete_top_up(trip, m)
             return top
         assert trip.state == TripState.AUTHORISING, f"cannot approve in {trip.state}"
-        auth = self._approve(trip.authorisations[member_id])
-        self._rail(trip, "payments", f"{m.first} approved: mandate {auth.rail_ref} ACTIVE — ₹{auth.amount:,} blocked "
-                                     f"({len(trip.blocked())}/{len(trip.in_members())} in)")
+        auth = self._approve(trip.authorisations[member_id], via, emi_months)
+        self._rail(trip, "payments", f"{m.first} approved: {auth.rail_ref} ACTIVE on {self._instrument_line(auth)} — "
+                                     f"₹{auth.amount:,} blocked ({len(trip.blocked())}/{len(trip.in_members())} in)")
         self._say(trip, f"dm:{m.id}", M.dm_authorise_ack(m, auth), priority="P2")
         self._maybe_book(trip)
         return auth
 
-    def member_revokes(self, trip: Trip, member_id: str) -> None:
-        """The member revoked the mandate in their UPI app. Treated exactly like not authorising."""
+    def member_withdraws(self, trip: Trip, member_id: str, text: Optional[str] = None) -> None:
+        """The member asks to be let out after blocking. A UPI mandate or a card hold cannot be revoked from their
+        own app (the OTM doc is explicit); they tell Quorum, Quorum releases the block. Treated like not authorising."""
         assert trip.state == TripState.AUTHORISING
-        auth = trip.authorisations[member_id]
-        if hasattr(self.payments, "revoke"):
-            self.payments.revoke(auth)
-        self.payments.refresh(auth)
-        self._rail(trip, "payments", f"Mandate {auth.rail_ref} {auth.status.value} by {trip.member(member_id).first}")
-        self._drop(trip, [trip.member(member_id)], "you revoked the mandate in your UPI app")
+        m = trip.member(member_id)
+        self._say(trip, f"dm:{m.id}", text or "Count me out, please release my block.", actor=m.name)
+        self._drop(trip, [m], "you asked to be let out")
 
     def close_authorising(self, trip: Trip) -> None:
         if trip.state != TripState.AUTHORISING:
@@ -470,21 +482,22 @@ class Engine:
         return a.amount + (t.amount if t and t.status in (AuthStatus.BLOCKED, AuthStatus.CAPTURED) else 0)
 
     def _headroom(self, trip: Trip, member_id: str) -> int:
+        """What can still be debited without a new approval. UPI Reserve Pay keeps its headroom after the share
+        is taken; a card hold or a one-time mandate has none once captured."""
         a = trip.authorisations[member_id]
         t = trip.top_ups.get(member_id)
-        return self._cap(trip, member_id) - a.captured_amount - (t.captured_amount if t else 0)
+        return a.headroom() + (t.headroom() if t else 0)
 
     def _present(self, trip: Trip, member_id: str, amount: int) -> tuple[int, int]:
-        """Debit `amount`: the share mandate first, then the top-up mandate if there is one."""
+        """Debit `amount`: the share block first, then the top-up block if there is one."""
         a = trip.authorisations[member_id]
         t = trip.top_ups.get(member_id)
-        first = min(amount, a.amount - a.captured_amount)
+        first = min(amount, a.headroom())
         if first > 0:
             self.payments.capture(a, first)
         rest = amount - first
         if rest > 0:
-            assert t and t.status in (AuthStatus.BLOCKED, AuthStatus.CAPTURED) and t.amount - t.captured_amount >= rest, \
-                "presentation above the authorised cap"
+            assert t and t.headroom() >= rest, "debit above the authorised cap"
             self.payments.capture(t, rest)
         return first, rest
 
@@ -534,8 +547,8 @@ class Engine:
         trip.top_ups[m.id] = top
         if kind == "TOP_UP":
             trip.pending[m.id] = Decision(member_id=m.id, kind="TOP_UP", leg_id=leg_id, shortfall=need, asked_at=clock.now())
-        self._rail(trip, "payments", f"Top-up mandate {top.rail_ref} for {m.first}: ₹{cap:,} — PENDING")
-        self._say(trip, f"dm:{m.id}", M.dm_topup_request(trip, m, cap, why))
+        self._rail(trip, "payments", f"Top-up block {top.rail_ref} for {m.first}: ₹{cap:,} — PENDING")
+        self._say(trip, f"dm:{m.id}", M.dm_topup_request(trip, m, cap, why, trip.authorisations[m.id].instrument))
 
     def _complete_top_up(self, trip: Trip, m: Member) -> None:
         d = trip.pending.get(m.id)
@@ -577,9 +590,15 @@ class Engine:
                 return False
             done.append(m)
             a = trip.authorisations[m.id]
-            self._rail(trip, "payments", f"Presentation on {a.rail_ref}: ₹{first:,} debited"
-                                         + (f" + ₹{rest:,} on top-up {trip.top_ups[m.id].rail_ref}" if rest else "")
-                                         + f" (₹{self._headroom(trip, m.id):,} headroom left)")
+            line = f"Debited ₹{first:,} on {a.rail_ref} ({INSTRUMENTS[a.instrument]['label']})"
+            line += f" + ₹{rest:,} on top-up {trip.top_ups[m.id].rail_ref}" if rest else ""
+            if a.multi_debit:
+                line += f"; ₹{self._headroom(trip, m.id):,} headroom stays live for a re-booking"
+            else:
+                line += f"; the remaining ₹{a.amount - first:,} of the hold is released — one capture per {INSTRUMENTS[a.instrument]['label']}"
+            if a.emi_months:
+                line += f"; {m.first} pays the issuer in {a.emi_months} instalments, Quorum is settled in full"
+            self._rail(trip, "payments", line)
         return True
 
     def _pay(self, trip: Trip, supplier: str, amount: int, purpose: str, reference: str) -> None:
@@ -654,7 +673,8 @@ class Engine:
         top2 = options[:2]
         trip.pending[m.id] = Decision(member_id=m.id, kind="REBOOK", leg_id=leg.id, options=top2,
                                       shortfall=top2[0].price - budget, asked_at=clock.now())
-        self._say(trip, f"dm:{m.id}", M.dm_disruption_options(trip, m, leg, top2, budget, ESCALATE_AFTER_MIN))
+        self._say(trip, f"dm:{m.id}", M.dm_disruption_options(trip, m, leg, top2, budget, ESCALATE_AFTER_MIN,
+                                                               trip.authorisations[m.id]))
         self._say(trip, "group", M.disruption_escalate(m))
 
     def member_chooses(self, trip: Trip, member_id: str, option: int, via: str = "dm") -> None:

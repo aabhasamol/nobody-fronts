@@ -175,10 +175,12 @@ is only as good as the recording and transcript we keep of it.
 
 | Leverages (exists) | Needs built |
 |---|---|
-| UPI One-Time Mandate. Create customer → no-plan OT subscription (`plan_details.amount` = share × (1 + overshoot), `validity_days`) → payment with `mandate_info.request_type = CREATE_MANDATE` (UPI intent) → subscription `ACTIVE` = funds blocked → `POST /presentations` for the actual share at booking, settling into Quorum's merchant account — the pool. Unpresented mandates lapse. From the pool Quorum pays suppliers: a B2B travel wallet for flights and listed hotels, UPI / bank transfer to a homestay **[verify]** | **Group order with escrow:** N mandates bound to one merchant order, with a shared expiry, **atomic capture** (all debited or none) into a per-order escrow, settlement to the suppliers only when the order is secured, and one webhook `GROUP_ORDER_SECURED` / `GROUP_ORDER_LAPSED`. Also a **merchant-initiated cancel** of an `ACTIVE` OT subscription **[verify]** and validity as short as 48h **[verify]** |
+| **Payment links** (`POST /api/pay/v1/paymentlink`): one per member for share × (1 + overshoot), `pre_auth: "true"`, `allowed_payment_methods: ["CARD","UPI"]`, `expire_by` = the deadline. On the hosted page the member picks a **credit card** (a pre-authorisation: one capture within 5–7 days, **EMI** tenures via Offer Discovery, Quorum settled in full) or **UPI** (a one-time mandate: blocked in the account, one capture, ₹1 lakh / 60 days; or Reserve Pay for multiple debits). Capture Order at booking, Cancel Order to release. Captures settle into Quorum's merchant account — the pool. **Payouts** API pays a homestay from it; split settlement with `on_hold` can hold a sub-merchant's share until release. **P3P**, their agent-payments protocol, already lets an agent spend inside one consumer's mandate | **Group order with escrow:** N blocks — card holds and UPI mandates alike — bound to one merchant order, with a shared expiry, **atomic capture** (all or none) into a per-order escrow, settlement to the suppliers only when the order is secured, and one webhook `GROUP_ORDER_SECURED` / `GROUP_ORDER_LAPSED`. Put differently: P3P for N consumers on one plan. Also: headroom on a card hold — today one capture releases the rest, so a re-booking on a card is a fresh tap |
 
-What breaks without it: we loop one presentation per member. If the fourth of five fails, three people are
-charged for a trip that can't be booked, and we run refunds with three counterparties.
+What breaks without it: we loop one capture per member. If the fourth of five fails, three people are
+charged for a trip that can't be booked, and we run refunds with three counterparties, card refunds taking
+days. And credit — which is how people actually pay for trips — brings its own wall: a card hold takes one
+capture, so the overshoot headroom that makes re-booking automatic on UPI needs a fresh tap on a card.
 
 ### Delhivery (logistics: trip side, not parcels)
 

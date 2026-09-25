@@ -167,9 +167,14 @@ function render() {
     da.push(btn('No — too expensive', `m('vote', {yes: false, reason: 'Too expensive for me. Cheaper?'})`));
     da.push(btn('No — other reason', `m('vote', {yes: false, reason: 'Those dates do not work for me.'})`));
   }
-  if (trip.state === 'AUTHORISING' && auth && auth.status === 'PENDING') da.push(btn(`Approve UPI block ${inr(auth.amount)}`, `m('approve')`, 'primary'));
-  if (trip.state === 'AUTHORISING' && auth && auth.status === 'BLOCKED') da.push(btn('Revoke in UPI app', `m('revoke')`, 'quiet'));
-  if (top && top.status === 'PENDING') da.push(btn(`Approve top-up ${inr(top.amount)}`, `m('approve')`, 'primary'));
+  if (trip.state === 'AUTHORISING' && auth && auth.status === 'PENDING') {
+    const emi = (trip.emi_offers[current] || [])[0];
+    da.push(btn(`Approve UPI block ${inr(auth.amount)}`, `m('approve', {via: 'UPI_RESERVE'})`, 'primary'));
+    da.push(btn(`Hold ${inr(auth.amount)} on credit card`, `m('approve', {via: 'CARD_PREAUTH'})`));
+    if (emi) da.push(btn(`Card, ${emi[0]}-month EMI (${inr(emi[1])}/mo)`, `m('approve', {via: 'CARD_PREAUTH', emi_months: ${emi[0]}})`));
+  }
+  if (trip.state === 'AUTHORISING' && auth && auth.status === 'BLOCKED') da.push(btn('Ask Quorum to release my block', `m('withdraw')`, 'quiet'));
+  if (top && top.status === 'PENDING') da.push(btn(`Approve top-up ${inr(top.amount)}${auth && auth.instrument === 'CARD_PREAUTH' ? ' (card tap)' : ''}`, `m('approve', {via: '${auth && auth.instrument ? auth.instrument : 'UPI_RESERVE'}'})`, 'primary'));
   if (pend && pend.kind === 'REBOOK' && pend.choice == null) pend.options.forEach((o, i) => da.push(btn(`Option ${i+1}: ${o.carrier} ${o.depart.slice(11,16)} ${inr(o.price)}`, `m('choose', {option: ${i+1}})`)));
   if (trip.state === 'BOOKED' && plan.travellers.includes(current)) da.push(btn(`${first(me)} drops out`, `m('exit')`, 'quiet'));
   $('dmActions').innerHTML = da.join('') || `<small>${first(me)} has nothing to do right now</small>`;
@@ -195,8 +200,9 @@ function render() {
   } else $('votes').innerHTML = '';
 
   const auths = [...Object.values(trip.authorisations), ...Object.values(trip.top_ups)];
-  $('auths').innerHTML = auths.length ? `<div class="h3">UPI one-time mandates</div><table><tr><th>Member</th><th>Cap</th><th>Debited</th><th>Mandate</th><th>Status</th></tr>` +
-    auths.map(a => `<tr><td>${first(member(a.member_id))}${a.purpose==='TOP_UP'?' <small>top-up</small>':''}</td><td>${inr(a.amount)}</td><td>${a.captured_amount ? inr(a.captured_amount) : '—'}</td><td><small>${a.rail_ref}</small></td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('') + '</table>' : '';
+  const instr = {UPI_RESERVE: 'UPI Reserve Pay', UPI_OTM: 'UPI one-time mandate', CARD_PREAUTH: 'card hold'};
+  $('auths').innerHTML = auths.length ? `<div class="h3">Blocks (UPI mandates and card holds)</div><table><tr><th>Member</th><th>Cap</th><th>Debited</th><th>Via</th><th>Status</th></tr>` +
+    auths.map(a => `<tr><td>${first(member(a.member_id))}${a.purpose==='TOP_UP'?' <small>top-up</small>':''}</td><td>${inr(a.amount)}</td><td>${a.captured_amount ? inr(a.captured_amount) : '—'}</td><td><small>${a.instrument ? instr[a.instrument] + (a.emi_months ? ', ' + a.emi_months + '-mo EMI' : '') : 'member to choose'}<br>${a.rail_ref}</small></td><td><span class="pill ${a.status}">${a.status}</span></td></tr>`).join('') + '</table>' : '';
 
   const payouts = trip.payouts;
   $('auths').innerHTML += payouts.length ? `<div class="h3">Payouts from the pool</div><table><tr><th>Supplier</th><th>For</th><th>Ref</th><th>Amount</th><th>Via</th></tr>` +
