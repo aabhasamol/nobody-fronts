@@ -177,3 +177,33 @@ def test_countdown_drips_keep_the_place_in_mind_without_repeating():
     for m in members[:4]:
         hooks = trip.used_hooks[m.id]
         assert len(hooks) == len(set(hooks))
+
+
+def test_daily_place_fact_after_booking_until_departure():
+    engine, members, trip, _ = booked()
+    n = len(trip.events)
+    clock.set(clock.now().replace(month=9, day=22, hour=8))                          # before the hour: nothing
+    engine.tick(trip)
+    assert len(trip.events) == n
+    clock.set(clock.now().replace(hour=9))
+    engine.tick(trip)
+    day1 = [e for e in trip.events[n:] if e.channel.startswith("dm:")]
+    assert len(day1) == 4 and all(e.priority == "P2" and "Goa in 10 days" in e.text for e in day1)
+    engine.tick(trip)                                                                # once a day
+    assert len(trip.events) == n + 4
+    clock.set(clock.now().replace(day=23, hour=14))
+    engine.tick(trip)
+    day2 = [e for e in trip.events[n + 4:] if e.channel.startswith("dm:")]
+    assert len(day2) == 4 and all("Goa in 9 days" in e.text for e in day2)
+    for a, b in zip(day1, day2):                                                     # same person, different line
+        assert a.channel == b.channel and a.text.split(". ", 1)[1] != b.text.split(". ", 1)[1]
+    clock.set(clock.now().replace(day=25, hour=9))                                   # T-7: the countdown, no extra fact
+    engine.tick(trip)
+    t7 = [e for e in trip.events[n + 8:] if e.channel.startswith("dm:")]
+    assert len(t7) == 4 and all("days to go" in e.text for e in t7)
+    clock.set(clock.now().replace(month=10, day=2, hour=9))                          # departure day: silent
+    engine.tick(trip)
+    assert len(trip.events) == n + 12
+    for m in members[:4]:
+        hooks = trip.used_hooks[m.id]
+        assert len(hooks) == len(set(hooks))

@@ -1,0 +1,24 @@
+Diagram (happy flow across the top, unhappy flow under each state): [Drive link]
+
+HAPPY FLOW
+1. INITIATED. The organiser adds Quorum to the WhatsApp group with destination, dates, occasion, a rough budget per head and a max overshoot (e.g. ₹20,000, 10%), and the deadline for money. Quorum posts one kickoff line in the group.
+2. GATHERING (24 h). A private DM to each member, six taps: start city, return city, dates you can't do, must-haves, how many people you're paying for, what you're into (trekking, food, reels spots, quiet beaches). Silence = home city, stated dates, one head. Names, DOBs, food and medical only after someone says yes, because tickets need them and no-voters never do.
+3. PLANNING. One itinerary inside budget × (1 + overshoot) per head. The stay is shared and the occasion sets what's optimised (wedding: near the venue, arrive before the first function; leisure: price, then stay quality). Each payer's legs are searched separately (Aditi flies Bengaluru → Goa, returns to Mumbai). A stay with no online inventory gets a CALL (Gnani): availability, group rate, refund terms, a 48 h hold.
+4. VOTING (24 h). The plan is DM'd to each payer with their own all-in number, the overshoot band and one line about the place (the fort from Dil Chahta Hai, the Parra road from the reels, the quiet beach for the parents), chosen for their interests. Private yes/no with a reason. Only the tally goes to the group. Majority passes.
+5. AUTHORISING (deadline set by the organiser, default 48 h). The yes-voters set the budget: heads × the lowest per-head ceiling among them, and the plan is re-sized for exactly them (fewer rooms, fewer seats). Each payer blocks share × (1 + overshoot) their way: a UPI one-time mandate, or a Pine Labs payment link (credit card hold with EMI, or LazyPay pay-later inside its limit). Nothing is charged. The outs get one nudge with their own number and 12 h to flip in.
+6. BOOKING. Re-price at live fares. Capture every share into the pool (Quorum's merchant account; the organiser never fronts, Quorum never lends, the pool never goes negative), pay every supplier from it, convert the phone hold. All or none.
+7. BOOKED. Tickets and vouchers in DMs, one group post, legs watched until the trip ends. Every day at 09:00 from the day it's booked, each traveller gets one fact about the place, never repeated (a film shot there, the market night, this week's weather). T-7 and T-1 a countdown with their PNR.
+8. CLOSED. Organiser closes; receipts to everyone; pool at zero. LAPSED is the other exit: nothing booked, nothing charged.
+
+UNHAPPY FLOW
+- Nothing fits the limit (PLANNING): the organiser sees the cheapest plan and what drives it, then raises the budget, shifts dates or drops a stay. Quorum never quietly exceeds it. One member's leg alone breaks it: shown to them privately, train or other dates offered.
+- Phone-only stay doesn't answer or is full: retry once, next stay. The call contradicts the listing: the call's price wins; if worse, drop it.
+- Vote fails: Quorum asks privately what would make it a yes, revises (max two), then the organiser decides. Non-voters get one text reminder and are counted out; never called.
+- A yes-voter doesn't block by the deadline (or asks to withdraw): dropped, the rest re-sized. Inside the limit, proceed; outside, back to the group for a vote. Nobody blocks: LAPSED.
+- Fare moves inside the cap: absorbed, shown on the receipt. Beyond the cap: only the affected payers are asked to top up on a short clock, else the next leg that fits. Hold expired: CALL to re-hold; gone, next stay with a quick yes/no if pricier.
+- One capture fails after others succeeded: refund the others, stop, tell the group, LAPSED. This is the Pine Labs wall: no atomic N-payer capture today.
+- Carrier cancels a leg: refund back into the pool, re-book inside that member's headroom, text. A late arrival at a phone-only stay gets a CALL. Over the headroom: text with two options; unanswered 20 min, an ESCALATION CALL; their choice becomes a top-up and the re-book.
+- Member misses the departure: their money, no refund. Every way to still get there today (later flights, the train, an Uber Outstation cab) goes to them soonest-first with prices, paid from headroom or a top-up.
+- Member drops out after booking: their legs stay theirs; the new stay split goes to the group; humans decide.
+
+Voice is for P0 only (supplier availability, late arrival, an unanswered disruption). Everything else is a text. Group chat gets four kinds of post: kickoff, tally, booking, disruption.

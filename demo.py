@@ -14,8 +14,8 @@
   2. leisure   — one stay unavailable on the call; the vote fails on price; the revision drops a night; the
                  vote passes with a pre-booked Dudhsagar jeep as the one essential; one yes-voter never authorises,
                  drops out, and the rest re-price. Then Karan misses his Mumbai flight: later flights, a train and an
-                 Uber Outstation cab go to him, no refund, his money; and a week before the trip everyone gets the
-                 countdown text with one line about the place.
+                 Uber Outstation cab go to him, no refund, his money; the daily fact about the place starts the day it's
+                 booked, and a week before the trip everyone gets the countdown text with their PNR.
   3. wall      — the fourth of four debits fails: the three that went through are refunded, nothing is booked.
 """
 from __future__ import annotations

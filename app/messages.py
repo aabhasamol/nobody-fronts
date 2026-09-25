@@ -384,6 +384,12 @@ def dm_countdown(trip: Trip, m: Member, p: Plan, days: int, hook: str | None) ->
     return f"{when}, {m.first}.{leg}" + (f" {hook}" if hook else "") + (" Bags: the monsoon's just gone, so a light rain shell and one warm layer." if days > 1 else " See you there.")
 
 
+def dm_daily_lore(trip: Trip, m: Member, days: int, hook: str) -> str:
+    """The daily fact after booking. No ask, no deadline: just the place."""
+    when = "tomorrow" if days == 1 else f"in {days} days"
+    return f"{trip.destination} {when}, {m.first}. {hook}"
+
+
 def disruption_escalate(m: Member) -> str:
     return (f"{m.first}'s flight was cancelled and every alternative is over their authorised cap. I've DM'd them "
             f"two options; the rest of the trip is unaffected.")

@@ -77,7 +77,8 @@ KP's points are still in it: trip and travel are planned separately, and the occ
 11. **The place does the convincing.** Every message that has to go anyway carries one line about the
    destination, picked for the person and never repeated: the film shot at the fort, the road from every
    reel, the quiet beach for the parents. At decision time the outs get one private nudge with their own
-   number and 12 hours to flip in; after booking, a countdown text a week out and the day before.
+   number and 12 hours to flip in; after booking, one fact about the place a day until departure, and a
+   countdown text with their PNR a week out and the day before.
 9. **Two ways to block, the payer's choice:** a UPI mandate (nothing moves until booking; Reserve Pay keeps
    the headroom live), or a payment link — a credit card is only held (one capture at booking, EMI if they
    like), and any method that can't hold pays now, the money waiting in Quorum's account and refunded in full
@@ -128,7 +129,7 @@ INITIATED ─► GATHERING ─► PLANNING ────────────�
 | VOTING | One itinerary is DM'd to each member: day by day, their own per-head cost, and the overshoot band. They reply yes or no with a reason. Only the tally goes to the group. Majority ⇒ passes | chat |
 | AUTHORISING | The yes-voters set the budget (their number × the lowest ceiling among them); the plan is re-sized for exactly them and must fit it. Each yes-voter then approves a UPI one-time mandate for share × (1 + overshoot). Nothing is charged yet | Pine Labs |
 | BOOKING | Once everyone who is in has authorised: re-price at live fares. If it's still inside each member's authorised amount, debit each share into Quorum's account (the pool) and pay each supplier from it: the legs, the stays, the phone-only hold converted with a payment | Pine Labs, fares, Gnani (confirm hold) |
-| BOOKED → TRAVELLING | Tickets and vouchers go in the group, and legs are watched. If a leg is cancelled, Quorum re-books inside the authorised amount and sends a text. A phone-only stay is **called** about the late arrival | fares, Gnani |
+| BOOKED → TRAVELLING | Tickets and vouchers go in the group, and legs are watched. From the day it's booked, every traveller gets one fact about the place a day (the film shot at the fort, the road from the reels, the quiet beach for the parents), picked for their interests and never repeated; a week out and the day before, a countdown with their PNR. If a leg is cancelled, Quorum re-books inside the authorised amount and sends a text. A phone-only stay is **called** about the late arrival | fares, Gnani |
 
 How the occasion sets priorities:
 

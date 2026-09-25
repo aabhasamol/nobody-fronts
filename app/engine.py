@@ -40,6 +40,7 @@ CALL_LANGUAGE = "hi-IN"
 FLOAT_RATE = 0.065           # idea: money prepaid through a link sits with Quorum until booking; priced at a liquid-fund rate
 FLIP_WINDOW_H = 12           # after the tally, a no-voter gets one private nudge and this long to change their mind
 DRIPS = (("T-7", 7), ("T-1", 1))   # countdown texts after booking: keep the place in people's minds
+LORE_HOUR = 9                # after booking, one fact about the place per traveller per day (P2) until departure
 
 # Calls are for P0 things only. A P0 is: the other side cannot be reached any other way in time, and what
 # they say changes what the agent does next. These three are the whole list; everything else is a text.
@@ -915,9 +916,22 @@ class Engine:
                 self._escalate(trip, d)
         if trip.state == TripState.BOOKED:
             p = trip.plan()
+            fired = False
             for label, days in DRIPS:
                 if label not in trip.drips_sent and now.date() >= p.start - timedelta(days=days) and now.date() < p.start:
                     trip.drips_sent.append(label)
+                    fired = True
                     for t in p.travellers:
                         self._say(trip, f"dm:{t}", M.dm_countdown(trip, trip.member(t), p, (p.start - now.date()).days,
                                                                    self._hook(trip, t)), priority="P2")
+            # the daily fact: one line about the place per traveller, every day from booking to departure,
+            # never repeated to the same person; a countdown day carries its own line, so it is skipped
+            today = now.date()
+            if now.hour >= LORE_HOUR and today < p.start and today.isoformat() not in trip.lore_sent:
+                trip.lore_sent.append(today.isoformat())
+                if not fired and not any(today == p.start - timedelta(days=d) for _, d in DRIPS):
+                    for t in p.travellers:
+                        h = self._hook(trip, t)
+                        if h:                                                     # the table ran dry: a quiet day
+                            self._say(trip, f"dm:{t}", M.dm_daily_lore(trip, trip.member(t), (p.start - today).days, h),
+                                      priority="P2")
