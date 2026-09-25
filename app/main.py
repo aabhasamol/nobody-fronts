@@ -217,15 +217,6 @@ def now():
 
 
 # ------------------------------------------------------------------ hooks for the real rails
-@app.get("/gnani/precall")
-def gnani_precall(ref: str):
-    """Gnani's pre-call / dynamic-variables API hits this with the clientReferenceId we passed."""
-    vars_ = getattr(voice, "precall_vars", {}).get(ref)
-    if not vars_:
-        raise HTTPException(404, "unknown reference")
-    return vars_
-
-
 @app.post("/webhooks/pinelabs")
 async def pinelabs_webhook(req: Request):
     """Subscription activated / charged / expired events. TODO: verify signature, reconcile auth status."""

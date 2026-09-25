@@ -44,8 +44,9 @@ PATH: wedding — book, then two disruptions
 [Sat 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi. You'll get the plan with your own cost to vote on here, not in the group.
 [Sun 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways).
 [Sun 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
-[Sun 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1: NO_ANSWER
-[Sun 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2: CONFIRMED — 3 twin rooms at ₹3,200/night, refund: Fu
+[Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
+[Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
+[Sun 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Tue 22 Sep 10:00
 [Sun 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Sun 10:00] DM→Sayan       agent      Sayan, here's the plan v1 for Priya's wedding, Goa. Your cost, from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400
@@ -88,27 +89,27 @@ PATH: wedding — book, then two disruptions
 [Sun 10:00] DM→Karan       Karan Meht No. Can't get leave that week, sorry.
 [Sun 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
 [Sun 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). I've DM'd each yes-voter a UPI request for their own share. Appro
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_b3181a8f created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_b868c141 created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_bdb50775 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_e02638e9 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split d
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_94895cc7 created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_7de3aefb created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,700 (it was ₹13,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_a611fbd4 created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_abc9909f created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Riya        agent      Riya, your share of the plan is ₹18,200 (it was ₹19,480 when the plan went to the vote; 4 are in, so the rooms split dif
-[Sun 10:00] RAIL payments  payments   Sayan approved: mandate otsub_b3181a8f ACTIVE — ₹20,600 blocked (1/4 in)
+[Sun 10:00] RAIL payments  payments   Sayan approved: mandate otsub_b868c141 ACTIVE — ₹20,600 blocked (1/4 in)
 [Sun 10:00] DM→Sayan       agent      Blocked ₹20,600, Sayan — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_bdb50775 ACTIVE — ₹20,600 blocked (2/4 in)
+[Sun 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_e02638e9 ACTIVE — ₹20,600 blocked (2/4 in)
 [Sun 10:00] DM→Aabhas      agent      Blocked ₹20,600, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Aditi approved: mandate otsub_94895cc7 ACTIVE — ₹14,000 blocked (3/4 in)
+[Sun 10:00] RAIL payments  payments   Aditi approved: mandate otsub_7de3aefb ACTIVE — ₹14,000 blocked (3/4 in)
 [Sun 10:00] DM→Aditi       agent      Blocked ₹14,000, Aditi — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Riya approved: mandate otsub_a611fbd4 ACTIVE — ₹20,100 blocked (4/4 in)
+[Sun 10:00] RAIL payments  payments   Riya approved: mandate otsub_abc9909f ACTIVE — ₹20,100 blocked (4/4 in)
 [Sun 10:00] DM→Riya        agent      Blocked ₹20,100, Riya — nothing charged. I'll book the moment the others have approved.
 [Sun 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹18,672 is inside the ₹20,100 authorised
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_b3181a8f: ₹18,700 debited (₹1,900 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_bdb50775: ₹18,700 debited (₹1,900 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_94895cc7: ₹12,700 debited (₹1,300 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_a611fbd4: ₹18,672 debited (₹1,428 headroom left)
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_b868c141: ₹18,700 debited (₹1,900 headroom left)
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_e02638e9: ₹18,700 debited (₹1,900 headroom left)
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_7de3aefb: ₹12,700 debited (₹1,300 headroom left)
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_abc9909f: ₹18,672 debited (₹1,428 headroom left)
 [Sun 10:00] RAIL logistics logistics  Stay confirmed HOLD-175954: Dona Maria Homestay, Assagao, 2 twin rooms × 4 nights for 4 — phone hold converted, supplier
 [Sun 10:00] RAIL logistics logistics  Ticketed Sayan: IndiGo Kolkata→Goa GZDPCF, IndiGo Goa→Kolkata 54ERF5
 [Sun 10:00] DM→Sayan       agent      Your confirmations for Priya's wedding, Goa:
@@ -137,7 +138,7 @@ PATH: wedding — book, then two disruptions
 [Sun 10:00] GROUP          agent      Booked. Dona Maria Homestay, Assagao (HOLD-175954) for Sayan, Aabhas, Aditi, Riya, 02–06 Oct. Flights ticketed from each
 [Sun 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Kolkata→Goa 02 Oct 06:00 PNR DHQD3D
 [Sun 10:00] RAIL logistics logistics  Re-booked IndiGo Kolkata→Goa 02 Oct 19:00 PNR 6UEH4L at ₹5,900 (₹6,400 refund covers it; ₹500 back to Aabhas)
-[Sun 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772): Aabhas now arrives 21:42 — CONFIRMED
+[Sun 10:00] RAIL voice     voice      LATE_ARRIVAL: Called Dona Maria Homestay, Assagao (0832629772): Aabhas now arrives 21:42 — CONFIRMED
 [Sun 10:00] GROUP          agent      Aabhas's IndiGo 06:00 was cancelled by the carrier. Re-booked on IndiGo 19:00 within what they'd already authorised — no
 [Sun 10:00] DM→Aabhas      agent      New PNR 6UEH4L — IndiGo Kolkata→Goa 02 Oct 19:00, lands 21:42. ₹500 of the cancelled fare comes back to you.
 [Sun 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Delhi→Goa 02 Oct 05:00 PNR W77ZVR
@@ -146,13 +147,14 @@ PATH: wedding — book, then two disruptions
                                      2. Vistara 11:00, lands 13:42 — ₹13,120 (needs ₹5,348 more)
                                     Reply 1 or 2 within 20 minutes; if I can't reach you here I'll call. The rest of the group is unaffected.
 [Sun 10:00] GROUP          agent      Riya's flight was cancelled and every alternative is over their authorised cap. I've DM'd them two options; the rest of 
-[Sun 10:30] RAIL voice     voice      Escalation call to Riya (9830044444) after 20 min without a reply: CONFIRMED, chose option 1
+[Sun 10:30] RAIL voice     voice      DISRUPTION_UNANSWERED: Called Riya (9830044444) after 20 min without a reply — CONFIRMED
+[Sun 10:30] RAIL voice     voice        Riya chose option 1
 [Sun 10:30] DM→Riya        Riya Sen   (on the call) option 1
-[Sun 10:30] RAIL payments  payments   Top-up mandate otsub_edfd46be for Riya: ₹1,400 — PENDING
+[Sun 10:30] RAIL payments  payments   Top-up mandate otsub_dcfae6cc for Riya: ₹1,400 — PENDING
 [Sun 10:30] DM→Riya        agent      Riya, approve the UPI request for ₹1,400 and I'll re-book you on Akasa 20:00 right away. Nobody else is being asked for 
-[Sun 10:30] RAIL payments  payments   Riya approved top-up otsub_edfd46be — ₹1,400 blocked
+[Sun 10:30] RAIL payments  payments   Riya approved top-up otsub_dcfae6cc — ₹1,400 blocked
 [Sun 10:30] RAIL logistics logistics  Re-booked Akasa Delhi→Goa 02 Oct 20:00 PNR XK94CE at ₹9,120 (₹6,344 refund + ₹1,428 headroom + ₹1,348 top-up)
-[Sun 10:30] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772): Riya now arrives 22:36 — CONFIRMED
+[Sun 10:30] RAIL voice     voice      LATE_ARRIVAL: Called Dona Maria Homestay, Assagao (0832629772): Riya now arrives 22:36 — CONFIRMED
 [Sun 10:30] GROUP          agent      Riya's IndiGo 05:00 was cancelled by the carrier. Re-booked on Akasa 20:00 within what they'd already authorised — no ne
 [Sun 10:30] DM→Riya        agent      New PNR XK94CE — Akasa Delhi→Goa 02 Oct 20:00, lands 22:36. ₹2,776 more than the cancelled fare, taken from the headroom
 
@@ -204,10 +206,11 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Sun 10:00] DM→Karan       Karan Meht Mumbai. ok.
 [Sun 10:00] DM→Karan       agent      Got it, Karan: Mumbai → Goa → Mumbai. You'll get the plan with your own cost to vote on here, not in the group.
 [Sun 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
-[Sun 10:00] RAIL voice     voice      Called Fisherman's Rest, Morjim (0832652445), hi-IN, attempt 1: UNAVAILABLE
+[Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Fisherman's Rest, Morjim (0832652445), hi-IN, attempt 1 — UNAVAILABLE
 [Sun 10:00]   sys          system     Fisherman's Rest, Morjim: unavailable after 1 call(s); moving to the next stay.
-[Sun 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1: NO_ANSWER
-[Sun 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2: CONFIRMED — 3 twin rooms at ₹3,200/night, refund: Fu
+[Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
+[Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
+[Sun 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Tue 22 Sep 10:00
 [Sun 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Sun 10:00] DM→Sayan       agent      Sayan, here's the plan v1 for Goa, October. Your cost, from Kolkata:
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900
@@ -252,7 +255,8 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Mon 10:00] GROUP          agent      Vote on plan v1: 2 yes, 2 no, 1 didn't reply — does not pass (3 of 5 needed). Revising from what you told me privately; 
 [Mon 10:00] RAIL logistics logistics  0 stays quoted in Goa, 4 nights (0 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Mon 10:00] RAIL logistics logistics  1 stays quoted in Goa, 3 nights (1 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
-[Mon 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832676510), hi-IN, attempt 1: CONFIRMED — 3 twin rooms at ₹3,200/night, refund: Fu
+[Mon 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832676510), hi-IN, attempt 1 — CONFIRMED
+[Mon 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Wed 23 Sep 10:00
 [Mon 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Mon 10:00] DM→Sayan       agent      Sayan, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost, from Kolkata:
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900
@@ -295,34 +299,34 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Mon 10:00] DM→Karan       Karan Meht Yes.
 [Mon 10:00] DM→Karan       agent      Thanks — counted.
 [Mon 10:00] GROUP          agent      Vote on plan v2: 5 yes, 0 no — passes (3 of 5 needed). I've DM'd each yes-voter a UPI request for their own share. Appro
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_8f68df30 created for Sayan: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_6532c97d created for Sayan: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
 [Mon 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹17,560. Approve the UPI request I've sent: it blocks ₹19,400 — your share plus the 10%
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_baf26618 created for Aabhas: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_7b26dc9d created for Aabhas: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
 [Mon 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹17,560. Approve the UPI request I've sent: it blocks ₹19,400 — your share plus the 10
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_8c2a8c39 created for Aditi: ₹13,300 block (share ₹12,060 × 1.10), 4d validity — PENDING
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_8f4832d3 created for Aditi: ₹13,300 block (share ₹12,060 × 1.10), 4d validity — PENDING
 [Mon 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,060. Approve the UPI request I've sent: it blocks ₹13,300 — your share plus the 10%
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_ac239c84 created for Riya: ₹18,900 block (share ₹17,160 × 1.10), 4d validity — PENDING
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_28467730 created for Riya: ₹18,900 block (share ₹17,160 × 1.10), 4d validity — PENDING
 [Mon 10:00] DM→Riya        agent      Riya, your share of the plan is ₹17,160. Approve the UPI request I've sent: it blocks ₹18,900 — your share plus the 10% 
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_d7ee917c created for Karan: ₹12,800 block (share ₹11,560 × 1.10), 4d validity — PENDING
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_26b0fe2f created for Karan: ₹12,800 block (share ₹11,560 × 1.10), 4d validity — PENDING
 [Mon 10:00] DM→Karan       agent      Karan, your share of the plan is ₹11,560. Approve the UPI request I've sent: it blocks ₹12,800 — your share plus the 10%
-[Mon 10:00] RAIL payments  payments   Sayan approved: mandate otsub_8f68df30 ACTIVE — ₹19,400 blocked (1/5 in)
+[Mon 10:00] RAIL payments  payments   Sayan approved: mandate otsub_6532c97d ACTIVE — ₹19,400 blocked (1/5 in)
 [Mon 10:00] DM→Sayan       agent      Blocked ₹19,400, Sayan — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_baf26618 ACTIVE — ₹19,400 blocked (2/5 in)
+[Mon 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_7b26dc9d ACTIVE — ₹19,400 blocked (2/5 in)
 [Mon 10:00] DM→Aabhas      agent      Blocked ₹19,400, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Aditi approved: mandate otsub_8c2a8c39 ACTIVE — ₹13,300 blocked (3/5 in)
+[Mon 10:00] RAIL payments  payments   Aditi approved: mandate otsub_8f4832d3 ACTIVE — ₹13,300 blocked (3/5 in)
 [Mon 10:00] DM→Aditi       agent      Blocked ₹13,300, Aditi — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Karan approved: mandate otsub_d7ee917c ACTIVE — ₹12,800 blocked (4/5 in)
+[Mon 10:00] RAIL payments  payments   Karan approved: mandate otsub_26b0fe2f ACTIVE — ₹12,800 blocked (4/5 in)
 [Mon 10:00] DM→Karan       agent      Blocked ₹12,800, Karan — nothing charged. I'll book the moment the others have approved.
-[Wed 10:00] RAIL payments  payments   Mandate otsub_ac239c84 released — Riya is out, nothing charged
+[Wed 10:00] RAIL payments  payments   Mandate otsub_28467730 released — Riya is out, nothing charged
 [Wed 10:00] DM→Riya        agent      Riya, the deadline passed without your approval, so I've taken you off this plan. Nothing was charged. Tell Sayan if tha
 [Wed 10:00] DM→Sayan       agent      Sayan, Riya dropped out, so the rooms now split among 4: your share is ₹16,600, down from ₹17,560 and still inside the ₹
 [Wed 10:00] DM→Aabhas      agent      Aabhas, Riya dropped out, so the rooms now split among 4: your share is ₹16,600, down from ₹17,560 and still inside the 
 [Wed 10:00] DM→Aditi       agent      Aditi, Riya dropped out, so the rooms now split among 4: your share is ₹11,100, down from ₹12,060 and still inside the ₹
 [Wed 10:00] DM→Karan       agent      Karan, Riya dropped out, so the rooms now split among 4: your share is ₹10,600, down from ₹11,560 and still inside the ₹
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_8f68df30: ₹16,600 debited (₹2,800 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_baf26618: ₹16,600 debited (₹2,800 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_8c2a8c39: ₹11,100 debited (₹2,200 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_d7ee917c: ₹10,600 debited (₹2,200 headroom left)
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_6532c97d: ₹16,600 debited (₹2,800 headroom left)
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_7b26dc9d: ₹16,600 debited (₹2,800 headroom left)
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_8f4832d3: ₹11,100 debited (₹2,200 headroom left)
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_26b0fe2f: ₹10,600 debited (₹2,200 headroom left)
 [Wed 10:00] RAIL logistics logistics  Stay confirmed HOLD-554710: Dona Maria Homestay, Assagao, 2 twin rooms × 3 nights for 4 — phone hold converted, supplier
 [Wed 10:00] RAIL logistics logistics  Ticketed Sayan: IndiGo Kolkata→Goa 4ERF5D, IndiGo Goa→Kolkata HQD3DQ
 [Wed 10:00] DM→Sayan       agent      Your confirmations for Goa, October:
@@ -397,8 +401,9 @@ PATH: wall — one debit fails, everyone is refunded
 [Wed 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi. You'll get the plan with your own cost to vote on here, not in the group.
 [Thu 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways).
 [Thu 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
-[Thu 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1: NO_ANSWER
-[Thu 10:00] RAIL voice     voice      Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2: CONFIRMED — 3 twin rooms at ₹3,200/night, refund: Fu
+[Thu 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
+[Thu 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
+[Thu 10:00] RAIL voice     voice        3 twin rooms at ₹3,200/night, refund: Full refund up to 72 hours before check-in, held till Sat 26 Sep 10:00
 [Thu 10:00]   sys          system     Dona Maria Homestay, Assagao quoted ₹3,200/room/night on the call, not the ₹2,800 we had. Using the call's price.
 [Thu 10:00] DM→Sayan       agent      Sayan, here's the plan v1 for Priya's wedding, Goa. Your cost, from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400
@@ -441,30 +446,30 @@ PATH: wall — one debit fails, everyone is refunded
 [Thu 10:00] DM→Karan       Karan Meht No. Can't get leave that week, sorry.
 [Thu 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
 [Thu 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). I've DM'd each yes-voter a UPI request for their own share. Appro
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_d5d39fd1 created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_2c15a62e created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_54922872 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_46bb8d41 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split d
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_7e9e580f created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_6194098e created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,700 (it was ₹13,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_275454cc created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_76c271d7 created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Riya        agent      Riya, your share of the plan is ₹18,200 (it was ₹19,480 when the plan went to the vote; 4 are in, so the rooms split dif
-[Thu 10:00] RAIL payments  payments   Sayan approved: mandate otsub_d5d39fd1 ACTIVE — ₹20,600 blocked (1/4 in)
+[Thu 10:00] RAIL payments  payments   Sayan approved: mandate otsub_2c15a62e ACTIVE — ₹20,600 blocked (1/4 in)
 [Thu 10:00] DM→Sayan       agent      Blocked ₹20,600, Sayan — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_54922872 ACTIVE — ₹20,600 blocked (2/4 in)
+[Thu 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_46bb8d41 ACTIVE — ₹20,600 blocked (2/4 in)
 [Thu 10:00] DM→Aabhas      agent      Blocked ₹20,600, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Aditi approved: mandate otsub_7e9e580f ACTIVE — ₹14,000 blocked (3/4 in)
+[Thu 10:00] RAIL payments  payments   Aditi approved: mandate otsub_6194098e ACTIVE — ₹14,000 blocked (3/4 in)
 [Thu 10:00] DM→Aditi       agent      Blocked ₹14,000, Aditi — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Riya approved: mandate otsub_275454cc ACTIVE — ₹20,100 blocked (4/4 in)
+[Thu 10:00] RAIL payments  payments   Riya approved: mandate otsub_76c271d7 ACTIVE — ₹20,100 blocked (4/4 in)
 [Thu 10:00] DM→Riya        agent      Blocked ₹20,100, Riya — nothing charged. I'll book the moment the others have approved.
 [Thu 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹18,672 is inside the ₹20,100 authorised
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_d5d39fd1: ₹18,700 debited (₹1,900 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_54922872: ₹18,700 debited (₹1,900 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_7e9e580f: ₹12,700 debited (₹1,300 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation for Riya on otsub_275454cc FAILED: issuer declined: U30 debit failed at the remitter bank
-[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Sayan (otsub_d5d39fd1)
-[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Aabhas (otsub_54922872)
-[Thu 10:00] RAIL payments  payments   Refunded ₹12,700 to Aditi (otsub_7e9e580f)
+[Thu 10:00] RAIL payments  payments   Presentation on otsub_2c15a62e: ₹18,700 debited (₹1,900 headroom left)
+[Thu 10:00] RAIL payments  payments   Presentation on otsub_46bb8d41: ₹18,700 debited (₹1,900 headroom left)
+[Thu 10:00] RAIL payments  payments   Presentation on otsub_6194098e: ₹12,700 debited (₹1,300 headroom left)
+[Thu 10:00] RAIL payments  payments   Presentation for Riya on otsub_76c271d7 FAILED: issuer declined: U30 debit failed at the remitter bank
+[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Sayan (otsub_2c15a62e)
+[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Aabhas (otsub_46bb8d41)
+[Thu 10:00] RAIL payments  payments   Refunded ₹12,700 to Aditi (otsub_6194098e)
 [Thu 10:00] GROUP          agent      Stopping. Riya's debit failed, so I've refunded the 3 that had gone through and booked nothing. Nobody is out of pocket.
 [Thu 10:00] DM→Sayan       agent      Riya's bank declined the presentation (issuer declined: U30 debit failed at the remitter bank). Everyone else has been r
 

@@ -40,6 +40,7 @@
   .rail .tag { display:inline-block; width:74px; font-weight:700; }
   .rail.payments .tag { color:var(--red); } .rail.voice .tag { color:var(--teal); } .rail.logistics .tag { color:#5b6b7a; }
   .current { color:var(--green); font-weight:700; }
+  .p0 { background:var(--teal); color:#fff; border-color:var(--teal); margin-right:6px; }
   .h3 { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:12px 0 4px; }
   small { color:var(--muted); }
 </style>
@@ -179,7 +180,8 @@ function render() {
     <b>Occasion</b><span>${trip.occasion} · ${trip.destination}${trip.venue ? ' · venue ' + trip.venue : ''} · ${trip.start} → ${trip.end}</span>
     <b>Budget</b><span>${inr(trip.budget)} a head all-in, +${Math.round(trip.overshoot*100)}% allowed → limit ${inr(trip.limit)}; each yes-voter authorises share × ${(1+trip.overshoot).toFixed(2)}</span>
     <b>Deadline</b><span>${deadline ? fmt(deadline) : '—'}</span>
-    <b>In</b><span>${trip.in_members.length ? trip.in_members.map(id => first(member(id))).join(', ') : '—'} · ${trip.blocked_count} blocked · majority ${trip.majority} of ${trip.members.length}</span>`;
+    <b>In</b><span>${trip.in_members.length ? trip.in_members.map(id => first(member(id))).join(', ') : '—'} · ${trip.blocked_count} blocked · majority ${trip.majority} of ${trip.members.length}</span>
+    <b>Calls</b><span>${trip.events.filter(e => e.priority === 'P0').length} placed — P0 only: a phone-only stay, a late arrival there, or a member who didn't answer a disruption text</span>`;
 
   $('plans').innerHTML = trip.plans.length ? `<div class="h3">Plans</div><table><tr><th>v</th><th>Stay</th>${trip.members.map(x=>'<th>'+first(x)+'</th>').join('')}</tr>` +
     trip.plans.map(p => `<tr><td class="${p===plan?'current':''}">v${p.version}${p.note ? '<br><small>'+esc(p.note)+'</small>' : ''}</td><td>${p.stays.map(s => `${esc(s.name)}<br><small>${s.nights}n · ${inr(s.rate_per_room_night)}/room${s.phone_only ? ' · phone-only' + (s.hold_until ? ', held till ' + fmt(s.hold_until) : '') : ' · listed'}${s.booking_ref ? ' · ' + s.booking_ref : ''}</small>`).join('<br>')}</td>${trip.members.map(x => '<td>' + (trip.per_head[p.id][x.id] != null ? inr(trip.per_head[p.id][x.id]) : '—') + '</td>').join('')}</tr>`).join('') + '</table>' : '';
@@ -203,7 +205,7 @@ function render() {
     ${btn(`Fares from Delhi: ×${drift.toFixed(2)} → ${nextLabel}`, `knob('/rails/drift', {city: 'Delhi', multiplier: ${next}})`)}
     ${btn(failing ? `${first(riya)}'s debit will bounce — undo` : `Make ${first(riya)}'s debit bounce at booking`, `knob('/rails/fail-capture', {member_id: '${riya.id}', fail: ${!failing}})`, failing ? 'primary' : '')}`;
 
-  $('rails').innerHTML = trip.events.filter(e => e.channel.startsWith('rail:')).map(e => `<div class="rail ${e.actor}"><span class="tag">${e.actor}</span>${esc(e.text)}</div>`).join('');
+  $('rails').innerHTML = trip.events.filter(e => e.channel.startsWith('rail:')).map(e => `<div class="rail ${e.actor}"><span class="tag">${e.actor}</span>${e.priority === 'P0' ? '<span class="pill p0">P0 · call</span>' : ''}${esc(e.text)}</div>`).join('');
 }
 api('/clock').then(c => $('now').textContent = fmt(c.now));
 </script>

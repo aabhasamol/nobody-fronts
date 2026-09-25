@@ -84,62 +84,63 @@ engine calls them in exactly those places (`Engine._supplier_call`, `_rebook`, `
 
 ### What exists today
 
-The Inya Agent Builder Platform API (`https://api.inya.ai/platform`, header `x-api-key`) lets us
-configure an agent (system prompt with Jinja variables, disposition prompt, language), place an
-**outbound call** to a whitelisted number with `POST /v1/agents/{botId}/trigger_call`, and read the outcome
-from `GET /v1/conversations/{id}/stats` (call status, disposition, transcript) or a post-call webhook.
-Pre-call / dynamic-variable APIs let the agent fetch per-call context from our server.
+Gnani's API is two verbs. The **Speech APIs** (brand: Vachana; key prefix `vach_`): **text-to-speech**
+(Timbre v2, `POST /api/v1/tts/inference`, Hindi and Indian-English voices) and **speech-to-text** (Prisma
+v2.5, `POST /stt/v3`, `language_code` per request), over REST, with WebSocket variants for streaming.
+Pricing: ₹27 per audio-hour transcribed, ₹27 per 10,000 characters synthesised, 60 requests a minute. It does
+not dial phones, run a conversation, or extract fields. We hold this key (`app/keys.py`).
 
-### Two keys, one rail
+### One key, two verbs, and a phone line that is not Gnani's
 
-Gnani sells two things. The **Speech APIs** (brand: Vachana; key prefix `vach_`) are STT and TTS over
-REST/WebSocket — ₹27 per audio-hour, ₹27 per 10,000 characters, 60 requests a minute. The **Inya Agent
-Builder** is the platform that places calls and runs the conversation; its API key carries an `agents`
-permission and is issued separately. The competition credits we hold are for the first. So the prototype
-keeps both paths:
+A P0 call is assembled in `app/rails/gnani.py`:
 
-* `app/rails/gnani_speech.py` — runs today with our key. `scripts/speech_demo.py` synthesises the supplier
-  call's four Hindi questions (427 characters ≈ ₹1.15, cached forever after) and transcribes a recorded
-  "homestay owner" reply (a one-minute answer ≈ ₹0.45). That proves the rail is real and the questions are
-  answerable, for under ₹2.
-* `app/rails/gnani.py` — the full outbound loop for all three calls, for when an agents-scoped key and a
-  whitelisted number arrive. One Jinja prompt branches on `{{ purpose }}` (AVAILABILITY / LATE_ARRIVAL /
-  ESCALATION). Until then it is documented, not demonstrated.
+    telephony dials → play the TTS of each line the agent says → record the other side → STT
+    → read the fields out of the words
 
-A third path exists if the agents key never comes: Gnani publishes Pipecat and LiveKit plugins for the
-Speech APIs, so a self-hosted voice agent (Pipecat + a Twilio number) could run the same script. That is a
-week of work, not a day; it is the fallback, not the plan.
+* **Speak.** Each line the agent says is synthesised once and cached by content (`gnani_speech.py`). The
+  supplier script is four Hindi questions (419 characters ≈ ₹1.13 the first time, ₹0 after); the late-arrival
+  notice is one line; the escalation script is English with the options read out.
+* **Listen.** Each reply is transcribed (`language_code` hi-IN for suppliers, en-IN for members). A
+  one-minute answer ≈ ₹0.45.
+* **Read.** Rules in `gnani.py` turn words into the fields the engine acts on: yes/no with the last verdict
+  winning ("haan… matlab nahi" is a no, "koi dikkat nahi" is a yes), rupee amounts from digits and
+  hazaar/sau, refund terms as the sentence that mentions a refund, a 48-hour hold unless refused, and
+  option one/two/ek/do/pehla/doosra for an escalation. Number-words ("teen hazaar") defeat them today.
+* **The phone line** is a separate seam, `Telephony` (dial → play → listen → hang up), because it is a
+  different vendor: Exotel or Twilio, a day of work. The default `FileTelephony` writes the agent's audio to
+  `cache/calls/<ref>/` and takes the reply from recordings in `cache/replies/<callee>/` (one per question, or
+  one for the whole call; a `.txt` is a typed reply). No recordings ⇒ the call is honestly NO_ANSWER.
 
-### How the prototype uses it
+That is how the demo runs the real Gnani loop for about ₹2 without a carrier: a teammate records the homestay
+owner's answers on a phone, drops the files in, `python scripts/speech_demo.py --call …` prints Gnani's
+transcript and the fields, and `QUORUM_VOICE=gnani python demo.py` runs the whole product on it. Every
+billable call goes through `CallBudget` (40 per checkout) because the key is committed.
 
-1. `setup_agent()` pushes the prompt and a disposition prompt that classifies `CONFIRMED / UNAVAILABLE /
-   NO_ANSWER`.
-2. `call_supplier(stay, party, check_in, nights)` registers the party, dates and room count under a
-   `clientReferenceId`, triggers the call, polls the conversation logs for that reference, reads stats, and
-   returns a `CallRecord` the engine acts on: `NO_ANSWER` ⇒ retry once; `UNAVAILABLE` ⇒ next stay, never call
-   this one again; `CONFIRMED` ⇒ take the rate *from the call*, not the listing, and record the hold.
-3. `escalate_member(member, question, options)` triggers the call with the options as variables and reads
-   `choice` back. The engine then asks that member, and only that member, for a top-up mandate.
-4. `app/main.py` serves `GET /gnani/precall?ref=…` so the agent's pre-call hook can pull the variables.
+### How the engine uses it
 
-For the sandbox demo the "homestay" is a teammate's whitelisted phone. That is honest: the point is the
-structured outcome, not the phone network.
+Only through `Engine._call`, which takes one of three `P0_CALLS` reasons and refuses anything else:
+`SUPPLIER_AVAILABILITY` (retry once on no answer; UNAVAILABLE ⇒ next stay and never call this one again;
+CONFIRMED ⇒ the rate from the call replaces the listing and the hold is recorded), `LATE_ARRIVAL`, and
+`DISRUPTION_UNANSWERED` (the choice comes back as a number; the engine then asks that member alone for a
+top-up mandate). Every call is a P0 event in the transcript; nothing else is.
 
 ### The ask
 
-**Structured extraction on the read path.** We define the schema — `{available: bool, rate_per_room_night:
-int, rooms: int, twin_sharing: bool, refund_terms: string, hold_until: datetime}` for a supplier call,
-`{choice: int}` for an escalation — and the platform fills it and returns fields, so the engine never parses
-prose. Close to what Gnani's "actions and variables" already do for CRM pushes; we want it on the read path.
-Second: a **commitment record**. A hold agreed on a call needs to come back as something the supplier can be
-held to — an SMS confirmation sent from the call, say. Third: **priority calling** for transactional
-emergencies (the escalation), with consent and DND handled for us.
+1. **Normalised entities in the transcript.** Amounts, dates, times, yes/no, ordinal choices, returned as
+   values alongside the words — so "teen hazaar do sau" arrives as 3200 and "haan… matlab nahi" as a no —
+   instead of the rules we maintain in `gnani.py`. This is the structured-extraction ask, sized to the API
+   Gnani actually sells.
+2. **Streaming, duplex STT/TTS** on the WebSocket endpoints, so a live call does not wait for whole clips
+   and the agent can be interrupted.
+3. **Code-switch robustness** for Konkani/Hindi/English in one sentence, and a per-request hint that the
+   speaker is a small-business owner quoting prices.
 
 ### The wall
 
-Whitelisting. Outbound calls only reach registered numbers, so the prototype cannot cold-call a real
-homestay in the sandbox. Fine for Round 2; it is the production question to raise with Gnani (consent and
-DND rules for B2B calls to businesses and transactional calls to members).
+Gnani gives us the voice, not the phone line. Placing the call, and the consent and DND rules for calls to
+businesses and transactional calls to members, sit with the carrier and with us. That is fine for Round 2 —
+the demo is honest about it — and it is the production question to raise: a hold agreed on a call is only as
+good as the recording and the transcript we keep of it.
 
 ## 3. Logistics — Delhivery (distances, not parcels)
 

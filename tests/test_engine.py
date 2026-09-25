@@ -266,3 +266,31 @@ def test_member_exit_after_booking_goes_to_humans():
     engine.member_exits(trip, members[2].id)
     assert members[2].id in trip.dropped and len(trip.plan().travellers) == 3
     assert "over to you" in group_posts(trip)[-1]
+
+
+# ------------------------------------------------------------------ calls are for P0 things only
+def test_every_call_is_p0_and_nothing_else_is():
+    engine, members, trip, (_, _, logistics) = booked()
+    p = trip.plan()
+    logistics.drift["Delhi"] = 1.6
+    engine.disrupt(trip, next(l for l in p.legs_for(members[3].id) if l.destination == "Goa").id)
+    clock.advance(0.5); engine.tick(trip)
+    p0 = [e for e in trip.events if e.priority == "P0"]
+    assert p0 and all(e.channel == "rail:voice" for e in p0)
+    reasons = {e.text.split(":")[0] for e in p0}
+    assert reasons == {"SUPPLIER_AVAILABILITY", "DISRUPTION_UNANSWERED"}          # no late arrival in this run
+    assert all(e.priority != "P0" for e in trip.events if e.channel.startswith("dm:") or e.channel == "group")
+    assert {e.priority for e in trip.events if "counted" in e.text or "Blocked ₹" in e.text} == {"P2"}
+
+
+def test_authorisation_reminder_is_a_text_never_a_call():
+    engine, members, trip, _ = make(silent=("Karan",))
+    vote_all(engine, trip, members, no=("Karan",))
+    engine.member_approves(trip, members[0].id)
+    calls_before = len([e for e in trip.events if e.priority == "P0"])
+    clock.advance(24); engine.tick(trip)                                           # halfway through the 48h window
+    nudged = [e.channel for e in trip.events if "still waiting in your app" in e.text]
+    assert sorted(nudged) == sorted(f"dm:{m.id}" for m in members[1:4])           # the three who haven't approved
+    clock.advance(1); engine.tick(trip)
+    assert len([e for e in trip.events if "still waiting in your app" in e.text]) == 3   # once, not again
+    assert len([e for e in trip.events if e.priority == "P0"]) == calls_before

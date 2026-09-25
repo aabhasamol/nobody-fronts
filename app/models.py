@@ -186,6 +186,7 @@ class Event(BaseModel):
     channel: str                             # group / dm:<member_id> / rail:<name> / system
     actor: str                               # agent / member name / rail / system
     text: str
+    priority: str = "P1"                     # P0 = a phone call (Engine.P0_CALLS); P1 = a text now; P2 = a text that can wait
 
 
 class Trip(BaseModel):

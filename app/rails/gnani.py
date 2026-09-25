@@ -1,179 +1,307 @@
-"""Gnani (Inya Agent Builder Platform API) — the two voice jobs, as outbound calls.
+"""Gnani — the voice rail built from what Gnani's API is: text-to-speech and speech-to-text.
 
-Docs: https://docs.gnani.ai/Platform/platform-introduction  (base https://api.inya.ai/platform, header x-api-key)
+Gnani (Vachana) gives us two verbs, `tts(text) → audio` and `stt(audio) → text`, on the `vach_` key in
+`app/keys.py`. It does not dial phones. So a P0 call is assembled from three parts:
 
-Flow (from the Trigger_Call docs):
-    1. PUT  /v1/agents/{botId}                       configure the agent (once, by hand or via setup_agent())
-    2. POST /v1/agents/{botId}/trigger_call          place the call   (needs ?environment=development for dev keys)
-    3. POST /v1/conversations/logs                   find conversationId by clientReferenceId
-    4. GET  /v1/conversations/{id}/stats             disposition + extracted variables + transcript
+    telephony dials the number → play the TTS of each line the agent says → record the other side → STT
+    → read the fields out of the words (rooms, rate, refund terms, hold; or the option a member chose)
 
-Where voice is used, and where it is not (docs/round2-answers.md, "Where do we actually need to call"):
-  * job 1, supplier calls: stays with no online inventory. Availability, group rate, refund terms, a 48-hour
-    hold; on the travel day, a late-arrival notice. Listed stays are never called — the listing is the data.
-  * job 2, escalation: a member whose flight was cancelled has not answered the options text within
-    ESCALATE_AFTER_MIN. The call reads the options and captures the choice as a variable.
-  Members are never called to chase a vote or an approval. That is the chasing the product removes.
+Telephony is its own seam (`Telephony`) because it is a different vendor (Exotel, Twilio, Knowlarity: a day
+of work behind three methods). The default `FileTelephony` "plays" the agent's audio into
+`cache/calls/<ref>/` and takes the reply from a recording in `cache/replies/<callee-slug>/` — one file per
+question (`1.wav`, `2.wav`, …) or a single `reply.wav` answering everything; a `.txt` beside or instead of a
+recording is used as a typed reply and skips STT. That is how the demo runs the real Gnani loop for about
+₹2: a teammate records the homestay owner's answers on a phone, drops the files in, and the rail log shows
+Gnani's transcript and the fields we read from it. No reply files ⇒ the call is honestly NO_ANSWER.
 
-Constraints that shape the sandbox demo:
-  * Outbound calls go only to WHITELISTED numbers (400 otherwise). A teammate's phone plays the homestay.
-  * trigger_call carries only phone/countryCode/name/clientReferenceId. Everything else reaches the agent
-    through its pre-call / dynamic-variables API: configure the agent to GET
-    {QUORUM_PUBLIC_URL}/gnani/precall?ref=<clientReferenceId>; this app serves the variables (app/main.py).
-    The prompt is one Jinja template branching on {{ purpose }}   [verify: Jinja `if` on the platform; if not,
-    use three bots — GNANI_BOT_ID, GNANI_BOT_ID_LATE, GNANI_BOT_ID_MEMBER].
-  * The agent's "actions / variables" must extract the fields in EXTRACT for each purpose, and the
-    disposition prompt must emit CONFIRMED / UNAVAILABLE / NO_ANSWER. That is the ask: fields, not prose.
-
-Environment:
-    GNANI_API_KEY, GNANI_BOT_ID, GNANI_ENV=development, QUORUM_PUBLIC_URL (tunnel for pre-call variables)
+Which calls exist is decided in the engine (`Engine.P0_CALLS`), not here. This module only knows how to
+speak, listen and read.
 """
 from __future__ import annotations
 import os
 import re
-import time
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta
+from pathlib import Path
+from typing import Optional
 import httpx
 from ..clock import clock
 from ..models import Member, Stay, CallRecord, new_id
 from .base import VoiceRail
+from .gnani_speech import GnaniSpeech, ROOT
 
-BASE = "https://api.inya.ai/platform"
+HOLD_HOURS = 48
+HINDI_MONTHS = ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
 
-SYSTEM_PROMPT = """{% if purpose == "AVAILABILITY" %}
-You are calling {{ property_name }} in {{ area }} on behalf of a group of {{ party_size }} friends who want
-{{ rooms }} twin-sharing rooms for {{ nights }} nights from {{ check_in }}. Speak in {{ language_name }}; switch to
-Hindi, Konkani or English if the person prefers. Be brief and polite. Find out, in order:
-1. Do you have {{ rooms }} twin rooms for those dates?
-2. What is the rate per room per night for this group, and does it include breakfast?
-3. What are your refund terms if the group cancels a week before?
-4. Can you hold the rooms for 48 hours while the group confirms? Until when exactly?
-Do not negotiate. Never claim a booking has been made. Thank them and end the call.
-{% elif purpose == "LATE_ARRIVAL" %}
-You are calling {{ property_name }} about a confirmed group booking (ref {{ booking_ref }}). One guest,
-{{ guest }}, now arrives at {{ eta }} because their flight was cancelled. Ask them to keep the room and confirm
-someone will be there to let the guest in. Speak in {{ language_name }}. Be brief.
-{% else %}
-You are calling {{ member }} from Quorum, the trip agent for their friends' group. {{ question }}
-Read out the options: {{ options }}. Ask which one they want, repeat the number back, and say a UPI request for
-the extra amount will follow on WhatsApp. If they want to think, say the options hold for twenty minutes.
-{% endif %}"""
-
-DISPOSITION_PROMPT = """Classify the call:
-CONFIRMED   — rooms and a hold were confirmed (supplier call), the late arrival was acknowledged, or the member chose an option.
-UNAVAILABLE — the property has no rooms for those dates.
-NO_ANSWER   — nobody answered, or the call did not reach someone who could decide."""
-
-EXTRACT = {                                  # variables the agent must fill, per purpose
-    "AVAILABILITY": ["available", "rate_per_room_night", "rooms", "twin_sharing", "refund_terms", "hold_until"],
-    "LATE_ARRIVAL": [],
-    "ESCALATION": ["choice"],
-}
-LANG_NAME = {"hi-IN": "Hindi", "kok-IN": "Konkani", "en-IN": "English"}
+# ------------------------------------------------------------------ what the agent says
+# Supplier call (Hindi). Line 1 carries the party, dates and room count; 2–4 are static and TTS'd once.
+SUPPLIER_LINES = [
+    "नमस्ते, मैं क्वोरम की तरफ़ से बोल रही हूँ। {party} दोस्तों का एक ग्रुप {check_in} से {nights} रातों के लिए आपके यहाँ "
+    "रुकना चाहता है। क्या उन तारीख़ों पर {rooms} ट्विन-शेयरिंग कमरे उपलब्ध हैं?",
+    "ग्रुप के लिए एक कमरे का एक रात का किराया क्या होगा, और क्या उसमें नाश्ता शामिल है?",
+    "अगर ग्रुप एक हफ़्ते पहले बुकिंग रद्द करे, तो रिफ़ंड की क्या शर्तें हैं?",
+    "क्या आप कमरे अड़तालीस घंटे के लिए होल्ड कर सकते हैं, जब तक ग्रुप पक्का करता है? कब तक? धन्यवाद।",
+]
+LATE_ARRIVAL_LINE = ("नमस्ते, क्वोरम से बोल रही हूँ, बुकिंग {booking_ref} के बारे में। हमारे एक मेहमान, {guest}, की फ़्लाइट "
+                     "रद्द हो गई है; अब वे रात {eta} बजे पहुँचेंगे। कृपया कमरा रखा रहे और कोई उन्हें अंदर आने दे। ठीक है?")
+ESCALATION_OPEN = "Hi {member}, this is Quorum. I'm calling because I couldn't reach you on WhatsApp. {question}"
+ESCALATION_OPTION = "Option {i}: {option}."
+ESCALATION_ASK = "Which one should I book? Say one or two. A UPI request for the difference will follow on WhatsApp."
 
 
-def _bool(v) -> bool | None:
-    if v is None or v == "":
+def supplier_lines(party: int, check_in: date, nights: int, rooms: int) -> list[str]:
+    ci = f"{check_in.day} {HINDI_MONTHS[check_in.month - 1]}"
+    return [SUPPLIER_LINES[0].format(party=party, check_in=ci, nights=nights, rooms=rooms)] + SUPPLIER_LINES[1:]
+
+
+# ------------------------------------------------------------------ reading fields out of words
+# Whole words only ("ok" must not match inside "booked"); Devanagari kept intact by splitting on spaces.
+_PUNCT = ".,!?;:…()\"'।-"
+
+
+def _words(text: str) -> str:
+    toks = [t.strip(_PUNCT) for t in text.lower().split()]
+    return " " + " ".join(t for t in toks if t) + " "
+
+
+def _last(words: str, phrases: tuple[str, ...]) -> int:
+    return max((words.rfind(f" {p} ") for p in phrases), default=-1)
+
+
+# "hai"/"hain" are copulas, not a yes; "koi dikkat nahi" is a yes that contains a no. Idioms are rewritten first.
+_AFFIRMATIVE_IDIOMS = ("koi dikkat nahi", "koi problem nahi", "koi baat nahi", "dikkat nahi", "problem nahi", "no problem",
+                       "no issue", "not a problem", "कोई दिक्कत नहीं", "कोई बात नहीं", "कोई समस्या नहीं")
+_YES = ("haan", "haa", "han", "ji", "milenge", "mil jayenge", "mil jaayenge", "available", "yes", "theek", "thik", "sure",
+        "ok", "okay", "kar denge", "rakh lenge", "rakh denge", "हाँ", "हां", "जी", "उपलब्ध", "मिल जाएंगे", "ठीक", "रख लेंगे")
+_NO = ("nahi", "nahin", "nai", "no", "not", "booked", "full", "poora", "pura", "sorry", "band",
+       "नहीं", "पूरा", "बुक", "फुल", "बंद")
+
+
+def parse_yes_no(text: Optional[str]) -> Optional[bool]:
+    """The last verdict in the sentence wins: 'haan… matlab nahi' is a no; 'haan, koi dikkat nahi' is a yes."""
+    if not text or not text.strip():
         return None
-    return str(v).strip().lower() in ("true", "yes", "haan", "ha", "1", "y")
+    t = text.lower()
+    for idiom in _AFFIRMATIVE_IDIOMS:
+        t = t.replace(idiom, " theek ")
+    w = _words(t)
+    y, n = _last(w, _YES), _last(w, _NO)
+    if y < 0 and n < 0:
+        return None
+    return y > n
 
 
-def _int(v) -> int | None:
-    m = re.search(r"\d[\d,]*", str(v or ""))
-    return int(m.group().replace(",", "")) if m else None
+_NUM_WORDS = {"hazaar": 1000, "hazar": 1000, "हज़ार": 1000, "हजार": 1000, "sau": 100, "सौ": 100}
 
 
-def _dt(v) -> datetime | None:
-    try:
-        return datetime.fromisoformat(str(v)) if v else None
-    except ValueError:
+def parse_amount(text: Optional[str]) -> Optional[int]:
+    """Rupees from '₹3,200', '3200 rupaye', '3 hazaar 2 sau'. Digits only; number-words are not read."""
+    if not text:
+        return None
+    t = text.replace(",", "")
+    total, found = 0, False
+    for m in re.finditer(r"(\d+)\s*(hazaar|hazar|हज़ार|हजार|sau|सौ)?", t):
+        n, unit = int(m.group(1)), m.group(2)
+        if unit:
+            total += n * _NUM_WORDS[unit]; found = True
+        elif n >= 100:
+            total += n; found = True
+    return total if found else None
+
+
+# An explicit "option two" beats a bare "one" used as a pronoun ("the 11 o'clock one").
+_EXPLICIT = [(1, ("option 1", "option one", "option ek", "number one", "number 1", "pehla option", "first option")),
+             (2, ("option 2", "option two", "option do", "number two", "number 2", "doosra option", "second option"))]
+_BARE = [(1, ("1", "one", "ek", "pehla", "pehle", "first", "एक", "पहला")),
+         (2, ("2", "two", "do", "doosra", "dusra", "second", "दो", "दूसरा"))]
+
+
+def parse_choice(text: Optional[str]) -> Optional[int]:
+    if not text:
+        return None
+    w = _words(text)
+    for table in (_EXPLICIT, _BARE):
+        hits = [(w.rfind(f" {p} "), n) for n, phrases in table for p in phrases if f" {p} " in w]
+        if hits:
+            return max(hits)[1]
+    return None
+
+
+def slug(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
+# ------------------------------------------------------------------ the phone line (not Gnani's)
+@dataclass
+class Reply:
+    path: Optional[Path] = None              # a recording to send to STT
+    text: Optional[str] = None               # a typed reply: skips STT
+
+
+class CallSession(ABC):
+    answered: bool
+
+    @abstractmethod
+    def play(self, audio: bytes) -> None: ...
+
+    @abstractmethod
+    def listen(self, max_seconds: float = 60) -> Optional[Reply]: ...
+
+    @abstractmethod
+    def hangup(self) -> None: ...
+
+
+class Telephony(ABC):
+    """Dial a number and get a session you can play audio into and record from. Exotel / Twilio go here."""
+
+    @abstractmethod
+    def dial(self, phone: str, name: str, ref: str) -> CallSession: ...
+
+
+class FileTelephony(Telephony):
+    """The default: agent audio goes to `calls_dir/<ref>/agent_NN.wav`; replies come from
+    `replies_dir/<slug(name)>/` as `N.wav|mp3|m4a|txt` per question, or one `reply.*` for the whole call."""
+
+    def __init__(self, replies_dir: Optional[Path] = None, calls_dir: Optional[Path] = None):
+        self.replies_dir = Path(replies_dir or os.environ.get("QUORUM_REPLIES_DIR") or ROOT / "cache" / "replies")
+        self.calls_dir = Path(calls_dir or os.environ.get("QUORUM_CALLS_DIR") or ROOT / "cache" / "calls")
+
+    def dial(self, phone: str, name: str, ref: str) -> CallSession:
+        return _FileSession(self.calls_dir / ref, self.replies_dir / slug(name))
+
+
+class _FileSession(CallSession):
+    _EXT = (".txt", ".wav", ".mp3", ".m4a")
+
+    def __init__(self, out: Path, replies: Path):
+        self.out, self.replies, self.n, self.heard, self.used_single = out, replies, 0, 0, False
+        self.answered = replies.is_dir() and any(p.suffix in self._EXT for p in replies.iterdir())
+        if self.answered:
+            out.mkdir(parents=True, exist_ok=True)
+
+    def _find(self, stem: str) -> Optional[Path]:
+        for ext in self._EXT:
+            p = self.replies / f"{stem}{ext}"
+            if p.exists():
+                return p
         return None
 
+    def play(self, audio: bytes) -> None:
+        self.n += 1
+        if self.answered:
+            (self.out / f"agent_{self.n:02d}.wav").write_bytes(audio)
 
-class GnaniVoice(VoiceRail):
-    def __init__(self):
-        self.key = os.environ["GNANI_API_KEY"]
-        self.bot_id = os.environ["GNANI_BOT_ID"]
-        self.env = os.environ.get("GNANI_ENV", "development")
-        self.http = httpx.Client(timeout=30, headers={"x-api-key": self.key, "Content-Type": "application/json"})
-        # The engine's per-call context lives here; app/main.py serves it at /gnani/precall?ref=…
-        self.precall_vars: dict[str, dict] = {}
+    def listen(self, max_seconds: float = 60) -> Optional[Reply]:
+        self.heard += 1                                     # the nth reply, however many lines the agent said first
+        p = self._find(str(self.heard))
+        if p is None and not self.used_single:
+            p = self._find("reply")
+            self.used_single = p is not None
+        if p is None:
+            return None
+        return Reply(text=p.read_text().strip()) if p.suffix == ".txt" else Reply(path=p)
 
-    # ------------------------------------------------------------ one-time agent setup
-    def setup_agent(self, language: str = "hi-IN") -> dict:
-        """Push the prompts onto the agent. Run once; re-run when the prompts change."""
-        r = self.http.put(f"{BASE}/v1/agents/{self.bot_id}", params={"environment": self.env},
-                          json={"systemPrompt": SYSTEM_PROMPT, "dispositionPrompt": DISPOSITION_PROMPT,
-                                "language": language})
-        r.raise_for_status()
-        return r.json()
+    def hangup(self) -> None:
+        pass
 
-    # ------------------------------------------------------------ the call itself
-    def _call(self, phone: str, name: str, purpose: str, language: str, variables: dict) -> tuple[str, dict]:
-        ref = new_id(purpose.lower()[:5])
-        self.precall_vars[ref] = {"purpose": purpose, "language_name": LANG_NAME.get(language, "Hindi"), **variables}
-        r = self.http.post(f"{BASE}/v1/agents/{self.bot_id}/trigger_call", params={"environment": self.env},
-                           json={"phone": phone[-10:], "countryCode": "+91", "name": name, "clientReferenceId": ref})
-        r.raise_for_status()
-        conv_id = self._wait_for_conversation(ref)
-        return conv_id or ref, (self._stats(conv_id) if conv_id else {})
 
-    @staticmethod
-    def _record(stats: dict, **fixed) -> CallRecord:
-        disposition = (stats.get("overallCallDisposition") or "NO_ANSWER").upper()
-        if disposition not in ("CONFIRMED", "UNAVAILABLE", "NO_ANSWER"):
-            disposition = "NO_ANSWER"
-        x = stats.get("extractedVariables") or stats.get("variables") or {}
-        transcript = stats.get("transcript") if isinstance(stats.get("transcript"), str) else \
-            "\n".join(f"[{u.get('speaker', '?')}] {u.get('text', '')}" for u in stats.get("utteranceAnalytics", []))
-        return CallRecord(disposition=disposition, available=_bool(x.get("available")),
-                          rate_per_room_night=_int(x.get("rate_per_room_night")), rooms=_int(x.get("rooms")),
-                          twin_sharing=_bool(x.get("twin_sharing")), refund_terms=x.get("refund_terms") or None,
-                          hold_until=_dt(x.get("hold_until")), choice=_int(x.get("choice")),
-                          transcript=transcript or "", called_at=clock.now(), **fixed)
+# ------------------------------------------------------------------ the rail
+class GnaniSpeechVoice(VoiceRail):
+    def __init__(self, speech: Optional[GnaniSpeech] = None, telephony: Optional[Telephony] = None):
+        self.speech = speech or GnaniSpeech()
+        self.tel = telephony or FileTelephony()
 
-    # ------------------------------------------------------------ job 1: suppliers
+    # -- speak / listen
+    def _say(self, s: CallSession, text: str, log: list[str]) -> None:
+        s.play(self.speech.tts(text))
+        log.append(f"[agent] {text}")
+
+    def _hear(self, s: CallSession, lang: str, who: str, log: list[str]) -> Optional[str]:
+        r = s.listen()
+        if r is None:
+            log.append(f"[{who}] (no reply)")
+            return None
+        text = r.text if r.text is not None else self.speech.stt(r.path, lang)
+        log.append(f"[{who}] {text}")
+        return text
+
+    def _record(self, **kw) -> CallRecord:
+        return CallRecord(call_ref=kw.pop("ref"), called_at=clock.now(), **kw)
+
+    # -- P0: a stay with no online inventory
     def call_supplier(self, stay: Stay, party_size: int, check_in: date, nights: int, language: str) -> CallRecord:
-        rooms = Stay.rooms_for(party_size)
-        ref, stats = self._call(stay.phone, stay.name, "AVAILABILITY", language,
-                                {"property_name": stay.name, "area": stay.area, "party_size": party_size,
-                                 "rooms": rooms, "nights": nights, "check_in": check_in.strftime("%d %B"),
-                                 "known": stay.listing_note})
-        rec = self._record(stats, to=stay.name, phone=stay.phone, language=language, purpose="AVAILABILITY", call_ref=ref)
-        if rec.disposition == "CONFIRMED" and rec.hold_until is None:
-            rec.hold_until = clock.now() + timedelta(hours=48)      # the script asks for 48h; default if not extracted
-        return rec
+        ref, rooms, log = new_id("call"), Stay.rooms_for(party_size), []
+        base = dict(to=stay.name, phone=stay.phone, language=language, purpose="AVAILABILITY", ref=ref)
+        s = self.tel.dial(stay.phone, stay.name, ref)
+        if not s.answered:
+            return self._record(disposition="NO_ANSWER", transcript="[ring] no answer", **base)
+        answers: list[Optional[str]] = []
+        try:
+            for line in supplier_lines(party_size, check_in, nights, rooms):
+                self._say(s, line, log)
+                answers.append(self._hear(s, language, stay.name, log))
+        except httpx.HTTPError as e:
+            log.append(f"[rail] Gnani error: {e}")
+            return self._record(disposition="NO_ANSWER", transcript="\n".join(log), **base)
+        finally:
+            s.hangup()
+        a1, a2, a3, a4 = (answers + [None] * 4)[:4]
+        joined = " ".join(a for a in answers if a)
+        if not joined.strip():
+            return self._record(disposition="NO_ANSWER", transcript="\n".join(log), **base)
+        available = parse_yes_no(a1 or joined)
+        if available is False:
+            return self._record(disposition="UNAVAILABLE", available=False, transcript="\n".join(log), **base)
+        if available is None:                                        # words, but no decision in them
+            return self._record(disposition="NO_ANSWER", transcript="\n".join(log), **base)
+        refund = a3 or next((sent for sent in re.split(r"[.।]", joined) if re.search(r"refund|wapas|रिफ़ंड|वापस", sent, re.I)), None)
+        held = parse_yes_no(a4) if a4 else None
+        return self._record(disposition="CONFIRMED", available=True, rooms=rooms,
+                            rate_per_room_night=parse_amount(a2 or joined), twin_sharing=True,
+                            refund_terms=(refund or "").strip() or None,
+                            hold_until=clock.now() + timedelta(hours=HOLD_HOURS) if held is not False else None,
+                            transcript="\n".join(log), **base)
 
+    # -- P0: a guest will arrive late at a phone-only stay
     def notify_late_arrival(self, stay: Stay, member: Member, eta: datetime) -> CallRecord:
-        ref, stats = self._call(stay.phone, stay.name, "LATE_ARRIVAL", "hi-IN",
-                                {"property_name": stay.name, "booking_ref": stay.booking_ref or "", "guest": member.first,
-                                 "eta": eta.strftime("%H:%M on %d %B")})
-        return self._record(stats, to=stay.name, phone=stay.phone, language="hi-IN", purpose="LATE_ARRIVAL", call_ref=ref)
+        ref, log = new_id("call"), []
+        base = dict(to=stay.name, phone=stay.phone, language="hi-IN", purpose="LATE_ARRIVAL", ref=ref)
+        s = self.tel.dial(stay.phone, stay.name, ref)
+        if not s.answered:
+            return self._record(disposition="NO_ANSWER", transcript="[ring] no answer", **base)
+        try:
+            self._say(s, LATE_ARRIVAL_LINE.format(booking_ref=stay.booking_ref or "", guest=member.first, eta=eta.strftime("%H:%M")), log)
+            reply = self._hear(s, "hi-IN", stay.name, log)
+        except httpx.HTTPError as e:
+            log.append(f"[rail] Gnani error: {e}")
+            reply = None
+        finally:
+            s.hangup()
+        ok = parse_yes_no(reply)
+        return self._record(disposition="NO_ANSWER" if reply is None else "UNAVAILABLE" if ok is False else "CONFIRMED",
+                            transcript="\n".join(log), **base)
 
-    # ------------------------------------------------------------ job 2: a member, in a live disruption
+    # -- P0: a member in a live disruption whose text went unanswered
     def escalate_member(self, member: Member, question: str, options: list[str]) -> CallRecord:
-        ref, stats = self._call(member.phone, member.name, "ESCALATION", "en-IN",
-                                {"member": member.first, "question": question,
-                                 "options": "; ".join(f"option {i}: {o}" for i, o in enumerate(options, 1))})
-        return self._record(stats, to=member.name, phone=member.phone, language="en-IN", purpose="ESCALATION", call_ref=ref)
-
-    # ------------------------------------------------------------ polling
-    def _wait_for_conversation(self, ref: str, timeout_s: int = 240) -> str | None:
-        """Poll conversation logs until a record carrying our clientReferenceId appears and has ended."""
-        deadline = time.time() + timeout_s
-        while time.time() < deadline:
-            r = self.http.post(f"{BASE}/v1/conversations/logs", params={"environment": self.env},
-                               json={"botId": self.bot_id, "clientReferenceId": ref, "page": 1, "limit": 5})
-            if r.status_code == 200:
-                rows = r.json().get("response") or r.json().get("data") or []
-                rows = rows if isinstance(rows, list) else rows.get("conversations", [])
-                for row in rows:
-                    if row.get("clientReferenceId") == ref and row.get("callStatus", "").upper() not in ("", "IN PROGRESS", "RINGING"):
-                        return row.get("conversationId") or row.get("id")
-            time.sleep(6)
-        return None
-
-    def _stats(self, conv_id: str) -> dict:
-        r = self.http.get(f"{BASE}/v1/conversations/{conv_id}/stats", params={"environment": self.env})
-        r.raise_for_status()
-        return r.json().get("response") or r.json().get("data") or r.json()
+        ref, log = new_id("call"), []
+        base = dict(to=member.name, phone=member.phone, language="en-IN", purpose="ESCALATION", ref=ref)
+        s = self.tel.dial(member.phone, member.name, ref)
+        if not s.answered:
+            return self._record(disposition="NO_ANSWER", transcript="[ring] no answer", **base)
+        try:
+            self._say(s, ESCALATION_OPEN.format(member=member.first, question=question), log)
+            for i, o in enumerate(options, 1):
+                self._say(s, ESCALATION_OPTION.format(i=i, option=o), log)
+            self._say(s, ESCALATION_ASK, log)
+            reply = self._hear(s, "en-IN", member.first, log)
+        except httpx.HTTPError as e:
+            log.append(f"[rail] Gnani error: {e}")
+            reply = None
+        finally:
+            s.hangup()
+        choice = parse_choice(reply)
+        if choice is not None and choice > len(options):
+            choice = None
+        return self._record(disposition="CONFIRMED" if choice else "NO_ANSWER", choice=choice,
+                            transcript="\n".join(log), **base)

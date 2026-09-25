@@ -22,7 +22,7 @@ from typing import Optional
 from . import messages as M
 from .clock import clock
 from .models import (Trip, Member, Constraint, Plan, Leg, Stay, Vote, Authorisation, AuthStatus, Decision,
-                     TripState, Event)
+                     TripState, Event, CallRecord)
 from .rails.base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 GATHER_WINDOW_H = 24         # how long members get to answer the private DM
@@ -35,6 +35,14 @@ LATE_ARRIVAL_HOUR = 20       # a re-booked arrival at or after this hour gets th
 PRICE_WORDS = ("expensive", "cheap", "budget", "cost", "price", "₹", "money", "afford", "pricey", "over")
 CALL_LANGUAGE = "hi-IN"
 
+# Calls are for P0 things only. A P0 is: the other side cannot be reached any other way in time, and what
+# they say changes what the agent does next. These three are the whole list; everything else is a text.
+P0_CALLS = {
+    "SUPPLIER_AVAILABILITY": "a stay with no online inventory; the plan cannot go to the vote (or the booking) without its answer",
+    "LATE_ARRIVAL": "a guest will arrive late at a phone-only stay; without the call the room goes to a walk-in",
+    "DISRUPTION_UNANSWERED": "a member's leg is cancelled, the options text went unanswered, and the choice cannot wait",
+}
+
 
 def ceil100(x: float) -> int:
     return int(math.ceil(x / 100.0) * 100)
@@ -46,14 +54,21 @@ class Engine:
         self.trips: dict[str, Trip] = {}
 
     # ------------------------------------------------------------------ utils
-    def _say(self, trip: Trip, channel: str, text: str, actor: str = "agent") -> None:
-        trip.events.append(Event(at=clock.now(), channel=channel, actor=actor, text=text))
+    def _say(self, trip: Trip, channel: str, text: str, actor: str = "agent", priority: str = "P1") -> None:
+        trip.events.append(Event(at=clock.now(), channel=channel, actor=actor, text=text, priority=priority))
 
     def _sys(self, trip: Trip, text: str) -> None:
         self._say(trip, "system", text, actor="system")
 
-    def _rail(self, trip: Trip, rail: str, text: str) -> None:
-        self._say(trip, f"rail:{rail}", text, actor=rail)
+    def _rail(self, trip: Trip, rail: str, text: str, priority: str = "P1") -> None:
+        self._say(trip, f"rail:{rail}", text, actor=rail, priority=priority)
+
+    def _call(self, trip: Trip, reason: str, place_call, describe: str) -> CallRecord:
+        """The only way the engine picks up the phone. `reason` must be one of P0_CALLS."""
+        assert reason in P0_CALLS, f"not a P0 reason: {reason}"
+        rec = place_call()
+        self._rail(trip, "voice", f"{reason}: {describe} — {rec.disposition}", priority="P0")
+        return rec
 
     # ------------------------------------------------------------------ 1. initiate → gather
     def trigger(self, name: str, organiser: Member, members: list[Member], destination: str, start: date, end: date,
@@ -83,7 +98,7 @@ class Engine:
         trip.constraints[member_id] = Constraint(member_id=member_id, available=available, start_city=start_city,
                                                  return_city=return_city, must_haves=must_haves or [],
                                                  earliest=earliest, latest=latest, replied_at=clock.now())
-        self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, start_city, return_city, available))
+        self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, start_city, return_city, available), priority="P2")
         if all(mm.id in trip.constraints for mm in trip.members):
             self.plan(trip)
 
@@ -194,14 +209,14 @@ class Engine:
         """Voice job 1. Retry once on no answer; take the rate from the call, not the listing."""
         rec = None
         for attempt in (1, 2):
-            rec = self.voice.call_supplier(stay, party, check_in, nights, language=CALL_LANGUAGE)
+            rec = self._call(trip, "SUPPLIER_AVAILABILITY",
+                             lambda: self.voice.call_supplier(stay, party, check_in, nights, language=CALL_LANGUAGE),
+                             f"Called {stay.name} ({stay.phone}), {CALL_LANGUAGE}, attempt {attempt}")
             stay.calls.append(rec)
-            detail = ""
             if rec.disposition == "CONFIRMED":
-                detail = (f" — {rec.rooms} twin rooms at ₹{rec.rate_per_room_night:,}/night, "
-                          f"refund: {rec.refund_terms}, held till {rec.hold_until:%a %d %b %H:%M}")
-            self._rail(trip, "voice", f"Called {stay.name} ({stay.phone}), {rec.language}, attempt {attempt}: "
-                                      f"{rec.disposition}{detail}")
+                rate = f"₹{rec.rate_per_room_night:,}/night" if rec.rate_per_room_night else "rate not caught"
+                hold = f"held till {rec.hold_until:%a %d %b %H:%M}" if rec.hold_until else "no hold agreed"
+                self._rail(trip, "voice", f"  {rec.rooms} twin rooms at {rate}, refund: {rec.refund_terms or '?'}, {hold}")
             if rec.disposition != "NO_ANSWER":
                 break
         if rec.disposition != "CONFIRMED":
@@ -213,7 +228,7 @@ class Engine:
             self._sys(trip, f"{stay.name} quoted ₹{rec.rate_per_room_night:,}/room/night on the call, not the "
                             f"₹{stay.rate_per_room_night:,} we had. Using the call's price.")
             stay.rate_per_room_night = rec.rate_per_room_night
-        stay.hold_until = rec.hold_until
+        stay.hold_until = rec.hold_until or (clock.now() + timedelta(hours=48))
         return True
 
     # ------------------------------------------------------------------ 3. vote (private; tally only)
@@ -232,7 +247,7 @@ class Engine:
         m = trip.member(member_id)
         self._say(trip, f"dm:{m.id}", ("Yes" if yes else "No") + (f". {reason}" if reason else "."), actor=m.name)
         trip.votes[member_id] = Vote(member_id=member_id, yes=yes, reason=reason, at=clock.now())
-        self._say(trip, f"dm:{m.id}", M.dm_vote_ack(m, yes))
+        self._say(trip, f"dm:{m.id}", M.dm_vote_ack(m, yes), priority="P2")
         if all(t in trip.votes for t in p.travellers):
             self.tally(trip)
 
@@ -311,6 +326,7 @@ class Engine:
                                                   f"{', '.join(o.first for o in over)} past the limit.")
         trip.state = TripState.AUTHORISING
         trip.authorisations.clear()
+        trip.reminded = []
         validity_days = max(1, (trip.auth_deadline - clock.now()).days + 2)
         for m in ins:
             share = p.per_head(m.id)
@@ -339,7 +355,7 @@ class Engine:
         auth = self._approve(trip.authorisations[member_id])
         self._rail(trip, "payments", f"{m.first} approved: mandate {auth.rail_ref} ACTIVE — ₹{auth.amount:,} blocked "
                                      f"({len(trip.blocked())}/{len(trip.in_members())} in)")
-        self._say(trip, f"dm:{m.id}", M.dm_authorise_ack(m, auth))
+        self._say(trip, f"dm:{m.id}", M.dm_authorise_ack(m, auth), priority="P2")
         self._maybe_book(trip)
         return auth
 
@@ -628,10 +644,10 @@ class Engine:
         late_stay: Optional[Stay] = None
         if leg.destination == trip.destination and (new.arrive.hour >= LATE_ARRIVAL_HOUR or new.arrive.date() > leg.arrive.date()):
             for s in p.stays:
-                if s.phone_only:                                 # voice job 1, travel day: the room must not go to a walk-in
-                    rec = self.voice.notify_late_arrival(s, m, new.arrive)
+                if s.phone_only:                                 # the room must not go to a walk-in
+                    rec = self._call(trip, "LATE_ARRIVAL", lambda: self.voice.notify_late_arrival(s, m, new.arrive),
+                                     f"Called {s.name} ({s.phone}): {m.first} now arrives {new.arrive:%H:%M}")
                     s.calls.append(rec)
-                    self._rail(trip, "voice", f"Called {s.name} ({s.phone}): {m.first} now arrives {new.arrive:%H:%M} — {rec.disposition}")
                     late_stay = s
         self._say(trip, "group", M.disruption_group(m, leg, new, late_stay))
         self._say(trip, f"dm:{m.id}", M.dm_rebooked(m, leg, new, extra))
@@ -641,10 +657,12 @@ class Engine:
         d.escalated = True
         m = trip.member(d.member_id)
         leg = next(l for l in trip.plan().legs if l.id == d.leg_id)
-        rec = self.voice.escalate_member(m, M.call_escalation_question(leg),
-                                         [f"{o.carrier} {o.depart:%H:%M}, {M.fmt_inr(o.price)}" for o in d.options])
-        self._rail(trip, "voice", f"Escalation call to {m.first} ({m.phone}) after {ESCALATE_AFTER_MIN} min without a reply: "
-                                  f"{rec.disposition}" + (f", chose option {rec.choice}" if rec.choice else ""))
+        rec = self._call(trip, "DISRUPTION_UNANSWERED",
+                         lambda: self.voice.escalate_member(m, M.call_escalation_question(leg),
+                                                            [f"{o.carrier} {o.depart:%H:%M}, {M.fmt_inr(o.price)}" for o in d.options]),
+                         f"Called {m.first} ({m.phone}) after {ESCALATE_AFTER_MIN} min without a reply")
+        if rec.choice:
+            self._rail(trip, "voice", f"  {m.first} chose option {rec.choice}")
         if rec.disposition == "CONFIRMED" and rec.choice:
             self._say(trip, f"dm:{m.id}", f"(on the call) option {rec.choice}", actor=m.name)
             self.member_chooses(trip, m.id, rec.choice, via="call")
@@ -678,8 +696,15 @@ class Engine:
                     if t not in trip.votes and t not in trip.reminded:      # one reminder text, never a call
                         trip.reminded.append(t)
                         self._say(trip, f"dm:{t}", M.dm_vote_reminder(trip.member(t), trip.vote_deadline))
-        if trip.state == TripState.AUTHORISING and trip.auth_deadline and now >= trip.auth_deadline:
-            self.close_authorising(trip)
+        if trip.state == TripState.AUTHORISING and trip.auth_deadline:
+            if now >= trip.auth_deadline:
+                self.close_authorising(trip)
+            elif now >= trip.auth_deadline - timedelta(hours=AUTH_WINDOW_H / 2):
+                for m in trip.in_members():                                   # one reminder text, never a call
+                    a = trip.authorisations.get(m.id)
+                    if a and a.status == AuthStatus.PENDING and m.id not in trip.reminded:
+                        trip.reminded.append(m.id)
+                        self._say(trip, f"dm:{m.id}", M.dm_authorise_reminder(m, a, trip.auth_deadline))
         for d in list(trip.pending.values()):
             if (d.kind == "REBOOK" and d.choice is None and not d.escalated
                     and now >= d.asked_at + timedelta(minutes=ESCALATE_AFTER_MIN)):

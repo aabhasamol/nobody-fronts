@@ -30,6 +30,14 @@ So voice ends up with **two jobs**, both driven by the counterparty rather than 
 2. **Urgent-decision escalation:** reach a member when a live disruption needs their yes within minutes.
 
 We dropped the deadline-nudge calls and the verification calls to hotels that are already listed online.
+In the code this is one rule: **calls are for P0 things** — the other side can't be reached any other way in
+time, and the answer changes what happens next. Three reasons are on the list (`Engine.P0_CALLS`) and the
+engine refuses to dial for anything else; every event carries P0/P1/P2.
+
+Gnani's API is text-to-speech and speech-to-text. That is what we use: each line the agent says is TTS,
+each reply is STT, and we read the fields (rooms, rate, refund terms, hold; the option chosen) out of the
+words. The phone line itself is a carrier (Exotel/Twilio) behind a three-method seam; the demo runs the real
+Gnani loop on recorded replies.
 
 ### The flow (team decision)
 
@@ -149,11 +157,12 @@ message channel, or when a decision can't wait for a text to be read.
 
 | Job | Leverages (exists) | Needs built |
 |---|---|---|
-| **Supplier call** to phone-only stays: availability, group rate, missing facts, hold. Later, the late-arrival notice | Inya Agent Builder: agent with system prompt + Jinja variables; `POST /v1/agents/{botId}/trigger_call`; pre-call dynamic variables from our server (dates, room count, the fields this listing is missing); `GET /v1/conversations/{id}/stats` / post-call webhook for disposition + transcript | **Structured extraction on the read path.** We define a schema (`available`, `rate_per_night`, `rooms`, `twin_sharing`, `refund_terms`, `hold_until`) and the platform returns fields, not a transcript. Also a **commitment record**: a hold agreed on a call needs to come back as something the supplier can be held to, e.g. an SMS confirmation sent from the call **[verify: actions]** |
-| **Escalation call** to a member during a disruption | Same outbound call, with the options as variables; Hindi/English/regional voices | **Choice capture that triggers an action:** "option 2" said on the call must reach our webhook as a structured choice so the re-book fires without the member opening WhatsApp **[verify: actions/variables]**. Plus priority calling for transactional emergencies **[verify]** |
+| **Supplier call** to phone-only stays: availability, group rate, missing facts, hold. Later, the late-arrival notice | Gnani Speech APIs: **text-to-speech** (Hindi and Indian-English voices, ₹27 per 10k characters) speaks the four questions, once, cached; **speech-to-text** (`language_code` per request, ₹27 per audio-hour) transcribes each reply. We hold the key and the loop runs today on recorded replies (`app/rails/gnani.py`, `scripts/speech_demo.py --call`) | **The phone line** — Gnani does not dial; a carrier (Exotel/Twilio) sits behind a three-method seam. **Normalised entities in the transcript**: amounts, dates, yes/no, so "teen hazaar do sau" comes back as 3200 and "haan… matlab nahi" as a no; today we read fields with rules and number-words defeat them. **Streaming STT/TTS** so the call is live, not clip-by-clip |
+| **Escalation call** to a member during a disruption | The same two verbs: TTS reads the options in English, STT hears "one"/"two"/"doosra" | **Ordinal/choice normalisation** in the transcript, and **code-switch robustness** (Konkani/Hindi/English mid-sentence) |
 
-Wall: in the sandbox, outbound calls reach whitelisted numbers only. In production we need consent and DND
-handling for calls to businesses and transactional calls to members.
+Wall: Gnani gives us the voice, not the phone line. Placing the call, and the consent and DND rules for
+calls to businesses and transactional calls to members, are the carrier's and ours. A hold agreed on a call
+is only as good as the recording and transcript we keep of it.
 
 ### Pine Labs (payments and authorisation, load-bearing)
 

@@ -14,8 +14,14 @@ real fares), not wider. Do not add features the loop does not need.
 * Rails are the only seam. New capability goes behind `VoiceRail` / `PaymentsRail` / `LogisticsRail` in
   `app/rails/base.py`, with a mock first and the real adapter second. The engine must keep passing
   `tests/` against mocks.
-* Voice has two jobs (`call_supplier` + `notify_late_arrival`, and `escalate_member`). If a design needs a
-  third call, re-read the table in `docs/round2-answers.md` §0 first. Members are never called to chase.
+* Calls are for P0 things. The engine dials only through `Engine._call`, which takes a reason from
+  `Engine.P0_CALLS` (three entries) and refuses anything else; every event carries P0/P1/P2. Adding a fourth
+  reason is a product decision — re-read the table in `docs/round2-answers.md` §0 first. Members are never
+  called to chase a vote or an approval.
+* Gnani is text-to-speech and speech-to-text, nothing more. `app/rails/gnani.py` builds a call from those two
+  verbs plus a `Telephony` seam; the carrier is a different vendor and goes behind that seam. The key is
+  committed in `app/keys.py` on purpose (private repo, one month, one holder, budget-capped) — revoke it on the
+  Gnani dashboard when the competition ends.
 * Every user-visible sentence lives in `app/messages.py`. Short sentences, one ask, always a default and a
   deadline, never a group poll. The group gets four kinds of post: kickoff, tally, booking, disruption.
 * Money is INR integers in the engine; adapters convert to paisa at the edge. A member is never debited
@@ -41,18 +47,22 @@ real fares), not wider. Do not add features the loop does not need.
    * Then run the wall for real: `payments.fail_capture_for` has no UAT equivalent, so use a test VPA that
      declines. Showing the rollback fail honestly is worth more than pretending it cannot.
 
-2. **Gnani — speech first, calls second**
-   * The key we hold is speech-scoped (`vach_`). Run `python scripts/speech_demo.py` once: the supplier
-     call's four Hindi questions synthesised into `cache/tts/`, then `--stt` on a phone recording of a
-     teammate answering as the homestay owner (code-switching, a price that changes mid-sentence, a
-     "haan… matlab nahi"). Budget ≈ ₹2; `CallBudget` stops you at 40 calls regardless. Fill the three voice
-     failure rows in `docs/round2-answers.md` §3 from what breaks.
-   * For outbound calls you need an Inya platform key with `agents` permission and a `botId`; whitelist one
-     teammate's number as the homestay. Run `GnaniVoice().setup_agent()` once. Confirm the platform accepts
-     the Jinja `{% if purpose %}` prompt in `app/rails/gnani.py`; if not, split into three bots.
-   * Set `QUORUM_VOICE=gnani`, run one `call_supplier`. Fix response parsing in `_record` / `_stats` against
-     real payloads (`overallCallDisposition`, `extractedVariables`, `utteranceAnalytics` are guesses).
-   * Expose `QUORUM_PUBLIC_URL` via a tunnel (ngrok/cloudflared) so the pre-call variables resolve.
+2. **Gnani — run the real loop on recordings, then put a phone line behind it**
+   * `python scripts/speech_demo.py --dry-run`, then without the flag: the four Hindi questions go through
+     Gnani TTS once (≈ ₹1.13, cached after). Listen to `cache/tts/*.wav`; fix wording the voice mangles.
+   * Have a teammate play the homestay owner on a phone: four short recordings answering the four questions
+     (code-switching, a price that changes mid-sentence, a "haan… matlab nahi"). Drop them in
+     `cache/replies/dona-maria-homestay-assagao/1.wav … 4.wav`. Run
+     `python scripts/speech_demo.py --call cache/replies/dona-maria-homestay-assagao` and read the transcript
+     and the fields. Then `QUORUM_VOICE=gnani python demo.py` runs the whole product on real speech. Fill the
+     three voice failure rows in `docs/round2-answers.md` §3 from what the parsers in `gnani.py` got wrong
+     (number-words, negation, mixed languages). Budget ≈ ₹2; `CallBudget` stops you at 40 calls regardless.
+   * The phone line: implement `Telephony.dial` for Exotel (Indian numbers, a webhook per call) or Twilio —
+     play the TTS clip, record the reply, return it. Three methods; the rest of the rail does not change.
+     Streaming STT/TTS over Gnani's WebSocket endpoints makes the call feel live; the REST loop is fine for
+     a recorded demo.
+   * Note: from a Claude Code cloud session `api.vachana.ai` is blocked by the egress policy; run the speech
+     steps on a laptop.
 
 3. **A real channel.** The demo UI stands in for WhatsApp. Telegram bot (an evening), WhatsApp Cloud API with
    a test number (a day plus Meta approval), or keep the UI and record a screen demo. The engine does not
