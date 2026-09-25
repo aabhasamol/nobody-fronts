@@ -6,11 +6,14 @@ Everything a member or the organiser does in WhatsApp (or their UPI app) is one 
 adapter would call the same engine methods. The two `/rails/*` endpoints are demo knobs on the mock rails.
 """
 from __future__ import annotations
+import base64
+import os
+import secrets
 from datetime import date
 from pathlib import Path
 from typing import Callable, Optional
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from .clock import clock
@@ -23,6 +26,25 @@ voice, payments, logistics = build_rails()
 engine = Engine(voice, payments, logistics)
 STATIC = Path(__file__).resolve().parent.parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
+DEMO_PASSWORD = os.environ.get("QUORUM_DEMO_PASSWORD", "")
+
+
+@app.middleware("http")
+async def demo_password(request: Request, call_next):
+    """When QUORUM_DEMO_PASSWORD is set (a public deploy), the whole app asks for it: any username, that password."""
+    if DEMO_PASSWORD and request.url.path != "/clock":                 # /clock stays open as the health check
+        header = request.headers.get("authorization", "")
+        ok = False
+        if header.startswith("Basic "):
+            try:
+                _, _, pwd = base64.b64decode(header[6:]).decode().partition(":")
+                ok = secrets.compare_digest(pwd, DEMO_PASSWORD)
+            except Exception:
+                ok = False
+        if not ok:
+            return Response("Quorum demo — password required", status_code=401,
+                            headers={"WWW-Authenticate": 'Basic realm="Quorum demo"'})
+    return await call_next(request)
 
 
 @app.get("/")
@@ -64,6 +86,7 @@ class GatherIn(BaseModel):
     start_city: Optional[str] = None
     return_city: Optional[str] = None
     available: bool = True
+    budget: Optional[int] = None             # this member's own ceiling, per head all-in
     must_haves: list[str] = []
     text: Optional[str] = None
 
@@ -249,5 +272,8 @@ def _view(trip_id: str) -> dict:
     d["in_members"] = [m.id for m in t.in_members()]
     d["blocked_count"] = len(t.blocked())
     d["per_head"] = {p.id: {mid: p.per_head(mid) for mid in p.travellers} for p in t.plans}
+    d["totals"] = {p.id: p.total() for p in t.plans}
+    d["pool"] = payments.pool()
+    d["ceilings"] = {m.id: t.ceiling(m.id) for m in t.members}
     d["knobs"] = {"drift": getattr(logistics, "drift", {}), "fail_capture_for": sorted(getattr(payments, "fail_capture_for", []))}
     return d

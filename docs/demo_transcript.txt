@@ -4,45 +4,50 @@ PATH: wedding — book, then two disruptions
 ==============================================================================================================
 [Sat 10:00] GROUP          agent      Hi all — Sayan added me to plan Priya's wedding, Goa: Goa, 02–06 Oct, a wedding trip, around ₹20,000 a head all-in, at m
 [Sat 10:00]   sys          system     Loaded per member: Sayan — Kolkata, 2 past trips; Aabhas — Kolkata, 2 past trips; Aditi — Bengaluru, 1 past trips; Riya 
-[Sat 10:00] DM→Sayan       agent      Hi Sayan — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+[Sat 10:00] DM→Sayan       agent      Hi Sayan — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Kolkata)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates.
-[Sat 10:00] DM→Aabhas      agent      Hi Aabhas — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates with ₹20,000 as your c
+[Sat 10:00] DM→Aabhas      agent      Hi Aabhas — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Kolkata)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates.
-[Sat 10:00] DM→Aditi       agent      Hi Aditi — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates with ₹20,000 as your c
+[Sat 10:00] DM→Aditi       agent      Hi Aditi — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Bengaluru)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Bengaluru → Goa → Bengaluru on those dates.
-[Sat 10:00] DM→Riya        agent      Hi Riya — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Bengaluru → Goa → Bengaluru on those dates with ₹20,000 as yo
+[Sat 10:00] DM→Riya        agent      Hi Riya — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Delhi)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Delhi → Goa → Delhi on those dates.
-[Sat 10:00] DM→Karan       agent      Hi Karan — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Delhi → Goa → Delhi on those dates with ₹20,000 as your ceili
+[Sat 10:00] DM→Karan       agent      Hi Karan — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Mumbai)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Mumbai → Goa → Mumbai on those dates.
-[Sat 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. No hostels please.
-[Sat 10:00] DM→Sayan       agent      Got it, Sayan: Kolkata → Goa → Kolkata. You'll get the plan with your own cost to vote on here, not in the group.
-[Sat 10:00] DM→Aabhas      Aabhas Amo Kolkata and back. All dates work.
-[Sat 10:00] DM→Aabhas      agent      Got it, Aabhas: Kolkata → Goa → Kolkata. You'll get the plan with your own cost to vote on here, not in the group.
-[Sat 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. Not a hostel.
-[Sat 10:00] DM→Aditi       agent      Got it, Aditi: Bengaluru → Goa → Mumbai. You'll get the plan with your own cost to vote on here, not in the group.
-[Sat 10:00] DM→Riya        Riya Sen   Delhi both ways. Nothing fancy.
-[Sat 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi. You'll get the plan with your own cost to vote on here, not in the group.
-[Sun 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways).
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Sun 20 Sep, 10:00. If I don't hear back I'll plan Mumbai → Goa → Mumbai on those dates with ₹20,000 as your cei
+[Sat 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. Up to 24k. No hostels please.
+[Sat 10:00] DM→Sayan       agent      Got it, Sayan: Kolkata → Goa → Kolkata, up to ₹24,000. You'll get the plan with your own cost to vote on here, not in th
+[Sat 10:00] DM→Aabhas      Aabhas Amo Kolkata and back. All dates work. 25k is fine.
+[Sat 10:00] DM→Aabhas      agent      Got it, Aabhas: Kolkata → Goa → Kolkata, up to ₹25,000. You'll get the plan with your own cost to vote on here, not in t
+[Sat 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel.
+[Sat 10:00] DM→Aditi       agent      Got it, Aditi: Bengaluru → Goa → Mumbai, up to ₹20,000. You'll get the plan with your own cost to vote on here, not in t
+[Sat 10:00] DM→Riya        Riya Sen   Delhi both ways. 23k. Nothing fancy.
+[Sat 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi, up to ₹23,000. You'll get the plan with your own cost to vote on here, not in the gro
+[Sun 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways, ₹20,000 ceiling).
 [Sun 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
 [Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
@@ -52,32 +57,32 @@ PATH: wedding — book, then two disruptions
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,980. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹22,000 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,980, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹22,000 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Aabhas      agent      Aabhas, here's the plan v1 for Priya's wedding, Goa. Your cost, from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,980. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹22,000 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,980, inside the ₹25,000 you gave me. If it goes ahead you'd authorise up to ₹22,000 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Aditi       agent      Aditi, here's the plan v1 for Priya's wedding, Goa. Your cost, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹13,980. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹15,400 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹13,980, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹15,400 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Riya        agent      Riya, here's the plan v1 for Priya's wedding, Goa. Your cost, from Delhi:
                                      • Fri 02 Oct 05:00 IndiGo Delhi→Goa, lands 07:36 — ₹6,100
                                      • Tue 06 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,480. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹21,500 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,480, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹21,500 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Karan       agent      Karan, here's the plan v1 for Priya's wedding, Goa. Your cost, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹13,480. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹14,900 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹13,480, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹14,900 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Sayan       Sayan Das  Yes.
 [Sun 10:00] DM→Sayan       agent      Thanks — counted.
 [Sun 10:00] DM→Aabhas      Aabhas Amo Yes.
@@ -88,60 +93,74 @@ PATH: wedding — book, then two disruptions
 [Sun 10:00] DM→Riya        agent      Thanks — counted.
 [Sun 10:00] DM→Karan       Karan Meht No. Can't get leave that week, sorry.
 [Sun 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
-[Sun 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). I've DM'd each yes-voter a UPI request for their own share. Appro
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_b868c141 created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL logistics logistics  Budget set by the 4 who are in: 4 × ₹20,000 (lowest ceiling) = ₹80,000; plan re-sized for 4 comes to ₹68,300 (2 twin roo
+[Sun 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Budget for the trip: ₹80,000 (4 × ₹20,000, the lowest ceiling amo
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_2a096f1e created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_e02638e9 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_8e157809 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split d
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_7de3aefb created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_eca58a40 created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,700 (it was ₹13,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Sun 10:00] RAIL payments  payments   OT mandate otsub_abc9909f created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
+[Sun 10:00] RAIL payments  payments   OT mandate otsub_cd60bdea created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
 [Sun 10:00] DM→Riya        agent      Riya, your share of the plan is ₹18,200 (it was ₹19,480 when the plan went to the vote; 4 are in, so the rooms split dif
-[Sun 10:00] RAIL payments  payments   Sayan approved: mandate otsub_b868c141 ACTIVE — ₹20,600 blocked (1/4 in)
+[Sun 10:00] RAIL payments  payments   Sayan approved: mandate otsub_2a096f1e ACTIVE — ₹20,600 blocked (1/4 in)
 [Sun 10:00] DM→Sayan       agent      Blocked ₹20,600, Sayan — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_e02638e9 ACTIVE — ₹20,600 blocked (2/4 in)
+[Sun 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_8e157809 ACTIVE — ₹20,600 blocked (2/4 in)
 [Sun 10:00] DM→Aabhas      agent      Blocked ₹20,600, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Aditi approved: mandate otsub_7de3aefb ACTIVE — ₹14,000 blocked (3/4 in)
+[Sun 10:00] RAIL payments  payments   Aditi approved: mandate otsub_eca58a40 ACTIVE — ₹14,000 blocked (3/4 in)
 [Sun 10:00] DM→Aditi       agent      Blocked ₹14,000, Aditi — nothing charged. I'll book the moment the others have approved.
-[Sun 10:00] RAIL payments  payments   Riya approved: mandate otsub_abc9909f ACTIVE — ₹20,100 blocked (4/4 in)
+[Sun 10:00] RAIL payments  payments   Riya approved: mandate otsub_cd60bdea ACTIVE — ₹20,100 blocked (4/4 in)
 [Sun 10:00] DM→Riya        agent      Blocked ₹20,100, Riya — nothing charged. I'll book the moment the others have approved.
 [Sun 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹18,672 is inside the ₹20,100 authorised
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_b868c141: ₹18,700 debited (₹1,900 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_e02638e9: ₹18,700 debited (₹1,900 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_7de3aefb: ₹12,700 debited (₹1,300 headroom left)
-[Sun 10:00] RAIL payments  payments   Presentation on otsub_abc9909f: ₹18,672 debited (₹1,428 headroom left)
-[Sun 10:00] RAIL logistics logistics  Stay confirmed HOLD-175954: Dona Maria Homestay, Assagao, 2 twin rooms × 4 nights for 4 — phone hold converted, supplier
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_2a096f1e: ₹18,700 debited (₹1,900 headroom left)
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_8e157809: ₹18,700 debited (₹1,900 headroom left)
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_eca58a40: ₹12,700 debited (₹1,300 headroom left)
+[Sun 10:00] RAIL payments  payments   Presentation on otsub_cd60bdea: ₹18,672 debited (₹1,428 headroom left)
+[Sun 10:00] RAIL payments  payments   Pool (Quorum's account) holds ₹68,772 for this trip; paying suppliers
+[Sun 10:00] RAIL logistics logistics  Stay confirmed HOLD-175954: Dona Maria Homestay, Assagao, 2 twin rooms × 4 nights for 4 — phone hold converted
+[Sun 10:00] RAIL payments  payments   Paid Dona Maria Homestay, Assagao ₹25,600 from the pool (upi, HOLD-175954) — pool now ₹43,172
+[Sun 10:00] RAIL payments  payments   Paid IndiGo ₹6,400 from the pool (b2b wallet, GZDPCF) — pool now ₹36,772
+[Sun 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, 54ERF5) — pool now ₹30,872
 [Sun 10:00] RAIL logistics logistics  Ticketed Sayan: IndiGo Kolkata→Goa GZDPCF, IndiGo Goa→Kolkata 54ERF5
 [Sun 10:00] DM→Sayan       agent      Your confirmations for Priya's wedding, Goa:
                                      • IndiGo Kolkata→Goa 02 Oct 06:00 — PNR GZDPCF — ₹6,400
                                      • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR 54ERF5 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹18,700 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹18,700 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+[Sun 10:00] RAIL payments  payments   Paid IndiGo ₹6,400 from the pool (b2b wallet, DHQD3D) — pool now ₹24,472
+[Sun 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, QCJU4K) — pool now ₹18,572
 [Sun 10:00] RAIL logistics logistics  Ticketed Aabhas: IndiGo Kolkata→Goa DHQD3D, IndiGo Goa→Kolkata QCJU4K
 [Sun 10:00] DM→Aabhas      agent      Your confirmations for Priya's wedding, Goa:
                                      • IndiGo Kolkata→Goa 02 Oct 06:00 — PNR DHQD3D — ₹6,400
                                      • IndiGo Goa→Kolkata 06 Oct 19:00 — PNR QCJU4K — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹18,700 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹18,700 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+[Sun 10:00] RAIL payments  payments   Paid Akasa ₹3,400 from the pool (b2b wallet, HVMGNZ) — pool now ₹15,172
+[Sun 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, GEDP95) — pool now ₹12,272
 [Sun 10:00] RAIL logistics logistics  Ticketed Aditi: Akasa Bengaluru→Goa HVMGNZ, Akasa Goa→Mumbai GEDP95
 [Sun 10:00] DM→Aditi       agent      Your confirmations for Priya's wedding, Goa:
                                      • Akasa Bengaluru→Goa 02 Oct 12:00 — PNR HVMGNZ — ₹3,400
                                      • Akasa Goa→Mumbai 06 Oct 08:00 — PNR GEDP95 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹12,700 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹12,700 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+[Sun 10:00] RAIL payments  payments   Paid IndiGo ₹6,344 from the pool (b2b wallet, W77ZVR) — pool now ₹5,928
+[Sun 10:00] RAIL payments  payments   Paid Akasa ₹5,928 from the pool (b2b wallet, MRFV9X) — pool now ₹0
 [Sun 10:00] RAIL logistics logistics  Ticketed Riya: IndiGo Delhi→Goa W77ZVR, Akasa Goa→Delhi MRFV9X
 [Sun 10:00] DM→Riya        agent      Your confirmations for Priya's wedding, Goa:
                                      • IndiGo Delhi→Goa 02 Oct 05:00 — PNR W77ZVR — ₹6,344 (+₹244 vs the fare at the vote)
                                      • Akasa Goa→Delhi 06 Oct 20:00 — PNR MRFV9X — ₹5,928 (+₹228 vs the fare at the vote)
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing — ref HOLD-175954 — ₹6,400
-                                    Charged: ₹18,672 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹18,672 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
 [Sun 10:00] GROUP          agent      Booked. Dona Maria Homestay, Assagao (HOLD-175954) for Sayan, Aabhas, Aditi, Riya, 02–06 Oct. Flights ticketed from each
 [Sun 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Kolkata→Goa 02 Oct 06:00 PNR DHQD3D
-[Sun 10:00] RAIL logistics logistics  Re-booked IndiGo Kolkata→Goa 02 Oct 19:00 PNR 6UEH4L at ₹5,900 (₹6,400 refund covers it; ₹500 back to Aabhas)
+[Sun 10:00] RAIL payments  payments   IndiGo refunds ₹6,400 for DHQD3D into the pool — pool now ₹6,400
+[Sun 10:00] RAIL logistics logistics  Re-booked IndiGo Kolkata→Goa 02 Oct 19:00 PNR 6UEH4L at ₹5,900 (₹6,400 refund covers it; ₹500 stays in the pool for Aabh
+[Sun 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, 6UEH4L) — pool now ₹500
 [Sun 10:00] RAIL voice     voice      LATE_ARRIVAL: Called Dona Maria Homestay, Assagao (0832629772): Aabhas now arrives 21:42 — CONFIRMED
 [Sun 10:00] GROUP          agent      Aabhas's IndiGo 06:00 was cancelled by the carrier. Re-booked on IndiGo 19:00 within what they'd already authorised — no
-[Sun 10:00] DM→Aabhas      agent      New PNR 6UEH4L — IndiGo Kolkata→Goa 02 Oct 19:00, lands 21:42. ₹500 of the cancelled fare comes back to you.
+[Sun 10:00] DM→Aabhas      agent      New PNR 6UEH4L — IndiGo Kolkata→Goa 02 Oct 19:00, lands 21:42. ₹500 of the cancelled fare stays in the pool for you and 
 [Sun 10:00] RAIL logistics logistics  Carrier cancelled IndiGo Delhi→Goa 02 Oct 05:00 PNR W77ZVR
+[Sun 10:00] RAIL payments  payments   IndiGo refunds ₹6,344 for W77ZVR into the pool — pool now ₹6,844
 [Sun 10:00] DM→Riya        agent      Riya, IndiGo cancelled your Delhi→Goa 02 Oct 05:00. Every alternative is over what you authorised. Options:
                                      1. Akasa 20:00, lands 22:36 — ₹9,120 (needs ₹1,348 more)
                                      2. Vistara 11:00, lands 13:42 — ₹13,120 (needs ₹5,348 more)
@@ -150,10 +169,11 @@ PATH: wedding — book, then two disruptions
 [Sun 10:30] RAIL voice     voice      DISRUPTION_UNANSWERED: Called Riya (9830044444) after 20 min without a reply — CONFIRMED
 [Sun 10:30] RAIL voice     voice        Riya chose option 1
 [Sun 10:30] DM→Riya        Riya Sen   (on the call) option 1
-[Sun 10:30] RAIL payments  payments   Top-up mandate otsub_dcfae6cc for Riya: ₹1,400 — PENDING
+[Sun 10:30] RAIL payments  payments   Top-up mandate otsub_f71394b0 for Riya: ₹1,400 — PENDING
 [Sun 10:30] DM→Riya        agent      Riya, approve the UPI request for ₹1,400 and I'll re-book you on Akasa 20:00 right away. Nobody else is being asked for 
-[Sun 10:30] RAIL payments  payments   Riya approved top-up otsub_dcfae6cc — ₹1,400 blocked
+[Sun 10:30] RAIL payments  payments   Riya approved top-up otsub_f71394b0 — ₹1,400 blocked
 [Sun 10:30] RAIL logistics logistics  Re-booked Akasa Delhi→Goa 02 Oct 20:00 PNR XK94CE at ₹9,120 (₹6,344 refund + ₹1,428 headroom + ₹1,348 top-up)
+[Sun 10:30] RAIL payments  payments   Paid Akasa ₹9,120 from the pool (b2b wallet, XK94CE) — pool now ₹500
 [Sun 10:30] RAIL voice     voice      LATE_ARRIVAL: Called Dona Maria Homestay, Assagao (0832629772): Riya now arrives 22:36 — CONFIRMED
 [Sun 10:30] GROUP          agent      Riya's IndiGo 05:00 was cancelled by the carrier. Re-booked on Akasa 20:00 within what they'd already authorised — no ne
 [Sun 10:30] DM→Riya        agent      New PNR XK94CE — Akasa Delhi→Goa 02 Oct 20:00, lands 22:36. ₹2,776 more than the cancelled fare, taken from the headroom
@@ -165,46 +185,51 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 ==============================================================================================================
 [Sun 10:00] GROUP          agent      Hi all — Sayan added me to plan Goa, October: Goa, 02–06 Oct, a leisure trip, around ₹20,000 a head all-in, at most 10% 
 [Sun 10:00]   sys          system     Loaded per member: Sayan — Kolkata, 2 past trips; Aabhas — Kolkata, 2 past trips; Aditi — Bengaluru, 1 past trips; Riya 
-[Sun 10:00] DM→Sayan       agent      Hi Sayan — Goa, October, 02–06 Oct. Four quick things, just to me:
+[Sun 10:00] DM→Sayan       agent      Hi Sayan — Goa, October, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Kolkata)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates.
-[Sun 10:00] DM→Aabhas      agent      Hi Aabhas — Goa, October, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates with ₹20,000 as your c
+[Sun 10:00] DM→Aabhas      agent      Hi Aabhas — Goa, October, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Kolkata)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates.
-[Sun 10:00] DM→Aditi       agent      Hi Aditi — Goa, October, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates with ₹20,000 as your c
+[Sun 10:00] DM→Aditi       agent      Hi Aditi — Goa, October, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Bengaluru)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Bengaluru → Goa → Bengaluru on those dates.
-[Sun 10:00] DM→Riya        agent      Hi Riya — Goa, October, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Bengaluru → Goa → Bengaluru on those dates with ₹20,000 as yo
+[Sun 10:00] DM→Riya        agent      Hi Riya — Goa, October, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Delhi)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Delhi → Goa → Delhi on those dates.
-[Sun 10:00] DM→Karan       agent      Hi Karan — Goa, October, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Delhi → Goa → Delhi on those dates with ₹20,000 as your ceili
+[Sun 10:00] DM→Karan       agent      Hi Karan — Goa, October, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Mumbai)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Mumbai → Goa → Mumbai on those dates.
-[Sun 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. No hostels please.
-[Sun 10:00] DM→Sayan       agent      Got it, Sayan: Kolkata → Goa → Kolkata. You'll get the plan with your own cost to vote on here, not in the group.
-[Sun 10:00] DM→Aabhas      Aabhas Amo Kolkata and back. All dates work.
-[Sun 10:00] DM→Aabhas      agent      Got it, Aabhas: Kolkata → Goa → Kolkata. You'll get the plan with your own cost to vote on here, not in the group.
-[Sun 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. Not a hostel.
-[Sun 10:00] DM→Aditi       agent      Got it, Aditi: Bengaluru → Goa → Mumbai. You'll get the plan with your own cost to vote on here, not in the group.
-[Sun 10:00] DM→Riya        Riya Sen   Delhi both ways. Nothing fancy.
-[Sun 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi. You'll get the plan with your own cost to vote on here, not in the group.
-[Sun 10:00] DM→Karan       Karan Meht Mumbai. ok.
-[Sun 10:00] DM→Karan       agent      Got it, Karan: Mumbai → Goa → Mumbai. You'll get the plan with your own cost to vote on here, not in the group.
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Mon 21 Sep, 10:00. If I don't hear back I'll plan Mumbai → Goa → Mumbai on those dates with ₹20,000 as your cei
+[Sun 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. Up to 24k. No hostels please.
+[Sun 10:00] DM→Sayan       agent      Got it, Sayan: Kolkata → Goa → Kolkata, up to ₹24,000. You'll get the plan with your own cost to vote on here, not in th
+[Sun 10:00] DM→Aabhas      Aabhas Amo Kolkata and back. All dates work. 25k is fine.
+[Sun 10:00] DM→Aabhas      agent      Got it, Aabhas: Kolkata → Goa → Kolkata, up to ₹25,000. You'll get the plan with your own cost to vote on here, not in t
+[Sun 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel.
+[Sun 10:00] DM→Aditi       agent      Got it, Aditi: Bengaluru → Goa → Mumbai, up to ₹20,000. You'll get the plan with your own cost to vote on here, not in t
+[Sun 10:00] DM→Riya        Riya Sen   Delhi both ways. 23k. Nothing fancy.
+[Sun 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi, up to ₹23,000. You'll get the plan with your own cost to vote on here, not in the gro
+[Sun 10:00] DM→Karan       Karan Meht Mumbai. 19k. ok.
+[Sun 10:00] DM→Karan       agent      Got it, Karan: Mumbai → Goa → Mumbai, up to ₹19,000. You'll get the plan with your own cost to vote on here, not in the 
 [Sun 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Sun 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Fisherman's Rest, Morjim (0832652445), hi-IN, attempt 1 — UNAVAILABLE
 [Sun 10:00]   sys          system     Fisherman's Rest, Morjim: unavailable after 1 call(s); moving to the next stay.
@@ -216,32 +241,32 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,480. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹21,500 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,480, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹21,500 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Aabhas      agent      Aabhas, here's the plan v1 for Goa, October. Your cost, from Kolkata:
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,480. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹21,500 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,480, inside the ₹25,000 you gave me. If it goes ahead you'd authorise up to ₹21,500 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Aditi       agent      Aditi, here's the plan v1 for Goa, October. Your cost, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹13,980. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹15,400 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹13,980, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹15,400 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Riya        agent      Riya, here's the plan v1 for Goa, October. Your cost, from Delhi:
                                      • Fri 02 Oct 20:00 Akasa Delhi→Goa, lands 22:36 — ₹5,700
                                      • Tue 06 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,080. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹21,000 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,080, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹21,000 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Karan       agent      Karan, here's the plan v1 for Goa, October. Your cost, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Tue 22 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹13,480. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹14,900 — your share plus 10% so
-                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹13,480, inside the ₹19,000 you gave me. If it goes ahead you'd authorise up to ₹14,900 — your share plus 1
+                                    Reply yes or no by Mon 21 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Sun 10:00] DM→Sayan       Sayan Das  Yes.
 [Sun 10:00] DM→Sayan       agent      Thanks — counted.
 [Sun 10:00] DM→Aabhas      Aabhas Amo Yes.
@@ -262,32 +287,32 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900
                                      • Mon 05 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 5 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹5,7
-                                    Your all-in: ₹17,560. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹19,400 — your share plus 10% so
-                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹17,560, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹19,400 — your share plus 1
+                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Mon 10:00] DM→Aabhas      agent      Aabhas, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost, from Kolkata:
                                      • Fri 02 Oct 19:00 IndiGo Kolkata→Goa, lands 21:42 — ₹5,900
                                      • Mon 05 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 5 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹5,7
-                                    Your all-in: ₹17,560. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹19,400 — your share plus 10% so
-                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹17,560, inside the ₹25,000 you gave me. If it goes ahead you'd authorise up to ₹19,400 — your share plus 1
+                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Mon 10:00] DM→Aditi       agent      Aditi, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400
                                      • Mon 05 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 5 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹5,7
-                                    Your all-in: ₹12,060. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹13,300 — your share plus 10% so
-                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹12,060, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹13,300 — your share plus 1
+                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Mon 10:00] DM→Riya        agent      Riya, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost, from Delhi:
                                      • Fri 02 Oct 20:00 Akasa Delhi→Goa, lands 22:36 — ₹5,700
                                      • Mon 05 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 5 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹5,7
-                                    Your all-in: ₹17,160. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹18,900 — your share plus 10% so
-                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹17,160, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹18,900 — your share plus 1
+                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Mon 10:00] DM→Karan       agent      Karan, here's the plan v2 — same stay, one night fewer for Goa, October. Your cost, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900
                                      • Mon 05 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing among 5 (confirmed by phone, held till Wed 23 Sep, 10:00) — ₹5,7
-                                    Your all-in: ₹11,560. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹12,800 — your share plus 10% so
-                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹11,560, inside the ₹19,000 you gave me. If it goes ahead you'd authorise up to ₹12,800 — your share plus 1
+                                    Reply yes or no by Tue 22 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Mon 10:00] DM→Sayan       Sayan Das  Yes.
 [Mon 10:00] DM→Sayan       agent      Thanks — counted.
 [Mon 10:00] DM→Aabhas      Aabhas Amo Yes.
@@ -298,60 +323,72 @@ PATH: leisure — vote fails on price, revision, dropout at authorisation
 [Mon 10:00] DM→Riya        agent      Thanks — counted.
 [Mon 10:00] DM→Karan       Karan Meht Yes.
 [Mon 10:00] DM→Karan       agent      Thanks — counted.
-[Mon 10:00] GROUP          agent      Vote on plan v2: 5 yes, 0 no — passes (3 of 5 needed). I've DM'd each yes-voter a UPI request for their own share. Appro
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_6532c97d created for Sayan: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹17,560. Approve the UPI request I've sent: it blocks ₹19,400 — your share plus the 10%
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_7b26dc9d created for Aabhas: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹17,560. Approve the UPI request I've sent: it blocks ₹19,400 — your share plus the 10
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_8f4832d3 created for Aditi: ₹13,300 block (share ₹12,060 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,060. Approve the UPI request I've sent: it blocks ₹13,300 — your share plus the 10%
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_28467730 created for Riya: ₹18,900 block (share ₹17,160 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Riya        agent      Riya, your share of the plan is ₹17,160. Approve the UPI request I've sent: it blocks ₹18,900 — your share plus the 10% 
-[Mon 10:00] RAIL payments  payments   OT mandate otsub_26b0fe2f created for Karan: ₹12,800 block (share ₹11,560 × 1.10), 4d validity — PENDING
-[Mon 10:00] DM→Karan       agent      Karan, your share of the plan is ₹11,560. Approve the UPI request I've sent: it blocks ₹12,800 — your share plus the 10%
-[Mon 10:00] RAIL payments  payments   Sayan approved: mandate otsub_6532c97d ACTIVE — ₹19,400 blocked (1/5 in)
+[Mon 10:00] RAIL logistics logistics  Budget set by the 5 who are in: 5 × ₹19,000 (lowest ceiling) = ₹95,000; plan re-sized for 5 comes to ₹75,900
+[Mon 10:00] GROUP          agent      Vote on plan v2: 5 yes, 0 no — passes (3 of 5 needed). Budget for the trip: ₹95,000 (5 × ₹19,000, the lowest ceiling amo
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_49987b40 created for Sayan: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
+[Mon 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹17,560, inside the ₹24,000 you gave me. Approve the UPI request I've sent: it blocks ₹
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_210b21a6 created for Aabhas: ₹19,400 block (share ₹17,560 × 1.10), 4d validity — PENDING
+[Mon 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹17,560, inside the ₹25,000 you gave me. Approve the UPI request I've sent: it blocks 
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_162fce43 created for Aditi: ₹13,300 block (share ₹12,060 × 1.10), 4d validity — PENDING
+[Mon 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,060, inside the ₹20,000 you gave me. Approve the UPI request I've sent: it blocks ₹
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_e6b1c552 created for Riya: ₹18,900 block (share ₹17,160 × 1.10), 4d validity — PENDING
+[Mon 10:00] DM→Riya        agent      Riya, your share of the plan is ₹17,160, inside the ₹23,000 you gave me. Approve the UPI request I've sent: it blocks ₹1
+[Mon 10:00] RAIL payments  payments   OT mandate otsub_08d5f02d created for Karan: ₹12,800 block (share ₹11,560 × 1.10), 4d validity — PENDING
+[Mon 10:00] DM→Karan       agent      Karan, your share of the plan is ₹11,560, inside the ₹19,000 you gave me. Approve the UPI request I've sent: it blocks ₹
+[Mon 10:00] RAIL payments  payments   Sayan approved: mandate otsub_49987b40 ACTIVE — ₹19,400 blocked (1/5 in)
 [Mon 10:00] DM→Sayan       agent      Blocked ₹19,400, Sayan — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_7b26dc9d ACTIVE — ₹19,400 blocked (2/5 in)
+[Mon 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_210b21a6 ACTIVE — ₹19,400 blocked (2/5 in)
 [Mon 10:00] DM→Aabhas      agent      Blocked ₹19,400, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Aditi approved: mandate otsub_8f4832d3 ACTIVE — ₹13,300 blocked (3/5 in)
+[Mon 10:00] RAIL payments  payments   Aditi approved: mandate otsub_162fce43 ACTIVE — ₹13,300 blocked (3/5 in)
 [Mon 10:00] DM→Aditi       agent      Blocked ₹13,300, Aditi — nothing charged. I'll book the moment the others have approved.
-[Mon 10:00] RAIL payments  payments   Karan approved: mandate otsub_26b0fe2f ACTIVE — ₹12,800 blocked (4/5 in)
+[Mon 10:00] RAIL payments  payments   Karan approved: mandate otsub_08d5f02d ACTIVE — ₹12,800 blocked (4/5 in)
 [Mon 10:00] DM→Karan       agent      Blocked ₹12,800, Karan — nothing charged. I'll book the moment the others have approved.
-[Wed 10:00] RAIL payments  payments   Mandate otsub_28467730 released — Riya is out, nothing charged
+[Wed 10:00] RAIL payments  payments   Mandate otsub_e6b1c552 released — Riya is out, nothing charged
 [Wed 10:00] DM→Riya        agent      Riya, the deadline passed without your approval, so I've taken you off this plan. Nothing was charged. Tell Sayan if tha
+[Wed 10:00] RAIL logistics logistics  Re-priced for 4: ₹54,900 against a budget of 4 × ₹19,000 = ₹76,000 (2 twin rooms at Dona Maria Homestay, Assagao instead
 [Wed 10:00] DM→Sayan       agent      Sayan, Riya dropped out, so the rooms now split among 4: your share is ₹16,600, down from ₹17,560 and still inside the ₹
 [Wed 10:00] DM→Aabhas      agent      Aabhas, Riya dropped out, so the rooms now split among 4: your share is ₹16,600, down from ₹17,560 and still inside the 
 [Wed 10:00] DM→Aditi       agent      Aditi, Riya dropped out, so the rooms now split among 4: your share is ₹11,100, down from ₹12,060 and still inside the ₹
 [Wed 10:00] DM→Karan       agent      Karan, Riya dropped out, so the rooms now split among 4: your share is ₹10,600, down from ₹11,560 and still inside the ₹
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_6532c97d: ₹16,600 debited (₹2,800 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_7b26dc9d: ₹16,600 debited (₹2,800 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_8f4832d3: ₹11,100 debited (₹2,200 headroom left)
-[Wed 10:00] RAIL payments  payments   Presentation on otsub_26b0fe2f: ₹10,600 debited (₹2,200 headroom left)
-[Wed 10:00] RAIL logistics logistics  Stay confirmed HOLD-554710: Dona Maria Homestay, Assagao, 2 twin rooms × 3 nights for 4 — phone hold converted, supplier
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_49987b40: ₹16,600 debited (₹2,800 headroom left)
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_210b21a6: ₹16,600 debited (₹2,800 headroom left)
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_162fce43: ₹11,100 debited (₹2,200 headroom left)
+[Wed 10:00] RAIL payments  payments   Presentation on otsub_08d5f02d: ₹10,600 debited (₹2,200 headroom left)
+[Wed 10:00] RAIL payments  payments   Pool (Quorum's account) holds ₹54,900 for this trip; paying suppliers
+[Wed 10:00] RAIL logistics logistics  Stay confirmed HOLD-554710: Dona Maria Homestay, Assagao, 2 twin rooms × 3 nights for 4 — phone hold converted
+[Wed 10:00] RAIL payments  payments   Paid Dona Maria Homestay, Assagao ₹19,200 from the pool (upi, HOLD-554710) — pool now ₹35,700
+[Wed 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, 4ERF5D) — pool now ₹29,800
+[Wed 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, HQD3DQ) — pool now ₹23,900
 [Wed 10:00] RAIL logistics logistics  Ticketed Sayan: IndiGo Kolkata→Goa 4ERF5D, IndiGo Goa→Kolkata HQD3DQ
 [Wed 10:00] DM→Sayan       agent      Your confirmations for Goa, October:
                                      • IndiGo Kolkata→Goa 02 Oct 19:00 — PNR 4ERF5D — ₹5,900
                                      • IndiGo Goa→Kolkata 05 Oct 19:00 — PNR HQD3DQ — ₹5,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹16,600 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹16,600 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+[Wed 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, CJU4KH) — pool now ₹18,000
+[Wed 10:00] RAIL payments  payments   Paid IndiGo ₹5,900 from the pool (b2b wallet, VMGNZG) — pool now ₹12,100
 [Wed 10:00] RAIL logistics logistics  Ticketed Aabhas: IndiGo Kolkata→Goa CJU4KH, IndiGo Goa→Kolkata VMGNZG
 [Wed 10:00] DM→Aabhas      agent      Your confirmations for Goa, October:
                                      • IndiGo Kolkata→Goa 02 Oct 19:00 — PNR CJU4KH — ₹5,900
                                      • IndiGo Goa→Kolkata 05 Oct 19:00 — PNR VMGNZG — ₹5,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹16,600 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹16,600 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+[Wed 10:00] RAIL payments  payments   Paid Akasa ₹3,400 from the pool (b2b wallet, EDP95W) — pool now ₹8,700
+[Wed 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, 77ZVRM) — pool now ₹5,800
 [Wed 10:00] RAIL logistics logistics  Ticketed Aditi: Akasa Bengaluru→Goa EDP95W, Akasa Goa→Mumbai 77ZVRM
 [Wed 10:00] DM→Aditi       agent      Your confirmations for Goa, October:
                                      • Akasa Bengaluru→Goa 02 Oct 12:00 — PNR EDP95W — ₹3,400
                                      • Akasa Goa→Mumbai 05 Oct 08:00 — PNR 77ZVRM — ₹2,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹11,100 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹11,100 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
+[Wed 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, RFV9X6) — pool now ₹2,900
+[Wed 10:00] RAIL payments  payments   Paid Akasa ₹2,900 from the pool (b2b wallet, UEH4LX) — pool now ₹0
 [Wed 10:00] RAIL logistics logistics  Ticketed Karan: Akasa Mumbai→Goa RFV9X6, Akasa Goa→Mumbai UEH4LX
 [Wed 10:00] DM→Karan       agent      Your confirmations for Goa, October:
                                      • Akasa Mumbai→Goa 02 Oct 08:00 — PNR RFV9X6 — ₹2,900
                                      • Akasa Goa→Mumbai 05 Oct 08:00 — PNR UEH4LX — ₹2,900
                                      • Dona Maria Homestay, Assagao, 3 nights, twin sharing — ref HOLD-554710 — ₹4,800
-                                    Charged: ₹10,600 via your UPI mandate; the rest of the block is released when the trip ends.
+                                    Charged: ₹10,600 via your UPI mandate into Quorum's account, paid on to the suppliers above; the rest of the block is re
 [Wed 10:00] GROUP          agent      Booked. Dona Maria Homestay, Assagao (HOLD-554710) for Sayan, Aabhas, Aditi, Karan, 02–05 Oct. Flights ticketed from eac
 
 FINAL STATE: BOOKED   captured=₹54,900
@@ -361,45 +398,50 @@ PATH: wall — one debit fails, everyone is refunded
 ==============================================================================================================
 [Wed 10:00] GROUP          agent      Hi all — Sayan added me to plan Priya's wedding, Goa: Goa, 02–06 Oct, a wedding trip, around ₹20,000 a head all-in, at m
 [Wed 10:00]   sys          system     Loaded per member: Sayan — Kolkata, 2 past trips; Aabhas — Kolkata, 2 past trips; Aditi — Bengaluru, 1 past trips; Riya 
-[Wed 10:00] DM→Sayan       agent      Hi Sayan — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+[Wed 10:00] DM→Sayan       agent      Hi Sayan — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Kolkata)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates.
-[Wed 10:00] DM→Aabhas      agent      Hi Aabhas — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates with ₹20,000 as your c
+[Wed 10:00] DM→Aabhas      agent      Hi Aabhas — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Kolkata)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates.
-[Wed 10:00] DM→Aditi       agent      Hi Aditi — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Kolkata → Goa → Kolkata on those dates with ₹20,000 as your c
+[Wed 10:00] DM→Aditi       agent      Hi Aditi — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Bengaluru)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Bengaluru → Goa → Bengaluru on those dates.
-[Wed 10:00] DM→Riya        agent      Hi Riya — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Bengaluru → Goa → Bengaluru on those dates with ₹20,000 as yo
+[Wed 10:00] DM→Riya        agent      Hi Riya — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Delhi)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Delhi → Goa → Delhi on those dates.
-[Wed 10:00] DM→Karan       agent      Hi Karan — Priya's wedding, Goa, 02–06 Oct. Four quick things, just to me:
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Delhi → Goa → Delhi on those dates with ₹20,000 as your ceili
+[Wed 10:00] DM→Karan       agent      Hi Karan — Priya's wedding, Goa, 02–06 Oct. Five quick things, just to me:
                                     1. Which city do you start from? (I have Mumbai)
                                     2. Which city do you go back to? (same, unless you say otherwise)
                                     3. Any dates in that window you can't do?
-                                    4. Anything non-negotiable — no hostels, direct flights, veg food?
-                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Mumbai → Goa → Mumbai on those dates.
-[Wed 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. No hostels please.
-[Wed 10:00] DM→Sayan       agent      Got it, Sayan: Kolkata → Goa → Kolkata. You'll get the plan with your own cost to vote on here, not in the group.
-[Wed 10:00] DM→Aabhas      Aabhas Amo Kolkata and back. All dates work.
-[Wed 10:00] DM→Aabhas      agent      Got it, Aabhas: Kolkata → Goa → Kolkata. You'll get the plan with your own cost to vote on here, not in the group.
-[Wed 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. Not a hostel.
-[Wed 10:00] DM→Aditi       agent      Got it, Aditi: Bengaluru → Goa → Mumbai. You'll get the plan with your own cost to vote on here, not in the group.
-[Wed 10:00] DM→Riya        Riya Sen   Delhi both ways. Nothing fancy.
-[Wed 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi. You'll get the plan with your own cost to vote on here, not in the group.
-[Thu 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways).
+                                    4. The most you'd pay for the whole trip, per head? (Sayan said around ₹20,000)
+                                    5. Anything non-negotiable — no hostels, direct flights, veg food?
+                                    Reply by Thu 24 Sep, 10:00. If I don't hear back I'll plan Mumbai → Goa → Mumbai on those dates with ₹20,000 as your cei
+[Wed 10:00] DM→Sayan       Sayan Das  Kolkata both ways. Dates fine. Up to 24k. No hostels please.
+[Wed 10:00] DM→Sayan       agent      Got it, Sayan: Kolkata → Goa → Kolkata, up to ₹24,000. You'll get the plan with your own cost to vote on here, not in th
+[Wed 10:00] DM→Aabhas      Aabhas Amo Kolkata and back. All dates work. 25k is fine.
+[Wed 10:00] DM→Aabhas      agent      Got it, Aabhas: Kolkata → Goa → Kolkata, up to ₹25,000. You'll get the plan with your own cost to vote on here, not in t
+[Wed 10:00] DM→Aditi       Aditi Rao  I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel.
+[Wed 10:00] DM→Aditi       agent      Got it, Aditi: Bengaluru → Goa → Mumbai, up to ₹20,000. You'll get the plan with your own cost to vote on here, not in t
+[Wed 10:00] DM→Riya        Riya Sen   Delhi both ways. 23k. Nothing fancy.
+[Wed 10:00] DM→Riya        agent      Got it, Riya: Delhi → Goa → Delhi, up to ₹23,000. You'll get the plan with your own cost to vote on here, not in the gro
+[Thu 10:00]   sys          system     Karan did not reply; default applied (Mumbai both ways, ₹20,000 ceiling).
 [Thu 10:00] RAIL logistics logistics  4 stays quoted in Goa, 4 nights (2 phone-only); legs for 5 travellers, out and back searched separately; limit ₹22,000/h
 [Thu 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 1 — NO_ANSWER
 [Thu 10:00] RAIL voice     voice      SUPPLIER_AVAILABILITY: Called Dona Maria Homestay, Assagao (0832629772), hi-IN, attempt 2 — CONFIRMED
@@ -409,32 +451,32 @@ PATH: wall — one debit fails, everyone is refunded
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,980. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹22,000 — your share plus 10% so
-                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,980, inside the ₹24,000 you gave me. If it goes ahead you'd authorise up to ₹22,000 — your share plus 1
+                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Thu 10:00] DM→Aabhas      agent      Aabhas, here's the plan v1 for Priya's wedding, Goa. Your cost, from Kolkata:
                                      • Fri 02 Oct 06:00 IndiGo Kolkata→Goa, lands 08:42 — ₹6,400
                                      • Tue 06 Oct 19:00 IndiGo Goa→Kolkata, lands 21:42 — ₹5,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,980. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹22,000 — your share plus 10% so
-                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,980, inside the ₹25,000 you gave me. If it goes ahead you'd authorise up to ₹22,000 — your share plus 1
+                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Thu 10:00] DM→Aditi       agent      Aditi, here's the plan v1 for Priya's wedding, Goa. Your cost, from Bengaluru:
                                      • Fri 02 Oct 12:00 Akasa Bengaluru→Goa, lands 13:12 — ₹3,400
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹13,980. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹15,400 — your share plus 10% so
-                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹13,980, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹15,400 — your share plus 1
+                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Thu 10:00] DM→Riya        agent      Riya, here's the plan v1 for Priya's wedding, Goa. Your cost, from Delhi:
                                      • Fri 02 Oct 05:00 IndiGo Delhi→Goa, lands 07:36 — ₹6,100
                                      • Tue 06 Oct 20:00 Akasa Goa→Delhi, lands 22:36 — ₹5,700
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹19,480. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹21,500 — your share plus 10% so
-                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹19,480, inside the ₹23,000 you gave me. If it goes ahead you'd authorise up to ₹21,500 — your share plus 1
+                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Thu 10:00] DM→Karan       agent      Karan, here's the plan v1 for Priya's wedding, Goa. Your cost, from Mumbai:
                                      • Fri 02 Oct 08:00 Akasa Mumbai→Goa, lands 09:06 — ₹2,900
                                      • Tue 06 Oct 08:00 Akasa Goa→Mumbai, lands 09:06 — ₹2,900
                                      • Dona Maria Homestay, Assagao, 4 nights, twin sharing among 5 (confirmed by phone, held till Sat 26 Sep, 10:00) — ₹7,6
-                                    Your all-in: ₹13,480. Plan limit ₹22,000 a head. If it goes ahead you'd authorise up to ₹14,900 — your share plus 10% so
-                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group.
+                                    Your all-in: ₹13,480, inside the ₹20,000 you gave me. If it goes ahead you'd authorise up to ₹14,900 — your share plus 1
+                                    Reply yes or no by Fri 25 Sep, 10:00. If no, say what would make it a yes. Only the tally goes to the group. Whoever say
 [Thu 10:00] DM→Sayan       Sayan Das  Yes.
 [Thu 10:00] DM→Sayan       agent      Thanks — counted.
 [Thu 10:00] DM→Aabhas      Aabhas Amo Yes.
@@ -445,31 +487,32 @@ PATH: wall — one debit fails, everyone is refunded
 [Thu 10:00] DM→Riya        agent      Thanks — counted.
 [Thu 10:00] DM→Karan       Karan Meht No. Can't get leave that week, sorry.
 [Thu 10:00] DM→Karan       agent      Noted — if the plan needs a revision, that's what I'll build from.
-[Thu 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). I've DM'd each yes-voter a UPI request for their own share. Appro
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_2c15a62e created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL logistics logistics  Budget set by the 4 who are in: 4 × ₹20,000 (lowest ceiling) = ₹80,000; plan re-sized for 4 comes to ₹68,300 (2 twin roo
+[Thu 10:00] GROUP          agent      Vote on plan v1: 4 yes, 1 no — passes (3 of 5 needed). Budget for the trip: ₹80,000 (4 × ₹20,000, the lowest ceiling amo
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_d8c8c7f5 created for Sayan: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Sayan       agent      Sayan, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_46bb8d41 created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_b1cd5cde created for Aabhas: ₹20,600 block (share ₹18,700 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Aabhas      agent      Aabhas, your share of the plan is ₹18,700 (it was ₹19,980 when the plan went to the vote; 4 are in, so the rooms split d
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_6194098e created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_615dfc8f created for Aditi: ₹14,000 block (share ₹12,700 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Aditi       agent      Aditi, your share of the plan is ₹12,700 (it was ₹13,980 when the plan went to the vote; 4 are in, so the rooms split di
-[Thu 10:00] RAIL payments  payments   OT mandate otsub_76c271d7 created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
+[Thu 10:00] RAIL payments  payments   OT mandate otsub_d6b33b68 created for Riya: ₹20,100 block (share ₹18,200 × 1.10), 4d validity — PENDING
 [Thu 10:00] DM→Riya        agent      Riya, your share of the plan is ₹18,200 (it was ₹19,480 when the plan went to the vote; 4 are in, so the rooms split dif
-[Thu 10:00] RAIL payments  payments   Sayan approved: mandate otsub_2c15a62e ACTIVE — ₹20,600 blocked (1/4 in)
+[Thu 10:00] RAIL payments  payments   Sayan approved: mandate otsub_d8c8c7f5 ACTIVE — ₹20,600 blocked (1/4 in)
 [Thu 10:00] DM→Sayan       agent      Blocked ₹20,600, Sayan — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_46bb8d41 ACTIVE — ₹20,600 blocked (2/4 in)
+[Thu 10:00] RAIL payments  payments   Aabhas approved: mandate otsub_b1cd5cde ACTIVE — ₹20,600 blocked (2/4 in)
 [Thu 10:00] DM→Aabhas      agent      Blocked ₹20,600, Aabhas — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Aditi approved: mandate otsub_6194098e ACTIVE — ₹14,000 blocked (3/4 in)
+[Thu 10:00] RAIL payments  payments   Aditi approved: mandate otsub_615dfc8f ACTIVE — ₹14,000 blocked (3/4 in)
 [Thu 10:00] DM→Aditi       agent      Blocked ₹14,000, Aditi — nothing charged. I'll book the moment the others have approved.
-[Thu 10:00] RAIL payments  payments   Riya approved: mandate otsub_76c271d7 ACTIVE — ₹20,100 blocked (4/4 in)
+[Thu 10:00] RAIL payments  payments   Riya approved: mandate otsub_d6b33b68 ACTIVE — ₹20,100 blocked (4/4 in)
 [Thu 10:00] DM→Riya        agent      Blocked ₹20,100, Riya — nothing charged. I'll book the moment the others have approved.
 [Thu 10:00] RAIL logistics logistics  Live fares for Riya: +₹472 vs the vote; share ₹18,672 is inside the ₹20,100 authorised
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_2c15a62e: ₹18,700 debited (₹1,900 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_46bb8d41: ₹18,700 debited (₹1,900 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation on otsub_6194098e: ₹12,700 debited (₹1,300 headroom left)
-[Thu 10:00] RAIL payments  payments   Presentation for Riya on otsub_76c271d7 FAILED: issuer declined: U30 debit failed at the remitter bank
-[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Sayan (otsub_2c15a62e)
-[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Aabhas (otsub_46bb8d41)
-[Thu 10:00] RAIL payments  payments   Refunded ₹12,700 to Aditi (otsub_6194098e)
+[Thu 10:00] RAIL payments  payments   Presentation on otsub_d8c8c7f5: ₹18,700 debited (₹1,900 headroom left)
+[Thu 10:00] RAIL payments  payments   Presentation on otsub_b1cd5cde: ₹18,700 debited (₹1,900 headroom left)
+[Thu 10:00] RAIL payments  payments   Presentation on otsub_615dfc8f: ₹12,700 debited (₹1,300 headroom left)
+[Thu 10:00] RAIL payments  payments   Presentation for Riya on otsub_d6b33b68 FAILED: issuer declined: U30 debit failed at the remitter bank
+[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Sayan (otsub_d8c8c7f5)
+[Thu 10:00] RAIL payments  payments   Refunded ₹18,700 to Aabhas (otsub_b1cd5cde)
+[Thu 10:00] RAIL payments  payments   Refunded ₹12,700 to Aditi (otsub_615dfc8f)
 [Thu 10:00] GROUP          agent      Stopping. Riya's debit failed, so I've refunded the 3 that had gone through and booked nothing. Nobody is out of pocket.
 [Thu 10:00] DM→Sayan       agent      Riya's bank declined the presentation (issuer declined: U30 debit failed at the remitter bank). Everyone else has been r
 

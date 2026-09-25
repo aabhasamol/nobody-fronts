@@ -268,6 +268,62 @@ def test_member_exit_after_booking_goes_to_humans():
     assert "over to you" in group_posts(trip)[-1]
 
 
+# ------------------------------------------------------------------ the yes-voters set the budget; the pool pays
+def test_yes_voters_set_the_budget_and_the_plan_is_resized_to_fit_it():
+    engine, members, trip, _ = make(silent=("Karan",))
+    assert trip.ceiling(members[2].id) == 20_000 and trip.ceiling(members[4].id) == 20_000   # stated / defaulted
+    assert trip.total_budget is None                                                # a proposal: nobody is in yet
+    vote_all(engine, trip, members, no=("Karan",))
+    assert trip.budget_floor == 20_000 and trip.total_budget == 80_000               # 4 × Aditi's ceiling
+    p = trip.plan()
+    assert len(p.travellers) == 4 and p.total() == 68_300 <= trip.total_budget
+    assert p.per_head(members[0].id) == 18_700                                       # 2 twin rooms instead of 3
+    post = group_posts(trip)[-1]
+    assert "₹80,000 (4 × ₹20,000" in post and "2 twin rooms at Dona Maria Homestay, Assagao instead of 3" in post
+    assert "comes to ₹68,300" in post
+
+
+def test_a_low_ceiling_among_the_yes_voters_sends_the_plan_back_for_a_cheaper_version():
+    engine, members, trip, _ = make(silent=("Karan",))
+    trip.constraints[members[2].id].budget = 15_500                                   # Aditi: 4 × 15,500 = 62,000 < 68,300
+    vote_all(engine, trip, members, no=("Karan",))
+    assert trip.state == TripState.VOTING and trip.plan().version == 2
+    assert trip.plan().note == "same stay, one night fewer" and len(trip.plan().travellers) == 4
+    assert trip.plan().total() == 61_900 <= trip.total_budget == 62_000
+    assert any("against a budget of ₹62,000" in e.text for e in trip.events if e.channel == "group")
+    assert not trip.authorisations                                                   # nobody was asked for money
+
+
+def test_captures_land_in_the_pool_and_every_supplier_is_paid_from_it():
+    engine, members, trip, (_, payments, _) = booked()
+    p = trip.plan()
+    captured = sum(a.captured_amount for a in trip.authorisations.values())
+    paid = sum(x.amount for x in trip.payouts)
+    assert captured == paid == 68_300 and payments.pool() == 0                       # nothing fronted, nothing left over
+    assert {x.purpose for x in trip.payouts} == {"STAY", "LEG"} and len(trip.payouts) == 1 + 8
+    stay = next(x for x in trip.payouts if x.purpose == "STAY")
+    assert stay.amount == p.stay_total(p.stays[0]) == 25_600 and stay.reference == p.stays[0].booking_ref
+    assert "Every supplier is paid from Quorum's account, ₹68,300 in all" in group_posts(trip)[-1]
+
+
+def test_a_cancelled_leg_refunds_into_the_pool_and_the_new_ticket_is_paid_from_it():
+    engine, members, trip, (_, payments, _) = booked()
+    p = trip.plan()
+    leg = next(l for l in p.legs_for(members[1].id) if l.destination == "Goa")
+    engine.disrupt(trip, leg.id)
+    assert payments.pool() == 6_400 - 5_900                                          # the ₹500 stays for Aabhas
+    rebook = trip.payouts[-1]
+    assert rebook.purpose == "REBOOK" and rebook.amount == 5_900 and rebook.supplier == "IndiGo"
+
+
+def test_the_pool_never_goes_negative():
+    import pytest
+    from app.rails.mock import MockPayments
+    pm = MockPayments()
+    with pytest.raises(AssertionError, match="does not front"):
+        pm.pay_supplier("Anyone", 1, "STAY", "x")
+
+
 # ------------------------------------------------------------------ calls are for P0 things only
 def test_every_call_is_p0_and_nothing_else_is():
     engine, members, trip, (_, _, logistics) = booked()

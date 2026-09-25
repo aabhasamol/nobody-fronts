@@ -49,18 +49,25 @@ KP's points are still in it: trip and travel are planned separately, and the occ
 
 **Decisions to confirm as a team** (the draft assumes the defaults in bold):
 
-1. Budget is **per head, all-in (travel + stay)**. Overshoot is a % the organiser sets, **applied to each
-   member's all-in share**.
+1. The organiser's budget is **per head, all-in (travel + stay)** and is the figure the proposal is built
+   to; the overshoot is a % the organiser sets, **applied to each member's all-in share** and used as the
+   mandate headroom. Each member privately gives **their own ceiling** when asked for their constraints
+   (silence = the organiser's figure).
 2. The vote is cast **privately by DM, and only the tally is posted**. This keeps our research finding that
    people don't say no in front of the group.
 3. The plan passes on **a simple majority of members**. Those who voted yes are "in".
 4. A failed vote leads to **up to two revisions**, built from the private "what would make it a yes"
    replies. After that, the organiser decides.
-5. The amount each member authorises is **quoted share × (1 + overshoot %)**. The organiser's overshoot
-   limit is the mandate headroom, so one number governs both the plan and the money.
+5. **The yes-voters set the budget.** When the vote closes, the trip's budget is their number × the lowest
+   ceiling among them (10 in the group, 7 say yes: 7 × the lowest of those 7). The plan is re-sized for
+   exactly those people — rooms re-split; two cars for ten become one SUV for seven — and must fit that
+   budget, else it goes back to the group as a revision. Then the mandates go out: each member authorises
+   **quoted share × (1 + overshoot %)**.
 6. Bookings happen when **everyone who is in has authorised**. If someone who voted yes doesn't authorise
-   by the deadline, they drop out, and the plan is re-priced for the rest. If the new price stays within
-   the overshoot limit, it goes ahead. If not, it goes back to the group.
+   by the deadline, they drop out, and the plan is re-sized and re-priced for the rest. If it still fits
+   their budget and their caps, it goes ahead. If not, it goes back to the group.
+7. **The money pools in Quorum's account.** Quorum is the merchant of record: the mandates settle into its
+   account and it pays every supplier from there. The organiser is never in the money path.
 
 ---
 
@@ -104,8 +111,8 @@ INITIATED ─► GATHERING ─► PLANNING ────────────�
 | PLANNING (trip) | Shared part. The occasion decides the number of stays and what gets optimised (table below). Stays with no online inventory get a **supplier call** for availability, group rate, missing facts and a 48-hour hold | Delhivery Maps (distances), Gnani (supplier call) |
 | PLANNING (travel) | Per member, outbound and return searched **separately**. For example, Aditi goes Bengaluru → Goa and back to Mumbai. Arrivals are aligned to the first shared event | fares (4th rail) |
 | VOTING | One itinerary is DM'd to each member: day by day, their own per-head cost, and the overshoot band. They reply yes or no with a reason. Only the tally goes to the group. Majority ⇒ passes | chat |
-| AUTHORISING | Each yes-voter approves a UPI one-time mandate for share × (1 + overshoot). Nothing is charged yet | Pine Labs |
-| BOOKING | Once everyone who is in has authorised: re-price at live fares. If it's still inside each member's authorised amount, debit each share and book the legs and stays. The supplier hold on phone-only stays gets converted with a payment | Pine Labs, fares, Gnani (confirm hold) |
+| AUTHORISING | The yes-voters set the budget (their number × the lowest ceiling among them); the plan is re-sized for exactly them and must fit it. Each yes-voter then approves a UPI one-time mandate for share × (1 + overshoot). Nothing is charged yet | Pine Labs |
+| BOOKING | Once everyone who is in has authorised: re-price at live fares. If it's still inside each member's authorised amount, debit each share into Quorum's account (the pool) and pay each supplier from it: the legs, the stays, the phone-only hold converted with a payment | Pine Labs, fares, Gnani (confirm hold) |
 | BOOKED → TRAVELLING | Tickets and vouchers go in the group, and legs are watched. If a leg is cancelled, Quorum re-books inside the authorised amount and sends a text. A phone-only stay is **called** about the late arrival | fares, Gnani |
 
 How the occasion sets priorities:
@@ -168,7 +175,7 @@ is only as good as the recording and transcript we keep of it.
 
 | Leverages (exists) | Needs built |
 |---|---|
-| UPI One-Time Mandate. Create customer → no-plan OT subscription (`plan_details.amount` = share × (1 + overshoot), `validity_days`) → payment with `mandate_info.request_type = CREATE_MANDATE` (UPI intent) → subscription `ACTIVE` = funds blocked → `POST /presentations` for the actual share at booking. Unpresented mandates lapse. Paying phone-only stays: payment link / UPI to the supplier **[verify]** | **Group mandate:** N mandates bound to one merchant order, with a shared expiry, **atomic capture** (all debited or none), and one webhook `GROUP_ORDER_SECURED` / `GROUP_ORDER_LAPSED`. Also a **merchant-initiated cancel** of an `ACTIVE` OT subscription **[verify]** and validity as short as 48h **[verify]** |
+| UPI One-Time Mandate. Create customer → no-plan OT subscription (`plan_details.amount` = share × (1 + overshoot), `validity_days`) → payment with `mandate_info.request_type = CREATE_MANDATE` (UPI intent) → subscription `ACTIVE` = funds blocked → `POST /presentations` for the actual share at booking, settling into Quorum's merchant account — the pool. Unpresented mandates lapse. From the pool Quorum pays suppliers: a B2B travel wallet for flights and listed hotels, UPI / bank transfer to a homestay **[verify]** | **Group order with escrow:** N mandates bound to one merchant order, with a shared expiry, **atomic capture** (all debited or none) into a per-order escrow, settlement to the suppliers only when the order is secured, and one webhook `GROUP_ORDER_SECURED` / `GROUP_ORDER_LAPSED`. Also a **merchant-initiated cancel** of an `ACTIVE` OT subscription **[verify]** and validity as short as 48h **[verify]** |
 
 What breaks without it: we loop one presentation per member. If the fourth of five fails, three people are
 charged for a trip that can't be booked, and we run refunds with three counterparties.
@@ -200,7 +207,7 @@ extension of its supplier contracts. Alternative: ixigo, for trains.
   itinerary with their own cost, and vote yes/no with a reason. Nobody sees anyone else's vote or reason,
   only the tally.
 * **Members, in their own UPI app:** approving the mandate is the "I'm in". No card, and no transfer to the
-  organiser.
+  organiser: the money settles into Quorum's account and Quorum pays the suppliers.
 * **The group chat:** gets four posts: kickoff, the tally, the booking confirmation with tickets, and any
   disruption.
 * **Phone:** members get a call only in a live disruption that needs their choice within minutes. Stays

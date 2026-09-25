@@ -26,6 +26,13 @@ real fares), not wider. Do not add features the loop does not need.
   deadline, never a group poll. The group gets four kinds of post: kickoff, tally, booking, disruption.
 * Money is INR integers in the engine; adapters convert to paisa at the edge. A member is never debited
   more than `Authorisation.amount` (+ a top-up they approved themselves).
+* The pool is Quorum's merchant account. Captures settle into it, `Engine._pay` pays suppliers from it, a
+  carrier's refund comes back into it, and `PaymentsRail.pay_supplier` must refuse to take it negative. The
+  organiser is never in the money path; neither is Quorum's own money.
+* The yes-voters set the budget: `Trip.set_budget` = their number × the lowest ceiling among them. Before
+  the vote the proposal is held to the organiser's rough figure + overshoot per head; after it, the total is
+  the rule (`Engine._fit`). Re-sizing for whoever is in happens in `Engine._retarget`: rooms today; a car or
+  a group activity would re-size in the same place.
 * Time comes from `app/clock.py`. Never call `datetime.now()` in engine code.
 * `Event` log is the transcript. If it happened and the group or a member saw it, it goes through `_say`.
 * Every phone-only stay that says no or never answers goes in `trip.stays_out` and is not called again.
@@ -46,6 +53,9 @@ real fares), not wider. Do not add features the loop does not need.
      can cancel an `ACTIVE` OT subscription, and the minimum `validity_days`.
    * Then run the wall for real: `payments.fail_capture_for` has no UAT equivalent, so use a test VPA that
      declines. Showing the rollback fail honestly is worth more than pretending it cannot.
+   * **Payouts.** `PineLabsPayments.pay_supplier` only records an instruction. The real thing is a B2B travel
+     wallet (TBO / Cleartrip B2B) topped up from the settlement account for flights and listed hotels, and
+     UPI or a bank transfer for a homestay. Wire one; the engine's `_pay` does not change.
 
 2. **Gnani — run the real loop on recordings, then put a phone line behind it**
    * `python scripts/speech_demo.py --dry-run`, then without the flag: the four Hindi questions go through

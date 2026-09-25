@@ -1,0 +1,17 @@
+# Render blueprint: New → Blueprint → this repo, or New → Web Service → this repo and branch.
+# Free plan sleeps after 15 idle minutes and wakes in ~30 s; in-memory trips reset then, which is fine for a demo.
+services:
+  - type: web
+    name: quorum
+    runtime: docker
+    plan: free
+    branch: claude/nice-ramanujan-jt9qjv
+    healthCheckPath: /clock
+    autoDeploy: true
+    envVars:
+      - key: QUORUM_VOICE
+        value: mock              # keep the public demo on mock rails; the real ones cost money
+      - key: QUORUM_PAYMENTS
+        value: mock
+      - key: QUORUM_DEMO_PASSWORD
+        sync: false              # set it in the Render dashboard; the URL then asks for it (any username)

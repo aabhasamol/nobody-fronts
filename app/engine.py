@@ -7,10 +7,12 @@
                                                               ▼                          ▼
                                                     LAPSED (nothing charged) ◄── one debit fails → refund the rest
 
-Organiser gives a budget and a maximum overshoot → the agent builds one itinerary inside it → each member
-votes privately, only the tally is posted → everyone who said yes authorises share × (1 + overshoot) → the
-agent debits each share and books the legs and stays. Voice is used in two places only: phone-only stays,
-and a member who has not answered a time-critical text.
+Organiser gives a rough budget and a maximum overshoot → the agent builds one itinerary inside it → each
+member votes privately, only the tally is posted → the trip's budget is then set by the people who are in
+(their number × the lowest ceiling among them), the plan is re-sized for exactly them and must fit → each
+authorises share × (1 + overshoot) → the agent debits each share into Quorum's account (the pool) and pays
+every supplier from it. Voice is used in two places only: phone-only stays, and a member who has not
+answered a time-critical text.
 
 Every user-visible utterance goes through `_say`, so the events list is a complete transcript of what the
 group and each member saw. The demo UI and `demo.py` both read from it.
@@ -88,7 +90,7 @@ class Engine:
 
     def gather(self, trip: Trip, member_id: str, start_city: Optional[str] = None, return_city: Optional[str] = None,
                available: bool = True, must_haves: Optional[list[str]] = None, earliest: Optional[date] = None,
-               latest: Optional[date] = None, text: Optional[str] = None) -> None:
+               latest: Optional[date] = None, budget: Optional[int] = None, text: Optional[str] = None) -> None:
         assert trip.state == TripState.GATHERING, f"cannot gather in {trip.state}"
         m = trip.member(member_id)
         if text:
@@ -97,8 +99,9 @@ class Engine:
         return_city = return_city or start_city
         trip.constraints[member_id] = Constraint(member_id=member_id, available=available, start_city=start_city,
                                                  return_city=return_city, must_haves=must_haves or [],
-                                                 earliest=earliest, latest=latest, replied_at=clock.now())
-        self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, start_city, return_city, available), priority="P2")
+                                                 earliest=earliest, latest=latest, budget=budget or trip.budget,
+                                                 replied_at=clock.now())
+        self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, start_city, return_city, available, trip.ceiling(m.id)), priority="P2")
         if all(mm.id in trip.constraints for mm in trip.members):
             self.plan(trip)
 
@@ -109,8 +112,8 @@ class Engine:
         for m in trip.members:
             if m.id not in trip.constraints:
                 trip.constraints[m.id] = Constraint(member_id=m.id, start_city=m.home_city, return_city=m.home_city,
-                                                    defaulted=True)
-                self._sys(trip, f"{m.first} did not reply; default applied ({m.home_city} both ways).")
+                                                    budget=trip.budget, defaulted=True)
+                self._sys(trip, f"{m.first} did not reply; default applied ({m.home_city} both ways, ₹{trip.budget:,} ceiling).")
         self.plan(trip)
 
     # ------------------------------------------------------------------ 2. plan: trip side + travel side
@@ -118,8 +121,9 @@ class Engine:
         """First plan, for everyone available. If nothing fits, the organiser hears why and the trip waits."""
         trip.state = TripState.PLANNING
         travellers = trip.travellers()
+        trip.budget_floor = trip.total_budget = None          # a proposal: nobody is in yet
         p, over = self._plan(trip, travellers, trip.start, trip.end)
-        if p is None or len(over) > len(travellers) // 2:
+        if not self._acceptable(trip, p, over):
             trip.awaiting_organiser = "no_fit"
             self._say(trip, f"dm:{trip.organiser_id}", M.dm_no_fit(trip, p, over))
             return
@@ -165,17 +169,34 @@ class Engine:
                 continue
             p = Plan(version=len(trip.plans) + 1, travellers=[m.id for m in travellers],
                      legs=self._legs_for(trip, travellers, start, end), stays=[s], start=start, end=end, note=note)
-            over = [m for m in travellers if p.per_head(m.id) > trip.limit()]
-            if not over:
-                return p, []
-            if best is None or len(over) < len(best[1]):
+            ok, over = self._fit(trip, p)
+            if ok:
+                return p, over
+            if best is None or len(over) < len(best[1]) or (len(over) == len(best[1]) and p.total() < best[0].total()):
                 best = (p, over)
         return best if best else (None, [])
 
+    def _fit(self, trip: Trip, p: Plan) -> tuple[bool, list[Member]]:
+        """Before the vote the proposal is held to the organiser's rough budget plus overshoot, per head. After it,
+        the plan must fit the budget the yes-voters set: their number × the lowest ceiling among them."""
+        travellers = [trip.member(t) for t in p.travellers]
+        if trip.total_budget is not None:
+            return p.total() <= trip.total_budget, [m for m in travellers if p.per_head(m.id) > trip.budget_floor]
+        over = [m for m in travellers if p.per_head(m.id) > trip.limit()]
+        return not over, over
+
+    def _acceptable(self, trip: Trip, p: Optional[Plan], over: list[Member]) -> bool:
+        if p is None:
+            return False
+        if trip.total_budget is not None:                     # after the vote the total is the rule, full stop
+            return p.total() <= trip.total_budget
+        return len(over) <= len(p.travellers) // 2            # a proposal may carry a minority over the line, flagged
+
     def _accept(self, trip: Trip, p: Plan, over: list[Member]) -> None:
         trip.plans.append(p)
-        for m in over:                                        # one member's travel alone breaks the limit
-            self._say(trip, f"dm:{m.id}", M.dm_leg_over_limit(trip, m, p))
+        if trip.total_budget is None:
+            for m in over:                                    # one member's travel alone breaks the limit
+                self._say(trip, f"dm:{m.id}", M.dm_leg_over_limit(trip, m, p))
         self.open_vote(trip)
 
     def _rank(self, trip: Trip, stays: list[Stay]) -> list[Stay]:
@@ -266,8 +287,7 @@ class Engine:
         silent = [t for t in p.travellers if t not in trip.votes]
         if len(yes) >= trip.majority():
             trip.auth_deadline = clock.now() + timedelta(hours=AUTH_WINDOW_H)
-            self._say(trip, "group", M.group_tally(trip, len(yes), len(no), len(silent), passed=True))
-            self.open_authorising(trip)
+            self.open_authorising(trip, M.group_tally(trip, len(yes), len(no), len(silent), passed=True))
             return
         revising = len(trip.plans) - 1 < MAX_REVISIONS
         self._say(trip, "group", M.group_tally(trip, len(yes), len(no), len(silent), passed=False, revising=revising))
@@ -294,7 +314,7 @@ class Engine:
         attempts.append(dict(start=cur.start, end=cur.end, exclude=used, note="a different stay"))
         for a in attempts:
             p, over = self._plan(trip, travellers, **a)
-            if p is not None and len(over) <= len(travellers) // 2:
+            if self._acceptable(trip, p, over):
                 self._accept(trip, p, over)
                 return
         trip.awaiting_organiser = "vote_failed"
@@ -309,21 +329,25 @@ class Engine:
         trip.awaiting_organiser = None
         if go and trip.yes_voters():
             trip.auth_deadline = clock.now() + timedelta(hours=AUTH_WINDOW_H)
-            self._say(trip, "group", M.group_organiser_go(trip))
-            self.open_authorising(trip)
+            self.open_authorising(trip, M.group_organiser_go(trip))
         else:
             self.lapse(trip, f"{org.first} closed the trip after the vote didn't pass.")
 
     # ------------------------------------------------------------------ 4. authorise (yes-voters only)
-    def open_authorising(self, trip: Trip) -> None:
+    def open_authorising(self, trip: Trip, intro: str) -> None:
+        """The people who are in set the budget; the plan is re-sized for exactly them and must fit it."""
         p = trip.plan()
         ins = trip.in_members()
         old = {t: p.per_head(t) for t in p.travellers}
-        self._retarget(p, [m.id for m in ins])                  # the stay now splits among those who are in
-        over = [m for m in ins if p.per_head(m.id) > trip.limit()]
-        if over:
-            return self._back_to_group(trip, ins, f"With {len(ins)} in, the rooms split pushes "
-                                                  f"{', '.join(o.first for o in over)} past the limit.")
+        trip.set_budget([m.id for m in ins])
+        changes = self._retarget(trip, p, [m.id for m in ins])   # the stay now splits among those who are in
+        self._rail(trip, "logistics", f"Budget set by the {len(ins)} who are in: {len(ins)} × ₹{trip.budget_floor:,} "
+                                      f"(lowest ceiling) = ₹{trip.total_budget:,}; plan re-sized for {len(ins)} comes to "
+                                      f"₹{p.total():,}" + (f" ({'; '.join(changes)})" if changes else ""))
+        if p.total() > trip.total_budget:
+            self._say(trip, "group", intro)
+            return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
+        self._say(trip, "group", M.group_go(trip, intro, changes))
         trip.state = TripState.AUTHORISING
         trip.authorisations.clear()
         trip.reminded = []
@@ -394,10 +418,15 @@ class Engine:
         ins = trip.in_members()
         if not ins:
             return self.lapse(trip, M.why_nobody_left(trip))
-        self._retarget(p, [m.id for m in ins])
+        trip.set_budget([m.id for m in ins])
+        changes = self._retarget(trip, p, [m.id for m in ins])
+        self._rail(trip, "logistics", f"Re-priced for {len(ins)}: ₹{p.total():,} against a budget of {len(ins)} × "
+                                      f"₹{trip.budget_floor:,} = ₹{trip.total_budget:,}" + (f" ({'; '.join(changes)})" if changes else ""))
         over = [m for m in ins if p.per_head(m.id) > trip.authorisations[m.id].amount]
         if over:
             return self._back_to_group(trip, ins, M.why_reprice_over(trip, who, over))
+        if p.total() > trip.total_budget:
+            return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
         for m in ins:
             if p.per_head(m.id) != old[m.id]:
                 self._say(trip, f"dm:{m.id}", M.dm_repriced(trip, m, old[m.id], p.per_head(m.id), who))
@@ -414,11 +443,18 @@ class Engine:
         self._say(trip, "group", M.group_back_to_group(trip, why))
         self.revise(trip, travellers, hint="over budget")
 
-    @staticmethod
-    def _retarget(p: Plan, travellers: list[str]) -> None:
-        """Re-price the plan for a different set of people: the stay re-splits, their legs go."""
+    def _retarget(self, trip: Trip, p: Plan, travellers: list[str]) -> list[str]:
+        """Re-size the plan for a different set of people: their legs go, and every shared item is re-sized for
+        the new headcount (rooms today; the same hook is where a car or a group activity would re-size).
+        Returns one line per thing that changed."""
+        before = len(p.travellers)
         p.travellers = travellers
         p.legs = [l for l in p.legs if l.member_id in travellers]
+        changes = []
+        for s in p.stays:
+            if s.rooms_for(before) != s.rooms_for(len(travellers)):
+                changes.append(f"{s.rooms_for(len(travellers))} twin rooms at {s.name} instead of {s.rooms_for(before)}")
+        return changes
 
     def _maybe_book(self, trip: Trip) -> None:
         if trip.state != TripState.AUTHORISING:
@@ -546,17 +582,30 @@ class Engine:
                                          + f" (₹{self._headroom(trip, m.id):,} headroom left)")
         return True
 
+    def _pay(self, trip: Trip, supplier: str, amount: int, purpose: str, reference: str) -> None:
+        """Quorum pays a supplier from the pool. Never more than is in it: Quorum does not front either."""
+        pay = self.payments.pay_supplier(supplier, amount, purpose, reference)
+        trip.payouts.append(pay)
+        self._rail(trip, "payments", f"Paid {supplier} ₹{amount:,} from the pool ({pay.method.lower().replace('_', ' ')}, "
+                                     f"{reference}) — pool now ₹{self.payments.pool():,}")
+
     def _book_inventory(self, trip: Trip, p: Plan, ins: list[Member]) -> None:
+        self._rail(trip, "payments", f"Pool (Quorum's account) holds ₹{self.payments.pool():,} for this trip; paying suppliers")
         for s in p.stays:
             self.logistics.book_stay(s, ins)
             self._rail(trip, "logistics", f"Stay confirmed {s.booking_ref}: {s.name}, {s.rooms_for(len(ins))} twin rooms × "
-                                          f"{s.nights} nights for {len(ins)}" + (" — phone hold converted, supplier paid" if s.phone_only else ""))
+                                          f"{s.nights} nights for {len(ins)}" + (" — phone hold converted" if s.phone_only else ""))
+            self._pay(trip, s.name, p.stay_total(s), "STAY", s.booking_ref)
         for m in ins:
             for l in p.legs_for(m.id):
                 self.logistics.book_leg(l, m)
+                self._pay(trip, l.carrier, l.price, "LEG", l.pnr)
             self._rail(trip, "logistics", f"Ticketed {m.first}: " + ", ".join(
                 f"{l.carrier} {l.origin}→{l.destination} {l.pnr}" for l in p.legs_for(m.id)))
             self._say(trip, f"dm:{m.id}", M.dm_confirmation(trip, m, p))
+        left = self.payments.pool()
+        if left:
+            self._rail(trip, "payments", f"₹{left:,} of rounding stays in the pool for this trip")
         trip.state = TripState.BOOKED
         self._say(trip, "group", M.booked_group(trip, p))
 
@@ -566,9 +615,7 @@ class Engine:
         trip.top_ups.clear()
         trip.pending.clear()
         trip.auth_deadline = clock.now() + timedelta(hours=AUTH_WINDOW_H)
-        self._say(trip, "group", f"Re-running the authorisation for {', '.join(m.first for m in trip.in_members())}; "
-                                 f"new UPI requests in your DMs, by {M.fmt_dt(trip.auth_deadline)}.")
-        self.open_authorising(trip)
+        self.open_authorising(trip, f"Re-running the authorisation for {', '.join(m.first for m in trip.in_members())}.")
 
     def lapse(self, trip: Trip, why: str) -> None:
         for a in list(trip.authorisations.values()) + list(trip.top_ups.values()):
@@ -594,6 +641,8 @@ class Engine:
         m = trip.member(leg.member_id)
         self.logistics.cancel_leg(leg)
         self._rail(trip, "logistics", f"Carrier cancelled {M.leg_desc(leg)} PNR {leg.pnr}")
+        self._rail(trip, "payments", f"{leg.carrier} refunds ₹{leg.price:,} for {leg.pnr} into the pool — "
+                                     f"pool now ₹{self.payments.receive_refund(leg.carrier, leg.price, leg.pnr):,}")
         options = sorted([o for o in self.logistics.search_legs(leg.origin, leg.destination, leg.depart.date())
                           if o.carrier != leg.carrier or o.depart != leg.depart], key=lambda o: o.price)
         budget = self._headroom(trip, m.id) + leg.price          # unused cap + the cancelled fare coming back
@@ -637,10 +686,11 @@ class Engine:
             first, rest = self._present(trip, m.id, extra)
             funding = f"₹{leg.price:,} refund + ₹{first:,} headroom" + (f" + ₹{rest:,} top-up" if rest else "")
         elif extra < 0:
-            funding = f"₹{leg.price:,} refund covers it; ₹{-extra:,} back to {m.first}"
+            funding = f"₹{leg.price:,} refund covers it; ₹{-extra:,} stays in the pool for {m.first}"
         else:
             funding = "same fare"
         self._rail(trip, "logistics", f"Re-booked {M.leg_desc(new)} PNR {new.pnr} at ₹{new.price:,} ({funding})")
+        self._pay(trip, new.carrier, new.price, "REBOOK", new.pnr)
         late_stay: Optional[Stay] = None
         if leg.destination == trip.destination and (new.arrive.hour >= LATE_ARRIVAL_HOUR or new.arrive.date() > leg.arrive.date()):
             for s in p.stays:
@@ -677,7 +727,7 @@ class Engine:
         if member_id not in p.travellers:
             return
         old = {t: p.per_head(t) for t in p.travellers}
-        self._retarget(p, [t for t in p.travellers if t != member_id])
+        self._retarget(trip, p, [t for t in p.travellers if t != member_id])
         trip.dropped.append(member_id)
         self._say(trip, f"dm:{m.id}", M.dm_exit_ack(trip, m, p))
         self._say(trip, "group", M.group_exit(trip, m, old, p))

@@ -32,18 +32,34 @@ That is the IPO block-and-debit primitive, opened to merchants, one payer at a t
 | `refund(auth)` | `POST /refunds/{order_id}` **[verify path]** | Used when a later member's presentation fails and the successful ones must be returned |
 | `release(auth)` | (no cancel documented) | We record `RELEASED`; the mandate expires on its own |
 
-The overshoot the organiser sets is the mandate headroom: one number governs both the plan ("nothing above
-budget × (1 + overshoot) a head") and the money ("block share × (1 + overshoot), debit the share"). It is what
-lets the agent absorb a fare that moved since the vote, or re-book a cancelled flight, without going back to
-the group. Anything beyond it is a **top-up mandate** asked of that member alone (`Engine._ask_top_up`).
+The overshoot the organiser sets is the mandate headroom: one number governs both the proposal ("nothing
+above the rough budget × (1 + overshoot) a head") and the money ("block share × (1 + overshoot), debit the
+share"). It is what lets the agent absorb a fare that moved since the vote, or re-book a cancelled flight,
+without going back to the group. Anything beyond it is a **top-up mandate** asked of that member alone
+(`Engine._ask_top_up`). After the vote the binding number is the yes-voters' own: their count × the lowest
+ceiling among them is the trip's budget, and the plan re-sized for exactly them must fit it.
+
+### The pool
+
+Quorum is the merchant of record. Every mandate is created by Quorum, so every presentation settles into
+Quorum's merchant account: that account is the pool. From it Quorum pays each supplier (`Engine._pay`,
+one logged payout per booking: the stay's rooms × rate × nights, each ticket, each re-booked ticket). A
+carrier's refund on a cancelled leg comes back into the pool and the replacement ticket is paid from it.
+The pool can never go negative — `pay_supplier` refuses — so nobody fronts, Quorum included. The organiser
+is never in the money path; pooling in a friend's account would lose block-then-debit, hit UPI limits, and
+move the trust problem rather than remove it. Paying suppliers is not a Pine Labs collection API: flights
+and listed hotels go through a B2B travel wallet topped up from the settlement account, a homestay gets UPI
+or a bank transfer.
 
 ### The ask
 
-A **group mandate**: N UPI one-time mandates bound to **one** merchant order, carrying
+A **group order with escrow**: N UPI one-time mandates bound to **one** merchant order, carrying
 
 * a quorum rule (`min_payers`, set by the merchant at order creation),
 * a shared expiry,
 * an **atomic** capture: when the merchant presents, either every active mandate is debited or none is,
+* settlement into a per-order escrow, released to the suppliers (or to the merchant's wallet) only when the
+  order is secured, back to every payer when it is not,
 * and a single webhook: `GROUP_ORDER_SECURED` when quorum is reached, `GROUP_ORDER_LAPSED` when it is not.
 
 Framed for Pine Labs: you already sit between the merchant and the gateway, and the order object already

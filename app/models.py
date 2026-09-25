@@ -55,6 +55,7 @@ class Constraint(BaseModel):
     return_city: str = ""
     earliest: Optional[date] = None
     latest: Optional[date] = None
+    budget: Optional[int] = None             # INR per head, all-in: the most this member will pay for the trip
     must_haves: list[str] = Field(default_factory=list)
     replied_at: Optional[datetime] = None
     defaulted: bool = False
@@ -149,6 +150,14 @@ class Plan(BaseModel):
     def per_head(self, member_id: str) -> int:
         return self.travel(member_id) + self.stay_share()
 
+    def total(self) -> int:
+        """What the group pays in, all shares together."""
+        return sum(self.per_head(t) for t in self.travellers)
+
+    def stay_total(self, s: Stay) -> int:
+        """What the supplier is owed for this stay: rooms × rate × nights."""
+        return s.rooms_for(len(self.travellers)) * s.rate_per_room_night * s.nights
+
 
 class Vote(BaseModel):
     member_id: str
@@ -167,6 +176,18 @@ class Authorisation(BaseModel):
     order_ref: Optional[str] = None          # Pine Labs order_id
     created_at: Optional[datetime] = None
     captured_amount: int = 0                 # cumulative presentations, never above `amount`
+
+
+class Payout(BaseModel):
+    """Money leaving the pool to a supplier. The pool is Quorum's merchant settlement account."""
+    id: str = Field(default_factory=lambda: new_id("pay"))
+    supplier: str
+    amount: int                              # INR
+    purpose: str                             # STAY / LEG / REBOOK
+    reference: str                           # booking ref or PNR
+    method: str                              # B2B_WALLET / VIRTUAL_CARD / UPI / BANK_TRANSFER / INSTRUCTED
+    status: str = "PAID"
+    at: Optional[datetime] = None
 
 
 class Decision(BaseModel):
@@ -199,8 +220,10 @@ class Trip(BaseModel):
     start: date
     end: date
     occasion: str = "leisure"                # leisure / wedding / offsite / pilgrimage
-    budget: int                              # INR per head, all-in (travel + stay), the organiser's figure
-    overshoot: float = 0.10                  # the most the agent may go above budget, per head; also the mandate headroom
+    budget: int                              # INR per head, all-in: the organiser's rough figure the proposal is built to
+    overshoot: float = 0.10                  # the most the proposal may go above that, per head; also the mandate headroom
+    budget_floor: Optional[int] = None       # after the vote: the lowest ceiling among those who are in
+    total_budget: Optional[int] = None       # after the vote: (number in) × budget_floor — what the plan must fit
     state: TripState = TripState.INITIATED
     constraints: dict[str, Constraint] = Field(default_factory=dict)
     gather_deadline: Optional[datetime] = None
@@ -215,6 +238,7 @@ class Trip(BaseModel):
     auth_deadline: Optional[datetime] = None
     dropped: list[str] = Field(default_factory=list)   # yes-voters who did not authorise, revoked, or left
     pending: dict[str, Decision] = Field(default_factory=dict)
+    payouts: list[Payout] = Field(default_factory=list)
     events: list[Event] = Field(default_factory=list)
 
     # ---- helpers
@@ -228,8 +252,17 @@ class Trip(BaseModel):
         return (self.end - self.start).days
 
     def limit(self) -> int:
-        """Per head, all-in: budget plus the overshoot the organiser allowed."""
+        """Per head, all-in, for the proposal: the organiser's rough budget plus the overshoot they allowed."""
         return int(round(self.budget * (1 + self.overshoot)))
+
+    def ceiling(self, member_id: str) -> int:
+        c = self.constraints.get(member_id)
+        return c.budget if c and c.budget else self.budget
+
+    def set_budget(self, member_ids: list[str]) -> None:
+        """The trip's budget is set by the people who are in: their number × the lowest ceiling among them."""
+        self.budget_floor = min(self.ceiling(m) for m in member_ids) if member_ids else None
+        self.total_budget = len(member_ids) * self.budget_floor if member_ids else None
 
     def majority(self) -> int:
         return len(self.members) // 2 + 1

@@ -9,7 +9,7 @@ from datetime import date, datetime, time, timedelta
 import math
 import random
 from ..clock import clock
-from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, new_id
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, AuthStatus, Payout, new_id
 from .base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 
 
@@ -80,6 +80,8 @@ class MockPayments(PaymentsRail):
     def __init__(self):
         self.ledger: dict[str, dict] = {}
         self.fail_capture_for: set[str] = set()
+        self._pool = 0                                        # Quorum's merchant account, in INR
+        self.payouts: list[Payout] = []
 
     def create_block(self, member: Member, amount: int, validity_days: int, reference: str) -> Authorisation:
         sub = new_id("otsub")
@@ -116,15 +118,32 @@ class MockPayments(PaymentsRail):
             raise CaptureFailed("issuer declined: U30 debit failed at the remitter bank")
         row["status"] = "SUCCESS"
         row["captured"] += amount
+        self._pool += amount                                   # settles into Quorum's account
         auth.status = AuthStatus.CAPTURED
         auth.captured_amount += amount
         return auth
 
     def refund(self, auth: Authorisation) -> Authorisation:
         row = self.ledger[auth.rail_ref]
+        self._pool -= auth.captured_amount
         row["status"], row["captured"] = "REFUNDED", 0
         auth.status, auth.captured_amount = AuthStatus.REFUNDED, 0
         return auth
+
+    def pay_supplier(self, supplier: str, amount: int, purpose: str, reference: str) -> Payout:
+        assert amount <= self._pool, f"pool ₹{self._pool:,} cannot cover ₹{amount:,} to {supplier} — Quorum does not front"
+        self._pool -= amount
+        method = "UPI" if purpose == "STAY" else "B2B_WALLET"
+        p = Payout(supplier=supplier, amount=amount, purpose=purpose, reference=reference, method=method, at=clock.now())
+        self.payouts.append(p)
+        return p
+
+    def receive_refund(self, supplier: str, amount: int, reference: str) -> int:
+        self._pool += amount
+        return self._pool
+
+    def pool(self) -> int:
+        return self._pool
 
     def release(self, auth: Authorisation) -> Authorisation:
         self.ledger[auth.rail_ref]["status"] = "CANCELLED"

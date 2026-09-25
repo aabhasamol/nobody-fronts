@@ -36,7 +36,7 @@ import uuid
 from datetime import datetime, timezone
 import httpx
 from ..clock import clock
-from ..models import Member, Authorisation, AuthStatus
+from ..models import Member, Authorisation, AuthStatus, Payout
 from .base import PaymentsRail, CaptureFailed
 
 
@@ -54,6 +54,8 @@ class PineLabsPayments(PaymentsRail):
         self.callback_url = os.environ.get("PINELABS_CALLBACK_URL", "https://example.invalid/webhooks/pinelabs")
         self._token: str | None = None
         self.http = httpx.Client(timeout=20)
+        self._pool = 0                                         # local mirror of what settled; the truth is the settlement report
+        self.payouts: list[Payout] = []
 
     # ------------------------------------------------------------ auth
     def _headers(self, subscription: bool = False) -> dict:
@@ -142,7 +144,27 @@ class PineLabsPayments(PaymentsRail):
         # a presentation that ends FAILED must raise CaptureFailed so the engine rolls the others back.
         auth.status = AuthStatus.CAPTURED
         auth.captured_amount += amount
+        self._pool += amount
         return auth
+
+    # ------------------------------------------------------------ the pool → suppliers
+    def pay_supplier(self, supplier: str, amount: int, purpose: str, reference: str) -> Payout:
+        """Paying suppliers is not a Pine Labs collection API. Flights and listed hotels go through a B2B travel
+        wallet (TBO / Cleartrip B2B) topped up from the settlement account; a homestay gets UPI or a bank
+        transfer. Until one of those is wired, this records the instruction so the ledger stays honest."""
+        assert amount <= self._pool, f"pool ₹{self._pool:,} cannot cover ₹{amount:,} to {supplier}"
+        self._pool -= amount
+        p = Payout(supplier=supplier, amount=amount, purpose=purpose, reference=reference,
+                   method="INSTRUCTED", status="INSTRUCTED", at=clock.now())
+        self.payouts.append(p)
+        return p
+
+    def receive_refund(self, supplier: str, amount: int, reference: str) -> int:
+        self._pool += amount
+        return self._pool
+
+    def pool(self) -> int:
+        return self._pool
 
     def refund(self, auth: Authorisation) -> Authorisation:
         """Return everything captured on this mandate. [verify] endpoint and body against the UAT docs."""
@@ -151,6 +173,7 @@ class PineLabsPayments(PaymentsRail):
                                  "refund_amount": {"value": auth.captured_amount * 100, "currency": "INR"},
                                  "merchant_metadata": {"source": "quorum", "reason": "group capture rolled back"}})
         r.raise_for_status()
+        self._pool -= auth.captured_amount
         auth.status, auth.captured_amount = AuthStatus.REFUNDED, 0
         return auth
 

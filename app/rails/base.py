@@ -8,7 +8,7 @@ Vocabulary is deliberately the competition's: voice / payments / logistics.
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date, datetime
-from ..models import Member, Leg, Stay, CallRecord, Authorisation
+from ..models import Member, Leg, Stay, CallRecord, Authorisation, Payout
 
 
 class CaptureFailed(RuntimeError):
@@ -41,10 +41,15 @@ class VoiceRail(ABC):
 
 
 class PaymentsRail(ABC):
-    """Pine Labs. Block-now, debit-at-booking, release-otherwise.
+    """Pine Labs. Block-now, debit-at-booking, release-otherwise — and the pool.
 
-    Today this is orchestrated over N single-payer UPI one-time mandates. The ask to Pine Labs
-    (see docs/rails.md) is a group mandate: N mandates on one order, shared expiry, atomic capture.
+    Quorum is the merchant of record for the trip. Members' mandates are created by Quorum and settle into
+    Quorum's merchant account: that account is the pool. Quorum then pays each supplier from it (a B2B
+    travel wallet for flights and listed hotels, UPI or a bank transfer for a homestay). The organiser is
+    never in the money path. The pool can never go negative: Quorum does not front either.
+
+    Today the collection side is N single-payer UPI one-time mandates. The ask to Pine Labs
+    (see docs/rails.md) is a group order with a shared expiry and an atomic capture into escrow.
     """
 
     @abstractmethod
@@ -67,6 +72,18 @@ class PaymentsRail(ABC):
     @abstractmethod
     def release(self, auth: Authorisation) -> Authorisation:
         """Cancel the mandate / let the block lapse. Nothing is charged."""
+
+    @abstractmethod
+    def pay_supplier(self, supplier: str, amount: int, purpose: str, reference: str) -> Payout:
+        """Pay a supplier from the pool. Must fail if the pool cannot cover it."""
+
+    @abstractmethod
+    def receive_refund(self, supplier: str, amount: int, reference: str) -> int:
+        """A supplier (a carrier that cancelled) returns money to the pool. Returns the pool balance."""
+
+    @abstractmethod
+    def pool(self) -> int:
+        """What is in Quorum's account for this checkout: captured − refunded − paid out + supplier refunds."""
 
 
 class LogisticsRail(ABC):
