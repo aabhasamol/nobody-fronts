@@ -1,0 +1,15 @@
+{
+  "_read_me": "Day-one knowledge the team loads, plus where to reach people. Phones and Telegram ids are placeholders: fill them in for the recording. The agent never sees telegram ids.",
+  "group_title": "Priya's wedding · Goa",
+  "organiser_id": "m1",
+  "hooks_for": ["Goa"],
+  "channel": "console",
+  "telegram_group_chat_id": "REPLACE with the group's chat id (negative number)",
+  "members": [
+    {"id": "m1", "name": "Sayan Das",   "phone": "+91 98300 11111", "telegram_user_id": null},
+    {"id": "m2", "name": "Aabhas Amol", "phone": "+91 98300 22222", "telegram_user_id": null},
+    {"id": "m3", "name": "Aditi Rao",   "phone": "+91 98300 33333", "telegram_user_id": null},
+    {"id": "m4", "name": "Riya Sen",    "phone": "+91 98300 44444", "telegram_user_id": null},
+    {"id": "m5", "name": "Karan Mehta", "phone": "+91 98300 55555", "telegram_user_id": null}
+  ]
+}

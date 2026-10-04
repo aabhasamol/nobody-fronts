@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quorum — Round 3 developer brief</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  :root { --ink:#102a42; --soft:#476178; --teal:#078d8e; --teal-d:#06696d; --sea:#e4f5ee; --coral:#c4513f; --pink:#fdeee9; --sun:#fff3d1; --line:#d6e4e2; }
+  * { box-sizing: border-box; }
+  body { font-family: "DejaVu Sans", "Inter", system-ui, sans-serif; color: var(--ink); font-size: 9pt; line-height: 1.4; margin: 0; }
+  h1 { font-size: 26pt; letter-spacing: -.02em; margin: 0 0 6px; }
+  h2 { font-size: 15pt; margin: 0 0 8px; padding-top: 2px; color: var(--teal-d); border-bottom: 2px solid var(--teal); padding-bottom: 4px; }
+  h3 { font-size: 11pt; margin: 14px 0 5px; }
+  h4 { font-size: 9.8pt; margin: 10px 0 3px; color: var(--teal-d); }
+  p { margin: 0 0 7px; }
+  ul, ol { margin: 0 0 8px; padding-left: 18px; }
+  li { margin-bottom: 2px; }
+  code, pre { font-family: "DejaVu Sans Mono", monospace; font-size: 8.1pt; }
+  code { background: #f1f5f4; padding: 0 3px; border-radius: 3px; }
+  pre { background: #0f2436; color: #e3f1ef; padding: 8px 10px; border-radius: 6px; white-space: pre-wrap; word-break: break-word; margin: 4px 0 8px; line-height: 1.35; }
+  table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; font-size: 8.1pt; }
+  th, td { border: 1px solid var(--line); padding: 3px 5px; vertical-align: top; text-align: left; }
+  th { background: var(--sea); color: var(--teal-d); font-weight: 700; }
+  .page { margin-bottom: 14px; }
+  .cover { page-break-after: always; }
+  h2 { break-after: avoid; }
+  h3, h4 { break-after: avoid; }
+  tr, pre, .box, img, svg { break-inside: avoid; }
+  section.newpage { page-break-before: always; }
+  .cover { height: 255mm; display: flex; flex-direction: column; }
+  .band { background: linear-gradient(120deg, #0d3b5c, #078d8e); color: #fff; padding: 22px 24px; border-radius: 10px; }
+  .band small { letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: #bfeee4; font-size: 8pt; }
+  .band h1 { color: #fff; margin-top: 8px; }
+  .band p { color: #dff4f0; font-size: 11pt; margin: 0; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 7.6pt; font-weight: 700; letter-spacing: .03em; }
+  .ok { background: var(--sea); color: var(--teal-d); }
+  .todo { background: var(--pink); color: var(--coral); }
+  .warn { background: var(--sun); color: #8a5a00; }
+  .box { border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; margin: 6px 0 10px; }
+  .box.alert { border-color: #f0b9ad; background: var(--pink); }
+  .box.note { background: var(--sun); border-color: #f1dca3; }
+  .box.good { background: var(--sea); border-color: #b5e0d5; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .muted { color: var(--soft); }
+  .k { font-weight: 700; color: var(--teal-d); }
+  .toc li { margin-bottom: 3px; }
+  .small { font-size: 8pt; }
+  img.flow { width: 100%; border: 1px solid var(--line); border-radius: 6px; }
+  .num { font-weight: 800; color: var(--teal); }
+  svg text { font-family: "DejaVu Sans", sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ COVER -->
+<section class="page cover">
+  <div class="band">
+    <small>Team Kenything is Possible · The Ken Great Rewiring 2026 · Round 3</small>
+    <h1>Quorum — developer brief</h1>
+    <p>Everything a software developer needs to build the Round 3 simulation: what the product is, what The Ken asked for, what exists in the repo, what to build tonight, and how the Pine Labs integration works.</p>
+  </div>
+
+  <div class="box alert" style="margin-top:16px">
+    <b>Deadline: Sunday 4 October 2026, 11:59 PM IST.</b> No extensions. The submission form (Typeform) has no save button. Write every answer in a separate document first, then paste. Only the team admin (Aabhas) can submit, at the-ken.com/case-competition-2026 → <i>Submit your solution</i>.
+  </div>
+
+  <div class="grid2">
+    <div class="box">
+      <h4 style="margin-top:0">Repository</h4>
+      <p class="small"><code>github.com/aabhasamol/nobody-fronts</code>, branch <code>claude/vibrant-albattani-sq7g81</code>. Python 3.11, FastAPI, pydantic. Run <code>pip install -r requirements.txt</code>, then <code>python -m pytest -q</code> (57 tests pass) and <code>./run.sh</code> (demo UI at <code>localhost:8000</code>).</p>
+      <h4>Team</h4>
+      <p class="small">Aabhas, Aditi, Sayan (IIM Calcutta). Opening: <i>Planning the trip</i>.</p>
+      <h4>Simulation code</h4>
+      <p class="small">Built on 4 Oct in <code>sim/</code>: the Claude agent loop, system prompt, curtain console, Gnani and Pine Labs tools, decision-log export. Run guide: <code>sim/README.md</code> and §12.</p>
+    </div>
+    <div class="box">
+      <h4 style="margin-top:0">Contents</h4>
+      <ol class="toc small">
+        <li>Quorum in one page</li>
+        <li>The flow and the rules</li>
+        <li>What Round 3 asks for</li>
+        <li>What exists, what's pending</li>
+        <li>Target architecture</li>
+        <li>The agent's tools</li>
+        <li>Pine Labs integration</li>
+        <li>Gnani and Delhivery</li>
+        <li>The simulation script</li>
+        <li>Decision log and submission</li>
+        <li>Build plan for tonight</li>
+        <li>How to run the simulation</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="box note small" style="margin-top:auto">
+    <b>Verification status.</b> This brief was written from inside a sandbox that cannot reach the Pine Labs or Delhivery documentation sites (the network proxy blocks them). Every endpoint marked <span class="tag warn">verify</span> is copied from our Round 2 research and repository code. Before recording, open the official docs and confirm each path, method and field. The Ken grades "the exact endpoint from their documentation".
+  </div>
+</section>
+
+<!-- ============================================================ 1 -->
+<section class="page">
+  <h2>1 · Quorum in one page</h2>
+  <p><b>The problem.</b> When a group of friends plans a trip (a wedding in Goa, a leisure weekend), one person, the organiser, usually ends up booking everything on their own card and chasing everyone for money. People say "yes" in the group chat to be polite, then drop out once money is due.</p>
+  <p><b>The product.</b> Quorum is a trip agent that lives in the group's WhatsApp. It separates the <i>social</i> decision (a private yes/no vote) from the <i>money</i> decision (each payer authorises their own capped amount). It books only once everyone who is in has authorised. <b>Nobody fronts money for anyone else</b>: not the organiser, and not Quorum.</p>
+
+  <h3>The outcome (Round 2 answer, Q1)</h3>
+  <p class="box good">Book an approved group trip for every participating payer, including travel from their own city, without requiring any one member to advance another member's share.</p>
+
+  <h3>Autonomy: L3</h3>
+  <p>Quorum may price, book and rebook a previously approved trip within each payer's own authorised cap and the agreed itinerary. Anything outside that, such as a different hotel, a different date or a cost above someone's cap, goes back to the affected people.</p>
+
+  <h3>Vocabulary</h3>
+  <table class="small">
+    <tr><th style="width:22%">Term</th><th>Meaning</th></tr>
+    <tr><td>Organiser</td><td>Adds Quorum to the group and gives destination, dates, occasion, a rough budget <b>B</b> per head and a maximum overshoot <b>o</b> (e.g. ₹20,000 and 10%). Never pays for anyone.</td></tr>
+    <tr><td>Payer / member</td><td>A person in the group with a phone and a way to pay. A payer may cover several travellers (their <i>party</i>, or <i>heads</i>).</td></tr>
+    <tr><td>Ceiling</td><td>A payer's own per-head maximum, given privately. If they stay silent, it defaults to the organiser's limit B × (1+o).</td></tr>
+    <tr><td>Share</td><td>What one payer owes: (their own travel legs + their split of the shared stay + pre-booked essentials) × heads.</td></tr>
+    <tr><td>Cap</td><td>heads × own ceiling, not rounded up. This is what the payer blocks after the vote. <b>Headroom</b> = cap − amount charged.</td></tr>
+    <tr><td>Block</td><td>A UPI mandate, card pre-authorisation or payment-link payment for the cap. Nothing is charged until booking.</td></tr>
+    <tr><td>Pool</td><td>Quorum's merchant account at Pine Labs. Captures land here; suppliers are paid from here; it must end at ₹0.</td></tr>
+    <tr><td>Phone-only stay</td><td>A homestay or guesthouse with no online inventory. The agent calls it (via Gnani speech) for availability, rate, terms and a hold of at least 96 h.</td></tr>
+    <tr><td>P0 / P1 / P2</td><td>P0 = a phone call (only three reasons are allowed); P1 = a text now; P2 = a text that can wait.</td></tr>
+  </table>
+
+  <h3>Channels: who hears what</h3>
+  <ul>
+    <li><b>Group chat</b> gets only four kinds of post: the kickoff, the vote tally, "booked", and disruptions.</li>
+    <li><b>Private DMs</b> get everything personal: constraints, each payer's own price, the vote, the payment link, receipts. A "no" is never named in the group.</li>
+    <li><b>Calls (P0 only):</b> (1) a phone-only stay, for availability and a hold; (2) a late arrival at a phone-only stay; (3) a member who hasn't answered an urgent disruption text after 20 minutes. Members are never called to chase a vote or a payment.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="page newpage">
+  <h2>2 · The flow and the rules</h2>
+  <img class="flow" src="quorum-flow.png" alt="Quorum state flow: eight happy-path states from INITIATED to CLOSED, exception paths below each, and LAPSED">
+  <p class="small muted" style="margin-top:4px">The final flow from the Round 2 submission (also in <code>docs/quorum-flow-final.webp</code> and the interactive <code>docs/quorum-trip-flow.html</code>). The engine in <code>app/engine.py</code> implements exactly these eight states plus LAPSED.</p>
+
+  <div class="grid2">
+    <div>
+      <h3>The three rules that make it work</h3>
+      <p><span class="num">1</span> <b>Every payer has their own limit.</b> Before the vote: each payer's quote per head ≤ B × (1+o) and ≤ their own ceiling. After the vote: each share ≤ heads × that payer's own ceiling. One payer's excess is never averaged onto the others, and the group never learns whose ceiling broke.</p>
+      <p><span class="num">2</span> <b>The cap is not rounded up.</b> Cap = heads × own ceiling. Headroom = cap − charged. A UPI mandate, card hold or pay-later link blocks the cap; nothing is charged yet.</p>
+      <p><span class="num">3</span> <b>The payment-rail wall.</b> Pine Labs has no all-or-nothing capture across N payers, so the agent captures payer by payer and refunds earlier captures if one fails. Suppliers are paid only after every capture succeeds.</p>
+    </div>
+    <div>
+      <h3>Clocks</h3>
+      <table class="small">
+        <tr><th>Window</th><th>Length</th></tr>
+        <tr><td>Gathering (private DMs)</td><td>24 h; silence = defaults</td></tr>
+        <tr><td>Vote</td><td>24 h; one text reminder at 12 h</td></tr>
+        <tr><td>Flip-in (no-voters can join)</td><td>12 h</td></tr>
+        <tr><td>Block (authorise)</td><td>48 h default; organiser sets it</td></tr>
+        <tr><td>Phone-only hold</td><td>≥ 96 h (24 + 12 + 48 = 84 h, plus slack)</td></tr>
+        <tr><td>Disruption escalation</td><td>20 min unanswered → call</td></tr>
+      </table>
+      <h3>Money invariants</h3>
+      <ul class="small">
+        <li>The organiser never advances money; Quorum never lends.</li>
+        <li>The pool never goes negative and ends at ₹0.</li>
+        <li>No payer is charged above their cap without a fresh approval (a top-up).</li>
+        <li>Revisions after a failed vote: at most two. Then the organiser decides (book for the yes-voters only, or close).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="page newpage">
+  <h2>3 · What Round 3 asks for</h2>
+  <p class="muted small">Source: Adhavan RK (The Ken), "You're shortlisted to Round 3" (30 Sep 2026) and "Round 3 submission is open" (1 Oct 2026). Paraphrased closely; quotes are verbatim.</p>
+
+  <h3>Part 1: run a simulation of the agent ("Wizard of Oz")</h3>
+  <div class="box">
+    <p><b>The agent is an AI model</b> (Claude or Gemini) "following a system prompt you write, and it makes every decision on its own". Wherever the model can connect to something directly (Gmail, WhatsApp, Google Sheets), connect it. Everything else is played by a team member "behind the curtain":</p>
+    <ul>
+      <li><b>Gnani:</b> "run the audio or text through Gnani's API yourself, and paste back exactly what Gnani returns."</li>
+      <li><b>Pine Labs and Delhivery:</b> "reply with the response their documentation says they'd send."</li>
+      <li><b>Anything else from the outside world</b> (a voice note arriving, the clock hitting 5 PM): a team member feeds it in. "It must come from a real source. If no real source produces it today, your agent can't have it."</li>
+    </ul>
+    <p style="margin:0"><b>The curtain never helps the agent think.</b> "If your agent needs someone to tell it what to do next, it isn't an agent yet."</p>
+  </div>
+
+  <h3>The recording</h3>
+  <ul>
+    <li>Screen-record from the first thing that happens to the moment the outcome is achieved. <b>5 minutes at most</b>; fast-forward model thinking.</li>
+    <li>It must show <b>every input arriving</b>, <b>every call to Gnani, Pine Labs or Delhivery with the response</b>, and <b>every message the agent sends to a person</b>.</li>
+    <li>Share the link, the <b>system prompt</b> and the <b>name of the model</b>.</li>
+  </ul>
+
+  <h3>Questions to answer (Part 1)</h3>
+  <ol class="small">
+    <li>The story of one person using the agent: named, dated, in order. <b>≤ 100 words.</b></li>
+    <li><b>Every decision in the recording, in order.</b> For each: when (date and time), what the agent received, where it came from (connector and real source), what it decided, why (the system-prompt rule), what it did or said and to whom (word for word), and through what connector.</li>
+    <li>What the agent knows on day one, who gives it that information, and how.</li>
+    <li>For every Pine Labs, Delhivery or Gnani call: <b>the exact endpoint</b> from their docs, plus request and response. Up to <b>3 imagined capabilities</b>, listed separately: partner, endpoint, and the data that partner already holds which makes it possible.</li>
+    <li>A mockup of every screen or conversation where the agent meets a person (WhatsApp chat, call script, app screen, notification).</li>
+    <li>Score each rail out of 10 on how agent-ready it is, with one reason each.</li>
+  </ol>
+
+  <h3>Part 2: build the business around it</h3>
+  <ol class="small">
+    <li>Where the agent lives and how a customer starts using it (own app, a feature in a named app, a WhatsApp number…).</li>
+    <li>Which company should build it, why them, what they have that nobody else does, and why they haven't built it.</li>
+    <li>Who they sell to, how they make money, what customers do today and what that costs.</li>
+    <li><b>How it gets its first 1,000 users</b> ("the question we care about most"), and what keeps them after three weeks.</li>
+    <li><b>A landing page</b> for the agent, made the way the named company would, with a sign-up CTA. Share the link. <span class="tag todo">developer task</span></li>
+    <li>What could kill this agent in its first year.</li>
+  </ol>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="page">
+  <h2>4 · What exists, what's pending</h2>
+  <h3>Repository map</h3>
+  <table class="small">
+    <tr><th style="width:26%">Path</th><th>What it is</th><th style="width:13%">Status</th></tr>
+    <tr><td><code>app/engine.py</code></td><td>The state machine: INITIATED → … → CLOSED, every unhappy path, the P0 call rule, clocks. Deterministic Python.</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td><code>app/models.py</code></td><td>Trip, Member, Plan, Leg, Stay, Authorisation, instruments (UPI Reserve, UPI OTM, card hold, prepaid link, BNPL).</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td><code>app/messages.py</code></td><td>Every sentence the agent sends. Useful as tone reference for the system prompt.</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td><code>app/rails/mock.py</code></td><td>Offline mocks for voice, payments and logistics (fares, stays, activities).</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td><code>app/rails/gnani_speech.py</code>, <code>gnani.py</code></td><td>Real Gnani TTS + STT via <code>api.vachana.ai</code>; a supplier call run on recorded replies; budget cap on billable calls; key in <code>app/keys.py</code>.</td><td><span class="tag ok">works</span></td></tr>
+    <tr><td><code>app/rails/pinelabs.py</code></td><td>Pine Labs adapter: token, payment link with pre-auth, status, capture, cancel, refund, offer discovery; payouts recorded as instructions.</td><td><span class="tag warn">unverified</span></td></tr>
+    <tr><td><code>app/main.py</code>, <code>static/index.html</code></td><td>FastAPI + demo UI with group chat, DMs and rail log; buttons drive each member.</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td><code>demo.py</code>, <code>docs/demo_transcript.txt</code></td><td>Three terminal runs (wedding, leisure, payment wall).</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td><code>docs/round2-final.md</code></td><td>The submitted Round 2 answers. Read this first.</td><td>reference</td></tr>
+    <tr><td><code>sim/agent.py</code>, <code>sim/system_prompt.md</code></td><td><b>Round 3:</b> Claude tool-use loop (one event in, the model decides until done) and the rules R1–R26 it follows; operator console.</td><td><span class="tag ok">built</span></td></tr>
+    <tr><td><code>sim/tools.py</code>, <code>sim/world.py</code>, <code>sim/curtain/templates.json</code></td><td><b>Round 3:</b> tools (chat, Gnani, phone line, Pine Labs, Delhivery, fares, stays, calculators), curtain console with documented-response templates, sim clock, run log.</td><td><span class="tag warn">templates to verify</span></td></tr>
+    <tr><td><code>sim/channels.py</code>, <code>sim/export.py</code></td><td><b>Round 3:</b> console or Telegram channel; exports decisions.md, rail_calls.md, transcript.md.</td><td><span class="tag ok">built</span></td></tr>
+  </table>
+
+  <h3>Gap against Round 3</h3>
+  <table class="small">
+    <tr><th style="width:4%">#</th><th style="width:30%">Pending</th><th>Why it matters</th><th style="width:11%">Priority</th></tr>
+    <tr><td>1</td><td><b>LLM agent + system prompt + tool loop</b></td><td>The Ken requires the <i>model</i> to make every decision. <b>Built</b> in <code>sim/</code>; needs a rehearsal with a real API key.</td><td><span class="tag ok">built</span></td></tr>
+    <tr><td>2</td><td><b>Curtain console</b> for Pine Labs, Delhivery and world events</td><td>A teammate answers each Pine Labs/Delhivery call with the documented response, on screen, and injects real-world inputs. <b>Built</b>; templates must be replaced with the docs' samples.</td><td><span class="tag ok">built</span></td></tr>
+    <tr><td>3</td><td><b>Endpoint verification</b></td><td>All Pine Labs paths and both Delhivery paths in <code>sim/curtain/templates.json</code> are unverified. A person with docs access must check them.</td><td><span class="tag todo">blocking</span></td></tr>
+    <tr><td>4</td><td><b>Real chat channel</b></td><td>Console works now; Telegram channel is built but needs a bot token and chat ids in <code>sim/config.json</code>.</td><td><span class="tag warn">config</span></td></tr>
+    <tr><td>5</td><td><b>Real sources for inputs</b></td><td>Fares, stay listings, flight status and the cancellation event are mock. Each must come from a real source (e.g. a teammate pastes a real fare from an airline/OTA site with a screenshot).</td><td><span class="tag todo">blocking</span></td></tr>
+    <tr><td>6</td><td>Move the trip dates</td><td>The simulation takes dates from the organiser's message (rehearsal uses 20–24 Nov 2026). The old engine demo still says 2–6 Oct; it isn't used in the recording.</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td>7</td><td>Decision-log export</td><td>Every action tool carries a decision (rule id, trigger, state); <code>sim/export.py</code> writes the table. <b>Built.</b></td><td><span class="tag ok">built</span></td></tr>
+    <tr><td>8</td><td>Landing page (Part 2 Q5)</td><td>Static page with a sign-up CTA, deployed with a public link.</td><td><span class="tag todo">high</span></td></tr>
+    <tr><td>9</td><td>Mockups of every touchpoint</td><td>WhatsApp group, each DM type, supplier call script, escalation call, Pine Labs hosted page, receipt.</td><td><span class="tag todo">high</span></td></tr>
+    <tr><td>10</td><td>Engine leftovers</td><td>Per-payer receipt at CLOSED (blocked · charged · refunded · released) not built; group post after a missed flight says "cancelled by the carrier" (wrong); UPI Reserve Pay is modelled up to ₹1 lakh but our own Round 2 text says its cap is ₹10,000.</td><td>later</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="page newpage">
+  <h2>5 · Target architecture for the simulation</h2>
+  <svg viewBox="0 0 760 330" width="100%" role="img" aria-label="Architecture: LLM agent in the centre with tools to chat channel, Gnani, and a curtain console that answers Pine Labs, Delhivery and world events">
+    <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#476178"/></marker></defs>
+    <rect x="280" y="110" width="200" height="110" rx="12" fill="#e4f5ee" stroke="#078d8e" stroke-width="2"/>
+    <text x="380" y="138" text-anchor="middle" font-size="14" font-weight="700" fill="#06696d">Quorum agent</text>
+    <text x="380" y="158" text-anchor="middle" font-size="10.5" fill="#102a42">Claude via the Anthropic API</text>
+    <text x="380" y="174" text-anchor="middle" font-size="10.5" fill="#102a42">system prompt = the rules</text>
+    <text x="380" y="190" text-anchor="middle" font-size="10.5" fill="#102a42">tool-use loop; decides alone</text>
+    <text x="380" y="206" text-anchor="middle" font-size="10.5" fill="#102a42">emits a decision record</text>
+
+    <rect x="20" y="20" width="200" height="80" rx="10" fill="#fff" stroke="#078d8e"/>
+    <text x="120" y="44" text-anchor="middle" font-size="12" font-weight="700">Chat channel (real)</text>
+    <text x="120" y="62" text-anchor="middle" font-size="10">group + private DMs</text>
+    <text x="120" y="78" text-anchor="middle" font-size="10">real people reply from phones</text>
+
+    <rect x="20" y="230" width="200" height="80" rx="10" fill="#fff" stroke="#078d8e"/>
+    <text x="120" y="254" text-anchor="middle" font-size="12" font-weight="700">Gnani (real API)</text>
+    <text x="120" y="272" text-anchor="middle" font-size="10">TTS: agent's line → audio</text>
+    <text x="120" y="288" text-anchor="middle" font-size="10">STT: recorded reply → text</text>
+
+    <rect x="540" y="20" width="200" height="80" rx="10" fill="#fdeee9" stroke="#c4513f"/>
+    <text x="640" y="44" text-anchor="middle" font-size="12" font-weight="700" fill="#c4513f">Curtain console</text>
+    <text x="640" y="62" text-anchor="middle" font-size="10">Pine Labs: documented responses</text>
+    <text x="640" y="78" text-anchor="middle" font-size="10">Delhivery: documented responses</text>
+
+    <rect x="540" y="230" width="200" height="80" rx="10" fill="#fdeee9" stroke="#c4513f"/>
+    <text x="640" y="254" text-anchor="middle" font-size="12" font-weight="700" fill="#c4513f">World events (curtain)</text>
+    <text x="640" y="272" text-anchor="middle" font-size="10">real fares, clock ticks,</text>
+    <text x="640" y="288" text-anchor="middle" font-size="10">a real cancellation notice</text>
+
+    <rect x="290" y="260" width="180" height="56" rx="10" fill="#fff3d1" stroke="#c99a2e"/>
+    <text x="380" y="282" text-anchor="middle" font-size="11" font-weight="700">Calculator tools</text>
+    <text x="380" y="300" text-anchor="middle" font-size="9.5">price a plan · caps · headroom</text>
+
+    <line x1="220" y1="60" x2="280" y2="130" stroke="#476178" stroke-width="1.6" marker-end="url(#a)"/>
+    <line x1="280" y1="145" x2="222" y2="80" stroke="#476178" stroke-width="1.6" marker-end="url(#a)"/>
+    <line x1="280" y1="200" x2="222" y2="265" stroke="#476178" stroke-width="1.6" marker-end="url(#a)"/>
+    <line x1="480" y1="140" x2="538" y2="70" stroke="#476178" stroke-width="1.6" marker-end="url(#a)"/>
+    <line x1="538" y1="90" x2="482" y2="160" stroke="#476178" stroke-width="1.6" marker-end="url(#a)"/>
+    <line x1="538" y1="265" x2="482" y2="200" stroke="#476178" stroke-width="1.6" marker-end="url(#a)"/>
+    <line x1="380" y1="220" x2="380" y2="258" stroke="#476178" stroke-width="1.6" marker-end="url(#a)"/>
+  </svg>
+
+  <h3>The design principle: tools return facts, the model decides</h3>
+  <p>The Ken's test is whether the model makes every decision. So:</p>
+  <ul>
+    <li><b>The rules live in the system prompt</b>, each with an ID (R1, R2, …), so each decision can cite the rule it followed. Port them from <code>app/engine.py</code> and §2.</li>
+    <li><b>Tools never decide.</b> A tool sends a message, calls Gnani, calls (curtain-played) Pine Labs or Delhivery, or computes arithmetic such as a share, a cap or headroom. Computing numbers is fine; choosing what to do with them is the model's job.</li>
+    <li><b>The Python engine becomes the referee, not the brain.</b> After a rehearsal run, replay the same inputs through <code>app/engine.py</code> and compare. Where the model's decision differs from the engine's, fix the system prompt before recording.</li>
+    <li><b>Event-driven loop.</b> Each inbound event (a chat message, a curtain response, a clock tick) is appended to the conversation as a user turn. The model replies with tool calls until it has nothing more to do, then waits for the next event.</li>
+  </ul>
+
+  <h3>Channel options (decide in the first 15 minutes)</h3>
+  <table class="small">
+    <tr><th>Option</th><th>Setup</th><th>Fit</th></tr>
+    <tr><td><b>A. WhatsApp Cloud API test number</b></td><td>Meta developer app; test number messages up to 5 verified recipients; business-initiated messages need a template until each member messages first (24 h window). Bots cannot join existing WhatsApp groups.</td><td>Closest to the product, but the riskiest setup for tonight. Group posts would need a workaround.</td></tr>
+    <tr><td><b>B. Telegram bot</b></td><td>BotFather token in minutes; the bot can sit in a real group and DM each member.</td><td>Fastest real channel with a true group + DMs. Say in the submission that production is WhatsApp; mockups show WhatsApp.</td></tr>
+    <tr><td><b>C. Our own web chat</b> (<code>static/index.html</code>)</td><td>Already built.</td><td>Model connects directly to our app, but judges may see it as less real. Use only as fallback.</td></tr>
+  </table>
+  <p class="small"><b>Recommendation:</b> B for the recording, with WhatsApp mockups for Q5. Optionally mirror the ledger to a Google Sheet (a direct connector The Ken names).</p>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="page">
+  <h2>6 · The agent's tools</h2>
+  <p>Defined in <code>sim/tools.py</code> as Anthropic Messages API tools; the loop is in <code>sim/agent.py</code> (model <code>claude-opus-5-5</code>, adaptive thinking with summaries shown, effort <code>high</code>, prompt caching, server-side refusal fallback). Every action tool takes a required <code>decision</code> object (<code>decided</code>, <code>rule_id</code>, <code>trigger</code>, <code>state</code>) that becomes one row of the decision log. Tools act and report facts; they never decide.</p>
+  <table class="small">
+    <tr><th style="width:27%">Tool</th><th>What happens</th><th style="width:20%">Played by</th></tr>
+    <tr><td><code>send_group</code>, <code>send_dm</code></td><td>Post to the group (kickoff, tally, booked, disruptions) or DM one member.</td><td>real channel (console or Telegram)</td></tr>
+    <tr><td><code>log_decision</code></td><td>A decision with no other action (e.g. "wait for the deadline").</td><td>log</td></tr>
+    <tr><td><code>search_fares</code>, <code>search_stays</code></td><td>Curtain pastes what a real airline/OTA site or Google Maps shows now; keep screenshots.</td><td>curtain (real source)</td></tr>
+    <tr><td><code>delhivery_geocode</code>, <code>delhivery_distance</code></td><td>Venue and stay coordinates; road distance and drive time.</td><td>curtain (documented response)</td></tr>
+    <tr><td><code>gnani_tts</code></td><td><code>POST https://api.vachana.ai/api/v1/tts/inference</code>; saves the WAV in the run folder.</td><td>Gnani (real)</td></tr>
+    <tr><td><code>place_call</code></td><td>Plays the TTS audio; the operator gives the path of the callee's recorded reply, or "none" for no answer. Only P0 reasons accepted by schema.</td><td>curtain (phone line)</td></tr>
+    <tr><td><code>gnani_stt</code></td><td><code>POST https://api.vachana.ai/stt/v3</code>; Gnani's transcript returned verbatim.</td><td>Gnani (real)</td></tr>
+    <tr><td><code>pinelabs_create_payment_link</code></td><td>Builds the documented body (cap in paisa, <code>pre_auth</code>, card/UPI/BNPL, <code>expire_by</code>). Token call happens automatically first.</td><td>curtain, or UAT with <code>SIM_PINELABS=uat</code></td></tr>
+    <tr><td><code>pinelabs_get_payment_link</code></td><td>Status, order id, method. (Or the operator plays the webhook: <code>/webhook Name AUTHORIZED CARD</code>.)</td><td>curtain / UAT</td></tr>
+    <tr><td><code>pinelabs_capture</code>, <code>_cancel</code>, <code>_refund</code>, <code>_payout</code></td><td>Capture the share; release a block; refund on a failed group capture; pay a supplier from the pool. The operator console warns if a capture exceeds the authorised amount or a payout exceeds the pool.</td><td>curtain / UAT</td></tr>
+    <tr><td><code>quote_plan</code>, <code>caps</code></td><td>Arithmetic only (same formulas as <code>app/models.py</code>, tested against the engine's numbers).</td><td>code</td></tr>
+  </table>
+  <h3>The system prompt</h3>
+  <p><code>sim/system_prompt.md</code> holds the outcome, how the agent works, and rules <b>R1–R26</b>: channels and tone (R1–R2), gathering (R3–R5), planning (R6–R9), voting (R10–R13), authorising (R14–R16), booking (R17–R20), after booking (R21–R24), calls (R25) and facts (R26). <code>build_system()</code> appends day-one knowledge (group, roster, organiser, place hooks from <code>app/lore.py</code>). Each run saves the exact prompt as <code>system_prompt.md</code> in its run folder; submit that file.</p>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="page newpage">
+  <h2>7 · Pine Labs integration</h2>
+  <p>Pine Labs Online (the "Plural" v2 APIs). UAT base <code>https://pluraluat.v2.pinepg.in</code>; developer keys from <code>dashboardv2.pluralonline.com</code>. In the simulation a teammate plays Pine Labs by pasting the documented response. Still build each real request body in code: it proves the integration and makes the switch to live UAT a config change (<code>QUORUM_PAYMENTS=pinelabs</code>).</p>
+  <div class="box note small"><b>Every path below is <span class="tag warn">verify</span>.</b> Open developer.pinelabsonline.com and confirm method, path, field names and the exact response shape. Copy the documented sample response into the curtain console's template library. Note any difference here and in <code>app/rails/pinelabs.py</code>.</div>
+
+  <h3>How Quorum uses Pine Labs, step by step</h3>
+  <table class="small">
+    <tr><th style="width:4%">#</th><th style="width:22%">When</th><th style="width:35%">Call</th><th>Purpose</th></tr>
+    <tr><td>1</td><td>Start of AUTHORISING</td><td><code>POST /api/auth/v1/token</code></td><td>OAuth client-credentials token (Bearer for every call below).</td></tr>
+    <tr><td>2</td><td>Per payer, after the vote</td><td><code>POST /api/pay/v1/paymentlink</code></td><td>Hosted link for the payer's <b>cap</b> (paisa), <code>pre_auth</code> on, card + UPI (+ BNPL if enabled), <code>expire_by</code> = block deadline. Link URL goes in the payer's DM.</td></tr>
+    <tr><td>3</td><td>Payer pays on the hosted page</td><td>Webhook to <code>callback_url</code>, or <code>GET /api/pay/v1/paymentlink/{payment_link_id}</code></td><td>Status (e.g. authorised/blocked), the <code>order_id</code> behind it, and the method used (card, UPI…).</td></tr>
+    <tr><td>4</td><td>(Optional) EMI quote</td><td><code>POST /api/pay/v1/offers/discovery</code></td><td>EMI tenures for the cap, shown in the DM.</td></tr>
+    <tr><td>5</td><td>BOOKING, per payer</td><td><code>…/api/pay/v1/orders/{order_id}/capture</code> (method: verify; repo uses POST)</td><td>Capture exactly the <b>share</b> (≤ cap). One capture per card hold or UPI OTM.</td></tr>
+    <tr><td>6</td><td>A capture fails</td><td><code>POST /api/pay/v1/refunds/{order_id}</code></td><td>Refund each earlier capture; then LAPSED.</td></tr>
+    <tr><td>7</td><td>Release unused blocks / dropouts</td><td><code>…/api/pay/v1/orders/{order_id}/cancel</code></td><td>Releases a hold or the uncaptured balance.</td></tr>
+    <tr><td>8</td><td>All captures succeeded</td><td>Payouts API (path: verify)</td><td>Pool → homestay and other suppliers (IMPS/NEFT/UPI to registered beneficiaries).</td></tr>
+  </table>
+
+  <h3>Request: create the block (payment link)</h3>
+  <pre>POST {base}/api/pay/v1/paymentlink
+Authorization: Bearer &lt;access_token&gt;   Request-ID: &lt;uuid&gt;   Request-Timestamp: &lt;ISO-8601&gt;
+{
+  "amount": { "value": 4400000, "currency": "INR" },          // Aabhas: 2 heads x Rs 22,000 = Rs 44,000
+  "description": "Quorum: your share of the trip, blocked now, debited only when everyone is in",
+  "expire_by": "2026-10-07T20:00:00Z",
+  "allowed_payment_methods": ["CARD", "UPI", "BNPL"],
+  "pre_auth": "true",
+  "merchant_payment_link_reference": "quorum-plan_8c28-m_aabhas-3f9a1c",
+  "customer": { "first_name": "Aabhas", "last_name": "Amol", "mobile_number": "98300xxxxx",
+                "country_code": "91", "email_id": "...", "merchant_customer_reference": "quorum-m_aabhas" },
+  "callback_url": "https://&lt;tunnel&gt;/webhooks/pinelabs",
+  "merchant_metadata": { "source": "quorum", "plan": "plan_8c28", "member": "m_aabhas" }
+}</pre>
+
+  <h3>Request: capture the share</h3>
+  <pre>{base}/api/pay/v1/orders/{order_id}/capture
+{ "merchant_capture_reference": "cap-7c1e9a20b4",
+  "capture_amount": { "value": 3996000, "currency": "INR" } }     // share Rs 39,960 &lt;= cap Rs 44,000</pre>
+
+  <h3>Known walls (put these in the rail score and imagined capabilities)</h3>
+  <ul class="small">
+    <li>No atomic capture across N payers and no group escrow: capture is sequential with compensating refunds, and refunds take days to land.</li>
+    <li>A card hold lives 5–7 days and takes one capture; a UPI one-time mandate takes one debit. Only UPI Reserve Pay keeps headroom after the first debit, and its published cap is ₹10,000, too low for a ₹20,000+ share.</li>
+    <li>Captured money must settle before it can pay suppliers; supplier fulfilment needs a settlement arrangement or must wait.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="page">
+  <h2>8 · Gnani and Delhivery</h2>
+  <h3>Gnani (real API calls on screen)</h3>
+  <p>Our key is a Vachana (Gnani's speech platform) key in <code>app/keys.py</code>, scoped to TTS and STT and capped by <code>CallBudget</code> (40 billable calls; override with <code>GNANI_CALL_BUDGET</code>). Free credits: ₹1,000 (Gnani email, 15 Sep).</p>
+  <table class="small">
+    <tr><th>Verb</th><th>Endpoint (from <code>app/rails/gnani_speech.py</code>)</th><th>Body</th><th>Returns</th></tr>
+    <tr><td>Text to speech</td><td><code>POST https://api.vachana.ai/api/v1/tts/inference</code></td><td>JSON <code>{text, voice, model, audio_config}</code></td><td>audio bytes</td></tr>
+    <tr><td>Speech to text</td><td><code>POST https://api.vachana.ai/stt/v3</code></td><td>multipart <code>{audio_file, language_code}</code></td><td><code>{success, transcript}</code></td></tr>
+  </table>
+  <p><b>The supplier call in the simulation.</b> The agent decides to call the phone-only homestay (R4) and writes its question. TTS turns it into Hindi audio, which is played. A teammate playing the homestay owner records a real spoken reply (rooms, rate, refund terms, hold). STT transcribes it. The agent reads the fields from Gnani's exact transcript. Run <code>python scripts/speech_demo.py</code> to see the existing loop (≈ ₹2 per run). There is no outbound telephony; the phone line is a separate seam (Exotel/Twilio) and is not needed for the simulation.</p>
+
+  <h3>Delhivery (curtain-played)</h3>
+  <p>Delhivery moves parcels; nothing in a group trip is a parcel. What Quorum uses is <b>Delhivery Maps</b>: geocoding the venue and the stays, and road distance / travel time (venue ↔ stay, airport ↔ stay). For a wedding, stays are ranked by distance to the venue and the arrival buffer must be real. Today <code>Stay.km_to_venue</code> is hand-written; there is no Delhivery adapter.</p>
+  <ul class="small">
+    <li><b>To build:</b> a <code>delhivery_distance</code> tool. The harness shows the request built per Delhivery's Maps docs (geocode, then distance matrix / routing); the curtain pastes the documented response with real coordinates (e.g. from a maps lookup of Assagao and the homestay).</li>
+    <li><b>Verify on Delhivery's developer portal:</b> exact Maps endpoint paths, auth header, and response fields. <span class="tag warn">verify</span></li>
+    <li>Delhivery has no flight fares, rooms or travel booking inventory. Don't claim them.</li>
+  </ul>
+
+  <h3>Imagined capabilities (≤ 3): suggestions for the team</h3>
+  <table class="small">
+    <tr><th style="width:15%">Partner</th><th style="width:33%">Endpoint (imagined)</th><th>What it does</th><th style="width:27%">Data the partner already holds</th></tr>
+    <tr><td>Pine Labs</td><td><code>POST /api/pay/v1/group-orders</code></td><td>One group order holding N independently approved payer authorisations to one deadline; captures all or none; releases all on failure; escrow until fulfilment.</td><td>Each payer's pre-auth / mandate status, the merchant's orders, settlement accounts.</td></tr>
+    <tr><td>Pine Labs</td><td><code>POST /api/settlements/v1/orders/{order_id}/disburse</code></td><td>Pay a supplier directly from a captured, not-yet-settled order, so booking needn't wait for settlement.</td><td>Captured order funds and the merchant's settlement ledger.</td></tr>
+    <tr><td>Delhivery</td><td><code>GET /maps/v1/access-check?lat=..&amp;lng=..&amp;vehicle=tempo_traveller</code></td><td>Can this vehicle reach this address's entrance? (Lane width, failed-access history.)</td><td>Years of delivery attempts per address and pincode with vehicle type and failure reasons.</td></tr>
+  </table>
+</section>
+
+<!-- ============================================================ 9 -->
+<section class="page newpage">
+  <h2>9 · The simulation script</h2>
+  <p><b>Scenario.</b> Priya's wedding in Assagao, Goa, moved to a future date (suggested 20–24 Nov 2026). The cast from <code>app/scenario.py</code>: Sayan (organiser, Kolkata, ceiling ₹24k), Aabhas (Kolkata, pays for 2, ₹22k), Aditi (Bengaluru out, Mumbai back, ₹20k), Riya (Delhi, ₹23k), Karan (Mumbai, silent → ₹22k default). Budget ₹20,000/head, overshoot 10%. Real people play the members from their own phones. Real fares are pasted by the curtain from a real site at recording time; numbers will differ from the mock, which is fine.</p>
+  <p><b>Outcome to reach on camera:</b> BOOKED: every payer's share captured, suppliers paid, tickets in DMs, "Booked" in the group. A disruption beat is optional if time remains.</p>
+
+  <h3>Run of show (target ≤ 5:00 after fast-forwarding)</h3>
+  <table class="small">
+    <tr><th style="width:8%">Time</th><th style="width:30%">Input arrives (source)</th><th>Agent does (connector)</th></tr>
+    <tr><td>0:00</td><td>Sayan's kickoff in the group (real chat)</td><td>Posts the kickoff; DMs each payer six questions with a default and deadline.</td></tr>
+    <tr><td>0:30</td><td>Four replies; Karan silent (real chat). Clock tick 24 h (curtain).</td><td>Acknowledges privately; applies Karan's defaults (R2).</td></tr>
+    <tr><td>1:00</td><td>Real fares and stays (curtain, screenshots); venue distance (curtain-played Delhivery)</td><td>Ranks stays by distance to venue; picks the phone-only homestay.</td></tr>
+    <tr><td>1:20</td><td>—</td><td>Gnani TTS of the supplier question → plays. Teammate's recorded reply → Gnani STT → agent reads rate ₹3,200, refund terms, 96 h hold (R4).</td></tr>
+    <tr><td>1:50</td><td>—</td><td>Prices the plan (calculator); checks each payer against B(1+o) and own ceiling (R3); DMs each their own all-in and a place hook.</td></tr>
+    <tr><td>2:20</td><td>Votes by DM: 4 yes, Karan no (real chat)</td><td>Posts only the tally; re-sizes for 5 heads; checks shares against caps (R9); one private flip-in offer to Karan.</td></tr>
+    <tr><td>2:50</td><td>—</td><td>Pine Labs token + 4 payment links (curtain responses on screen); DMs each payer their link, cap and headroom.</td></tr>
+    <tr><td>3:30</td><td>Payment status per payer (curtain: documented webhook / status response)</td><td>Marks each blocked; when all four are in, starts BOOKING (R10).</td></tr>
+    <tr><td>3:50</td><td>Live fares re-check (curtain)</td><td>Captures each share (4 × curtain responses); pays the homestay from the pool (payout response).</td></tr>
+    <tr><td>4:30</td><td>—</td><td>Tickets and vouchers by DM; "Booked" in the group. Outcome reached.</td></tr>
+  </table>
+
+  <h3>Curtain operator rules</h3>
+  <ul class="small">
+    <li>Answer only what the called system would answer. Never hint at what the agent should do next.</li>
+    <li>Pine Labs/Delhivery answers come from the documented sample response, with values edited to match the request (amounts, ids, timestamps). Keep the templates in <code>sim/curtain/</code>.</li>
+    <li>World inputs need a real source: keep a screenshot of every fare, listing, and the cancellation notice if you run a disruption.</li>
+    <li>Gnani answers are never typed by hand: the harness pastes Gnani's exact output.</li>
+  </ul>
+
+  <h3>What the agent knows on day one (Q3 draft)</h3>
+  <ul class="small">
+    <li><b>The system prompt</b> (rules, tone, P0 call list): written by the team.</li>
+    <li><b>The group roster and phone numbers</b>: from the chat when the organiser adds Quorum.</li>
+    <li><b>The trip brief</b> (place, dates, occasion, B, o): from the organiser's kickoff message.</li>
+    <li><b>Place hooks</b> (film locations, food stops): a curated table from real sources (<code>app/lore.py</code>), loaded by the team.</li>
+    <li><b>Rail credentials</b> (Pine Labs merchant, Gnani key): configured by the team.</li>
+    <li>It does <b>not</b> know members' ceilings, cities or dates until each tells it privately.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ 10 -->
+<section class="page">
+  <h2>10 · Decision log and submission artefacts</h2>
+  <h3>Decision log format (Q2)</h3>
+  <p>The harness writes one row per <code>log_decision</code> call and exports Markdown/CSV for pasting into the form. Example row:</p>
+  <table class="small">
+    <tr><th>When</th><th>Received</th><th>From</th><th>Decided</th><th>Why</th><th>Did / said, to whom</th><th>Through</th></tr>
+    <tr><td>Sun 4 Oct, 20:41 IST</td><td>Karan's vote: "No, can't get leave that week"</td><td>Chat connector · Karan's phone</td><td>Count as no; offer one private flip-in with his own price, 12 h</td><td>R5, R7</td><td>DM to Karan: "The others are going, so one fact in case it changes anything… ₹12,200 a head… Say yes by Mon 08:41"</td><td>Chat (DM)</td></tr>
+  </table>
+
+  <h3>Submission artefacts and owner</h3>
+  <table class="small">
+    <tr><th style="width:36%">Artefact</th><th>Source</th><th style="width:16%">Owner</th></tr>
+    <tr><td>Recording link (≤ 5 min)</td><td>Screen capture of chat + harness panels; fast-forward thinking</td><td>dev + team</td></tr>
+    <tr><td>System prompt + model name</td><td><code>sim/system_prompt.md</code>; model id from the harness log</td><td>dev</td></tr>
+    <tr><td>Story (≤ 100 words)</td><td>From the recording</td><td>team</td></tr>
+    <tr><td>Decision table</td><td>Harness export</td><td>dev</td></tr>
+    <tr><td>Day-one knowledge</td><td>§9 draft</td><td>team</td></tr>
+    <tr><td>Endpoints + request/response</td><td>Harness log (every rail call is recorded with both sides)</td><td>dev</td></tr>
+    <tr><td>≤ 3 imagined capabilities</td><td>§8 draft</td><td>team</td></tr>
+    <tr><td>Mockups of every touchpoint</td><td>Screenshots from the run + WhatsApp-style mocks; supplier and escalation call scripts</td><td>dev + team</td></tr>
+    <tr><td>Rail scores</td><td>§8 draft</td><td>team</td></tr>
+    <tr><td>Part 2 answers</td><td>Round 2 picked MakeMyTrip (Q8); revisit</td><td>team</td></tr>
+    <tr><td>Landing page link</td><td>Static page with sign-up CTA, deployed publicly</td><td>dev</td></tr>
+  </table>
+
+  <h3>Rail scores (draft, for the team to confirm)</h3>
+  <table class="small">
+    <tr><th>Rail</th><th>Score</th><th>One reason</th></tr>
+    <tr><td>Gnani</td><td>7/10</td><td>TTS and STT are callable today with a key; the call-to-booking handoff (telephony, interruptions, confirmation) is ours to build.</td></tr>
+    <tr><td>Pine Labs</td><td>6/10</td><td>Links, pre-auth, capture, refunds and payouts exist; no atomic N-payer capture and settlement timing blocks instant supplier pay.</td></tr>
+    <tr><td>Delhivery</td><td>4/10</td><td>Maps give distances; nothing about rooms, fares or whether a vehicle can reach a homestay.</td></tr>
+  </table>
+  <h3>Touchpoints to mock (Q5)</h3>
+  <ol class="small">
+    <li>Group: kickoff, vote tally, booked, disruption.</li>
+    <li>DM: gathering questions; vote with own price; "over your ceiling" heads-up; flip-in offer; payment link with cap and headroom; blocked acknowledgement; tickets; top-up request; receipt.</li>
+    <li>Supplier call script (Hindi), late-arrival call, member escalation call.</li>
+    <li>Pine Labs hosted payment page (card / UPI / EMI / pay later).</li>
+  </ol>
+</section>
+
+<!-- ============================================================ 11 -->
+<section class="page newpage">
+  <h2>11 · Build plan for tonight</h2>
+  <p class="muted">In order. Anything not done by 22:30 IST gets cut; the form needs about an hour of pasting.</p>
+  <table class="small">
+    <tr><th style="width:5%">#</th><th style="width:42%">Task</th><th>Done when</th><th style="width:12%">Status</th></tr>
+    <tr><td>1</td><td>Agent loop, tools, curtain, decision log, export (<code>sim/</code>)</td><td>64 tests pass offline</td><td><span class="tag ok">done</span></td></tr>
+    <tr><td>2</td><td>System prompt with rule ids</td><td><code>sim/system_prompt.md</code></td><td><span class="tag ok">done</span></td></tr>
+    <tr><td>3</td><td>Set <code>ANTHROPIC_API_KEY</code>; rehearse with <code>--script sim/scenario/rehearsal.txt</code></td><td>Run reaches BOOKED without operator hints; fix the prompt where it doesn't</td><td><span class="tag todo">30–40 min</span></td></tr>
+    <tr><td>4</td><td>Verify Pine Labs + Delhivery endpoints; paste the docs' sample responses into <code>sim/curtain/templates.json</code></td><td>No <code>verified: false</code> on endpoints used in the run</td><td><span class="tag todo">30 min, parallel</span></td></tr>
+    <tr><td>5</td><td>Record the homestay owner's reply (WAV ≤ 60 s, Hindi): rooms, ₹/night, refund terms, 96 h hold</td><td>File ready to type at the <code>phone line:</code> prompt</td><td><span class="tag todo">10 min</span></td></tr>
+    <tr><td>6</td><td>Look up real fares (Kolkata, Bengaluru→Mumbai, Delhi ↔ Goa for the trip dates) and real stays; screenshot</td><td>Ready to paste at the curtain prompt</td><td><span class="tag todo">20 min, parallel</span></td></tr>
+    <tr><td>7</td><td>(Optional) Telegram: bot, group, members press Start, ids in <code>sim/config.json</code></td><td>Bot DMs each member</td><td><span class="tag warn">15 min</span></td></tr>
+    <tr><td>8</td><td>Record ≤ 5 min; <code>/export</code></td><td>Video link + decisions.md + rail_calls.md</td><td><span class="tag todo">20 min</span></td></tr>
+    <tr><td>9</td><td>Landing page with sign-up CTA (another teammate)</td><td>Public link</td><td><span class="tag todo">45 min, parallel</span></td></tr>
+  </table>
+
+  <h3>Acceptance checks before you record</h3>
+  <ul class="small">
+    <li>Every decision row cites a rule id from the system prompt; no row says "operator told it".</li>
+    <li>Every Pine Labs/Delhivery/Gnani call shows both request and response on screen.</li>
+    <li>No personal number (ceiling, share, a "no") appears in the group chat.</li>
+    <li>No payer is ever asked to block more than heads × their own ceiling; the pool ends at ₹0.</li>
+    <li>The recording starts at the first input and ends at the outcome.</li>
+  </ul>
+
+  <div class="box note small"><b>Honesty notes for the submission.</b> Gnani calls are real; Pine Labs and Delhivery responses are curtain-played from their documentation; fares and listings were looked up live on real sites (keep screenshots); the chat channel used for recording is named. Our Round 2 text says "Our recorded-reply demo is not evidence of a live supplier booking". Keep that tone.</div>
+</section>
+
+<section class="page">
+  <h2>12 · How to run the simulation</h2>
+  <pre>pip install -r requirements.txt anthropic
+export ANTHROPIC_API_KEY=...                 # or: ant auth login
+python -m pytest -q                          # 64 tests, offline
+python -m sim.agent                          # type the world in at world&gt;
+python -m sim.agent --script sim/scenario/rehearsal.txt     # chat lines from a file</pre>
+  <h3>The operator's console</h3>
+  <table class="small">
+    <tr><th style="width:42%">Type at <code>world&gt;</code></th><th>The agent receives</th></tr>
+    <tr><td><code>@Sayan group: Priya's wedding in Assagao…</code></td><td>Sayan's post in the group</td></tr>
+    <tr><td><code>@Riya: Yes</code></td><td>Riya's DM</td></tr>
+    <tr><td><code>/advance 24h</code></td><td>a clock tick (30m, 6h, 1d)</td></tr>
+    <tr><td><code>/webhook Aabhas AUTHORIZED CARD</code></td><td>Pine Labs' webhook for Aabhas's latest payment link (also FAILED, EXPIRED)</td></tr>
+    <tr><td><code>/event IndiGo SMS | 6E 523 on 20 Nov is cancelled</code></td><td>a real-world notice with its source</td></tr>
+    <tr><td><code>/status</code>, <code>/export</code>, <code>/quit</code></td><td>(operator only) ledger; write the Markdown tables; stop</td></tr>
+  </table>
+  <p>On every Pine Labs, Delhivery, fare or stay call the curtain prompt appears: <code>[Enter] send · e edit · p paste JSON · x documented error</code>. <code>x</code> on a capture plays the documented failure and exercises R18 (refund earlier captures, LAPSED).</p>
+  <h3>Environment switches</h3>
+  <table class="small">
+    <tr><th style="width:36%">Variable</th><th>Effect</th></tr>
+    <tr><td><code>SIM_CHANNEL=telegram</code> + <code>TELEGRAM_BOT_TOKEN</code></td><td>Real group and DMs through a Telegram bot (ids in <code>sim/config.json</code>)</td></tr>
+    <tr><td><code>SIM_PINELABS=uat</code></td><td>Send the same requests to Pine Labs UAT (<code>PINELABS_CLIENT_ID</code>, <code>_SECRET</code>, <code>_MERCHANT_ID</code>, <code>PINELABS_BASE</code>)</td></tr>
+    <tr><td><code>PINELABS_CAPTURE_METHOD</code>, <code>PINELABS_CANCEL_METHOD</code></td><td>Default <code>PUT</code>; set to what the docs say</td></tr>
+    <tr><td><code>QUORUM_MODEL</code>, <code>QUORUM_EFFORT</code></td><td>Default <code>claude-opus-5-5</code>, <code>high</code></td></tr>
+    <tr><td><code>SIM_CURTAIN=auto</code></td><td>Accept every template unedited (rehearsal only, never for the recording)</td></tr>
+  </table>
+  <h3>What a run produces (<code>sim/runs/&lt;stamp&gt;/</code>)</h3>
+  <ul class="small">
+    <li><code>decisions.md</code>: Part 1 Q2 table, one row per decision.</li>
+    <li><code>rail_calls.md</code>: Part 1 Q4, every call with endpoint, request and response, and who played it.</li>
+    <li><code>transcript.md</code>: every message the agent sent (story, mockups).</li>
+    <li><code>system_prompt.md</code>: the exact prompt (submit it, with the model name).</li>
+    <li><code>*.wav</code>: Gnani's audio and the recorded replies.</li>
+  </ul>
+  <p class="small"><b>Recording layout:</b> terminal on one side, chat on the other. Cyan = input arriving, magenta = call to a rail, green = response, yellow ◆ = decision, bold = message to a person, dim = the model's summarised reasoning.</p>
+</section>
+
+</body>
+</html>
