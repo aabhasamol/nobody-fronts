@@ -3,8 +3,8 @@
     python demo.py
 
   1. wedding   — phone-only homestay (no answer → retry → confirmed at the call's rate), vote passes 4–1,
-                 the four payers who are in (five heads: Aabhas pays for Meera too) set the budget and the stay
-                 re-splits for them; one blocks by UPI Reserve Pay, one holds a credit card for two seats with
+                 the stay re-splits for the four payers who are in (five heads: Aabhas pays for Meera too) and each
+                 blocks heads × their own ceiling; one blocks by UPI Reserve Pay, one holds a credit card for two seats with
                  3-month EMI, one pays the link outright (the money sits in the pool), one holds a card; fares
                  move inside the cap;
                  everything books and the pool pays every supplier. Then a cancelled flight re-booked from the
@@ -14,7 +14,7 @@
   2. leisure   — one stay unavailable on the call; the vote fails on price; the revision drops a night; the
                  vote passes with a pre-booked Dudhsagar jeep as the one essential; one yes-voter never authorises,
                  drops out, and the rest re-price. Then Karan misses his Mumbai flight: later flights, a train and an
-                 Uber Outstation cab go to him, no refund, his money; the daily fact about the place starts the day it's
+                 Uber Outstation cab go to him, no refund, paid from his own headroom; the daily fact about the place starts the day it's
                  booked, and a week before the trip everyone gets the countdown text with their PNR.
   3. wall      — the fourth of four debits fails: the three that went through are refunded, nothing is booked.
 """
@@ -113,8 +113,9 @@ def run_leisure():
     n = show(t, n)
     leg = next(l for l in t.plan().legs if l.member_id == karan.id and l.destination == "Goa")
     engine.missed(t, leg.id)                                     # Karan sleeps through the 08:00 from Mumbai
-    engine.member_chooses(t, karan.id, 1)                        # the 13:00: ₹1,900 more than his headroom
-    engine.member_approves(t, karan.id)                          # he approves the top-up
+    engine.member_chooses(t, karan.id, 1)                        # the 13:00, inside his cap: his ₹19,000 less his share
+    if karan.id in t.top_ups:
+        engine.member_approves(t, karan.id)                      # only if it had not fit: he approves the top-up
     clock.set(clock.now().replace(month=9, day=25, hour=10, minute=0)); engine.tick(t)   # a week before: the countdown
     show(t, n)
     print(f"\nFINAL STATE: {t.state.value}   captured=₹{sum(a.captured_amount for a in t.authorisations.values()) + sum(a.captured_amount for a in t.top_ups.values()):,}")

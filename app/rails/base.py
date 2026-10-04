@@ -29,7 +29,7 @@ class VoiceRail(ABC):
     @abstractmethod
     def call_supplier(self, stay: Stay, party_size: int, check_in: date, nights: int, language: str) -> CallRecord:
         """Ask a phone-only stay: rooms for the party on these dates, rate per twin room per night, twin sharing,
-        refund terms, and a 48-hour hold. Disposition CONFIRMED / UNAVAILABLE / NO_ANSWER."""
+        refund terms, and a hold of at least 96 hours. Disposition CONFIRMED / UNAVAILABLE / NO_ANSWER."""
 
     @abstractmethod
     def notify_late_arrival(self, stay: Stay, member: Member, eta: datetime) -> CallRecord:

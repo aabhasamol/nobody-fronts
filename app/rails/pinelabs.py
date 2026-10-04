@@ -4,7 +4,7 @@ Read from pinelabs.com/docs (Sept 2026). The docs host is blocked from the sandb
 payment-link request below is copied from the reference page and everything else is marked [verify].
 
 The block is a PAYMENT LINK
-    One `POST /api/pay/v1/paymentlink` per member, for share × (1 + overshoot) in paisa, `pre_auth: "true"`,
+    One `POST /api/pay/v1/paymentlink` per member, for the member's cap (heads × their own ceiling) in paisa, `pre_auth: "true"`,
     `allowed_payment_methods: ["CARD", "UPI"]`, `expire_by` = the authorisation deadline. The member opens the
     link and chooses on Pine Labs' hosted page: a credit card (a pre-authorisation, one capture within 5–7 days,
     EMI tenures offered on the page) or UPI (a one-time mandate: blocked in the account, one capture, partial

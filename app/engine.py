@@ -1,17 +1,18 @@
 """The Quorum loop as a state machine.
 
     INITIATED → GATHERING → PLANNING → VOTING → AUTHORISING → BOOKING → BOOKED
-                               ▲          │ no majority      │ dropout → re-price       │ leg cancelled → re-book
-                               └──────────┘ (≤ 2 revisions,  │ over the cap → back      │ inside the cap, or a
-                               organiser decides after that)  │ to the group             │ top-up from that member
+                               ▲          │ no majority      │ dropout → re-size        │ leg cancelled → re-book
+                               └──────────┘ (≤ 2 revisions,  │ a share over its payer's │ inside the cap, or a
+                               organiser decides after that)  │ cap → back to the group  │ top-up from that member
                                                               ▼                          ▼
                                                     LAPSED (nothing charged) ◄── one debit fails → refund the rest
 
-Organiser gives a rough budget and a maximum overshoot → the agent builds one itinerary inside it → each
-member votes privately, only the tally is posted → the trip's budget is then set by the people who are in
-(their number × the lowest ceiling among them), the plan is re-sized for exactly them and must fit → each
-authorises share × (1 + overshoot) → the agent debits each share into Quorum's account (the pool) and pays
-every supplier from it. Voice is used in two places only: phone-only stays, and a member who has not
+Organiser gives a rough budget B and a maximum overshoot o; each payer gives their own per-head ceiling →
+the agent builds one itinerary where every payer's quote per head is ≤ B × (1 + o) and ≤ their own ceiling (the
+only place the overshoot applies) → each member votes privately, only the tally is posted → the plan is re-sized
+for exactly the yes-voters and each share must fit heads × that payer's own ceiling → each blocks that cap, not
+rounded up (headroom = cap − what has been charged) → the agent debits each share into Quorum's account (the
+pool) and pays every supplier from it. Nobody's excess is ever averaged onto the group. Voice is used in two places only: phone-only stays, and a member who has not
 answered a time-critical text.
 
 Every user-visible utterance goes through `_say`, so the events list is a complete transcript of what the
@@ -31,6 +32,7 @@ from .rails.base import VoiceRail, PaymentsRail, LogisticsRail, CaptureFailed
 GATHER_WINDOW_H = 24         # how long members get to answer the private DM
 VOTE_WINDOW_H = 24           # how long members get to vote; one reminder text at the halfway mark
 AUTH_WINDOW_H = 48           # how long yes-voters get to approve the UPI block
+HOLD_H = 96                  # a phone-only hold must outlast vote 24 h + flip-in 12 h + block 48 h = 84 h, with 12 h slack
 MAX_REVISIONS = 2            # failed votes lead to at most two revised plans; then the organiser decides
 ESCALATE_AFTER_MIN = 20      # a disruption text unanswered for this long becomes a call
 FUNCTION_HOUR = 18           # wedding / offsite: arrive before the first function
@@ -116,7 +118,7 @@ class Engine:
         return_city = return_city or start_city
         trip.constraints[member_id] = Constraint(member_id=member_id, available=available, start_city=start_city,
                                                  return_city=return_city, must_haves=must_haves or [],
-                                                 earliest=earliest, latest=latest, budget=budget or trip.budget,
+                                                 earliest=earliest, latest=latest, budget=budget,
                                                  party=party, party_names=party_names or [], interests=interests or [],
                                                  replied_at=clock.now())
         self._say(trip, f"dm:{m.id}", M.dm_gather_ack(trip, m, trip.constraints[member_id]), priority="P2")
@@ -138,8 +140,9 @@ class Engine:
         for m in trip.members:
             if m.id not in trip.constraints:
                 trip.constraints[m.id] = Constraint(member_id=m.id, start_city=m.home_city, return_city=m.home_city,
-                                                    budget=trip.budget, defaulted=True)
-                self._sys(trip, f"{m.first} did not reply; default applied ({m.home_city} both ways, ₹{inr(trip.budget)} ceiling).")
+                                                    defaulted=True)
+                self._sys(trip, f"{m.first} did not reply; default applied ({m.home_city} both ways, "
+                                f"₹{inr(trip.ceiling(m.id))} ceiling, the organiser's limit).")
         self.plan(trip)
 
     # ------------------------------------------------------------------ 2. plan: trip side + travel side
@@ -147,7 +150,7 @@ class Engine:
         """First plan, for everyone available. If nothing fits, the organiser hears why and the trip waits."""
         trip.state = TripState.PLANNING
         travellers = trip.travellers()
-        trip.budget_floor = trip.total_budget = None          # a proposal: nobody is in yet
+        trip.scoped = False                                   # a proposal: nobody is in yet
         p, over = self._plan(trip, travellers, trip.start, trip.end)
         if not self._acceptable(trip, p, over):
             trip.awaiting_organiser = "no_fit"
@@ -205,19 +208,21 @@ class Engine:
         return best if best else (None, [])
 
     def _fit(self, trip: Trip, p: Plan) -> tuple[bool, list[Member]]:
-        """Before the vote the proposal is held to the organiser's rough budget plus overshoot, per head. After it,
-        the plan must fit the budget the yes-voters set: their number × the lowest ceiling among them."""
+        """Before the vote each payer's quote per head must fit the organiser's budget × (1 + overshoot) and their own
+        ceiling. After it, each yes-voter's share must fit heads × their own ceiling. Checked payer by payer: one
+        payer's excess is never averaged onto the others."""
         travellers = [trip.member(t) for t in p.travellers]
-        if trip.total_budget is not None:
-            return p.total() <= trip.total_budget, [m for m in travellers if p.per_head(m.id) > trip.budget_floor]
-        over = [m for m in travellers if p.per_head(m.id) > trip.limit()]
+        if trip.scoped:
+            over = [m for m in travellers if p.share(m.id) > trip.cap(m.id)]
+        else:
+            over = [m for m in travellers if p.per_head(m.id) > trip.quote_limit(m.id)]
         return not over, over
 
     def _acceptable(self, trip: Trip, p: Optional[Plan], over: list[Member]) -> bool:
         if p is None:
             return False
-        if trip.total_budget is not None:                     # after the vote the total is the rule, full stop
-            return p.total() <= trip.total_budget
+        if trip.scoped:                                       # after the vote every share fits its payer's cap, full stop
+            return not over
         return len(over) <= len(p.travellers) // 2            # a proposal may carry a minority over the line, flagged
 
     def _activities_for(self, trip: Trip, travellers: list[Member]) -> list:
@@ -238,8 +243,8 @@ class Engine:
 
     def _accept(self, trip: Trip, p: Plan, over: list[Member]) -> None:
         trip.plans.append(p)
-        if trip.total_budget is None:
-            for m in over:                                    # one member's travel alone breaks the limit
+        if not trip.scoped:
+            for m in over:                                    # one payer's quote breaks their limit: told privately
                 self._say(trip, f"dm:{m.id}", M.dm_leg_over_limit(trip, m, p))
         self.open_vote(trip)
 
@@ -293,7 +298,7 @@ class Engine:
             self._sys(trip, f"{stay.name} quoted ₹{inr(rec.rate_per_room_night)}/room/night on the call, not the "
                             f"₹{inr(stay.rate_per_room_night)} we had. Using the call's price.")
             stay.rate_per_room_night = rec.rate_per_room_night
-        stay.hold_until = rec.hold_until or (clock.now() + timedelta(hours=48))
+        stay.hold_until = rec.hold_until or (clock.now() + timedelta(hours=HOLD_H))
         return True
 
     # ------------------------------------------------------------------ 3. vote (private; tally only)
@@ -393,19 +398,20 @@ class Engine:
         p = trip.plan()
         old = {t: p.share(t) for t in p.travellers}
         ins = trip.in_members()
-        trip.set_budget([x.id for x in ins])
+        trip.scoped = True
         changes = self._retarget(trip, p, [x.id for x in ins])
-        self._rail(trip, "logistics", f"{m.first} joined after the tally: {p.heads()} heads, ₹{inr(p.total())} against "
-                                      f"₹{inr(trip.total_budget)}" + (f" ({'; '.join(changes)})" if changes else ""))
-        if p.total() > trip.total_budget or any(p.share(t) > trip.authorisations[t].amount for t in old if t in trip.authorisations):
-            return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
+        self._rail(trip, "logistics", f"{m.first} joined after the tally: {p.heads()} heads, ₹{inr(p.total())}; each share "
+                                      f"checked against its payer's own cap" + (f" ({'; '.join(changes)})" if changes else ""))
+        over = [x for x in ins if p.share(x.id) > trip.cap(x.id)]
+        if over:
+            return self._back_to_group(trip, ins, M.why_over_ceiling(trip, p, over))
         share = p.share(member_id)
-        cap = ceil100(share * (1 + trip.overshoot))
+        cap = trip.cap(member_id)
         validity_days = max(1, (trip.auth_deadline - clock.now()).days + 2)
         auth = self.payments.create_block(m, cap, validity_days, reference=p.id)
         trip.authorisations[member_id] = auth
-        self._rail(trip, "payments", f"Block {auth.rail_ref} created for {m.first}: ₹{inr(cap)} (share ₹{inr(share)} × "
-                                     f"{1 + trip.overshoot:.2f}) — PENDING")
+        self._rail(trip, "payments", f"Block {auth.rail_ref} created for {m.first}: ₹{inr(cap)} ({self._cap_line(trip, m, share)}) "
+                                     f"— PENDING")
         self._say(trip, f"dm:{m.id}", M.dm_authorise(trip, m, p, share, cap, share, self.payments.emi_offers(cap)))
         for t in old:
             if t in trip.authorisations and p.share(t) != old[t]:
@@ -449,18 +455,19 @@ class Engine:
 
     # ------------------------------------------------------------------ 4. authorise (yes-voters only)
     def open_authorising(self, trip: Trip, intro: str) -> None:
-        """The people who are in set the budget; the plan is re-sized for exactly them and must fit it."""
+        """The plan is re-sized for exactly the people who are in; each share must fit heads × that payer's own ceiling."""
         p = trip.plan()
         ins = trip.in_members()
         old = {t: p.share(t) for t in p.travellers}
-        trip.set_budget([m.id for m in ins])
+        trip.scoped = True
         changes = self._retarget(trip, p, [m.id for m in ins])   # the stay now splits among those who are in
-        self._rail(trip, "logistics", f"Budget set by the {len(ins)} payers who are in, {p.heads()} heads: {p.heads()} × "
-                                      f"₹{inr(trip.budget_floor)} (lowest ceiling) = ₹{inr(trip.total_budget)}; plan re-sized for "
-                                      f"{p.heads()} comes to ₹{inr(p.total())}" + (f" ({'; '.join(changes)})" if changes else ""))
-        if p.total() > trip.total_budget:
+        over = [m for m in ins if p.share(m.id) > trip.cap(m.id)]
+        self._rail(trip, "logistics", f"Re-sized for the {len(ins)} payers who are in, {p.heads()} heads: ₹{inr(p.total())}; "
+                                      + ("; ".join(f"{m.first} ₹{inr(p.share(m.id))} vs cap ₹{inr(trip.cap(m.id))}" for m in ins))
+                                      + (f" ({'; '.join(changes)})" if changes else ""))
+        if over:
             self._say(trip, "group", intro)
-            return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
+            return self._back_to_group(trip, ins, M.why_over_ceiling(trip, p, over))
         self._say(trip, "group", M.group_go(trip, intro, changes))
         trip.state = TripState.AUTHORISING
         trip.authorisations.clear()
@@ -468,14 +475,20 @@ class Engine:
         validity_days = max(1, (trip.auth_deadline - clock.now()).days + 2)
         for m in ins:
             share = p.share(m.id)
-            cap = ceil100(share * (1 + trip.overshoot))
+            cap = trip.cap(m.id)
             auth = self.payments.create_block(m, cap, validity_days, reference=p.id)
             trip.authorisations[m.id] = auth
             self._rail(trip, "payments", f"Block {auth.rail_ref} created for {m.first}: ₹{inr(cap)} "
-                                         f"(share ₹{inr(share)} × {1 + trip.overshoot:.2f}), {validity_days}d validity, "
+                                         f"({self._cap_line(trip, m, share)}), {validity_days}d validity, "
                                          f"UPI Reserve Pay or card pre-auth at the member's choice — PENDING")
             self._say(trip, f"dm:{m.id}", M.dm_authorise(trip, m, p, share, cap, old.get(m.id, share),
                                                          self.payments.emi_offers(cap)))
+
+    @staticmethod
+    def _cap_line(trip: Trip, m: Member, share: int) -> str:
+        k, ceiling = trip.party(m.id), trip.ceiling(m.id)
+        heads = f"{k} × " if k > 1 else ""
+        return f"{heads}own ceiling ₹{inr(ceiling)}; share ₹{inr(share)}, headroom ₹{inr(trip.cap(m.id) - share)}"
 
     def _approve(self, auth: Authorisation, via: str, emi_months: Optional[int]) -> Authorisation:
         assert via in INSTRUMENTS, f"unknown instrument {via}"
@@ -544,15 +557,13 @@ class Engine:
         ins = trip.in_members()
         if not ins:
             return self.lapse(trip, M.why_nobody_left(trip))
-        trip.set_budget([m.id for m in ins])
+        trip.scoped = True
         changes = self._retarget(trip, p, [m.id for m in ins])
-        self._rail(trip, "logistics", f"Re-priced for {p.heads()} heads: ₹{inr(p.total())} against a budget of {p.heads()} × "
-                                      f"₹{inr(trip.budget_floor)} = ₹{inr(trip.total_budget)}" + (f" ({'; '.join(changes)})" if changes else ""))
+        self._rail(trip, "logistics", f"Re-priced for {p.heads()} heads: ₹{inr(p.total())}; each share checked against "
+                                      f"what its payer authorised" + (f" ({'; '.join(changes)})" if changes else ""))
         over = [m for m in ins if p.share(m.id) > trip.authorisations[m.id].amount]
         if over:
             return self._back_to_group(trip, ins, M.why_reprice_over(trip, who, over))
-        if p.total() > trip.total_budget:
-            return self._back_to_group(trip, ins, M.why_over_budget(trip, p))
         for m in ins:
             if p.share(m.id) != old[m.id]:
                 self._say(trip, f"dm:{m.id}", M.dm_repriced(trip, m, old[m.id], p.share(m.id), who))

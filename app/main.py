@@ -330,6 +330,7 @@ def _view(trip_id: str) -> dict:
     d["totals"] = {p.id: p.total() for p in t.plans}
     d["pool"] = payments.pool()
     d["ceilings"] = {m.id: t.ceiling(m.id) for m in t.members}
+    d["caps"] = {m.id: t.cap(m.id) for m in t.members}
     d["emi_offers"] = {mid: payments.emi_offers(a.amount) for mid, a in list(t.authorisations.items()) + list(t.top_ups.items())
                        if a.status.value == "PENDING"}
     d["knobs"] = {"drift": getattr(logistics, "drift", {}), "fail_capture_for": sorted(getattr(payments, "fail_capture_for", []))}

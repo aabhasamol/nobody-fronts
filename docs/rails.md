@@ -9,7 +9,7 @@ running on them. This is that picture, with the seams marked.
 
 | Product | What it does | Where Quorum uses it |
 |---|---|---|
-| **Payment links** (`POST /api/pay/v1/paymentlink`) | A hosted page per payer: `amount`, `expire_by`, `allowed_payment_methods` (CARD, UPI, EMI, BNPL…), `pre_auth`, `customer`, `callback_url`, optional `split_info` | **The block.** One link per member for share × (1 + overshoot), `pre_auth: "true"`, CARD + UPI, expiring at the authorisation deadline. The member picks card or UPI on the page. Nothing is charged until Quorum captures |
+| **Payment links** (`POST /api/pay/v1/paymentlink`) | A hosted page per payer: `amount`, `expire_by`, `allowed_payment_methods` (CARD, UPI, EMI, BNPL…), `pre_auth`, `customer`, `callback_url`, optional `split_info` | **The block.** One link per member for the payer's cap (heads × their own ceiling), `pre_auth: "true"`, CARD + UPI, expiring at the authorisation deadline. The member picks card or UPI on the page. Nothing is charged until Quorum captures |
 | **Card pre-authorisation** | `pre_auth` on an order or link; Capture Order; Cancel Order; the hold lives 5–7 days; cards and PayByPoints only | Credit-card members. One capture at booking; the rest of the hold is released |
 | **UPI One-Time Mandate** | Block up to ₹1 lakh for up to 60 days with one UPI PIN; one capture, partial allowed; merchant releases the rest; the customer cannot revoke it from their app | UPI members who want one debit |
 | **UPI Reserve Pay** | Block once, debit many times against the reserved amount | UPI members by default: the share at booking, then a re-booking difference inside the headroom, no new tap |
@@ -35,10 +35,10 @@ running on them. This is that picture, with the seams marked.
 | `emi_offers(amount)` | Offer Discovery | The tenures quoted in the authorisation DM |
 | `pay_supplier(...)` | Payouts API | Pool → homestay / vendor. Recorded as an instruction until beneficiaries are registered |
 
-The overshoot the organiser sets is the block's headroom: one number governs both the proposal ("nothing
-above the rough budget × (1 + overshoot) a head") and the money ("block share × (1 + overshoot), debit the
-share"). After the vote the binding number is the yes-voters' own: their count × the lowest ceiling among
-them is the trip's budget, and the plan re-sized for exactly them must fit it. A fare that moved since the
+The overshoot the organiser sets applies to the proposal only: before the vote each payer's quote per head
+must fit the rough budget × (1 + overshoot) and their own ceiling. After the vote every payer has their own
+limit: the plan is re-sized for exactly the yes-voters, each share must fit heads × that payer's own ceiling,
+and that cap is what they block, not rounded up. Headroom is the cap minus what has been charged. A fare that moved since the
 vote, or a cancelled flight, is absorbed inside the headroom **on UPI Reserve Pay without a new tap**; on a
 card hold or a one-time mandate the headroom is released at capture, so anything beyond the carrier's refund
 is a fresh authorisation asked of that member alone (`Engine._ask_top_up`), one tap on the saved token.
@@ -100,7 +100,7 @@ reminders before a deadline, facts about a listed hotel, flight status: all fail
 already does it, and calling friends to chase them is the chasing the product removes). Two things pass:
 
 1. **Supplier calls.** A homestay, a small guesthouse, a wedding's room block: no online inventory, phone
-   only. Before the vote: rooms for the party, the group rate, refund terms, and a 48-hour hold. On the
+   only. Before the vote: rooms for the party, the group rate, refund terms, and a hold of at least 96 hours (vote 24 h + flip-in 12 h + block 48 h = 84 h, with slack). On the
    travel day: a late-arrival notice so the room does not go to a walk-in at 2 am.
 2. **Escalation.** A member's flight is cancelled and every alternative costs more than they authorised.
    Text first, with the options. If there is no reply in 20 minutes, call, read the options, take the choice.
@@ -130,7 +130,7 @@ A P0 call is assembled in `app/rails/gnani.py`:
   one-minute answer ≈ ₹0.45.
 * **Read.** Rules in `gnani.py` turn words into the fields the engine acts on: yes/no with the last verdict
   winning ("haan… matlab nahi" is a no, "koi dikkat nahi" is a yes), rupee amounts from digits and
-  hazaar/sau, refund terms as the sentence that mentions a refund, a 48-hour hold unless refused, and
+  hazaar/sau, refund terms as the sentence that mentions a refund, a 96-hour hold unless refused, and
   option one/two/ek/do/pehla/doosra for an escalation. Number-words ("teen hazaar") defeat them today.
 * **The phone line** is a separate seam, `Telephony` (dial → play → listen → hang up), because it is a
   different vendor: Exotel or Twilio, a day of work. The default `FileTelephony` writes the agent's audio to

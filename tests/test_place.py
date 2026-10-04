@@ -54,7 +54,7 @@ def test_outs_get_one_nudge_with_their_own_number_and_can_flip_in():
     engine.member_flips(trip, karan.id)
     p = trip.plan()
     assert karan.id in [m.id for m in trip.in_members()] and p.heads() == 6 and karan.id in trip.authorisations
-    assert trip.total_budget == 6 * 20_000 and p.total() == 99_200 <= trip.total_budget   # Karan was silent: the default ceiling
+    assert trip.authorisations[karan.id].amount == 22_000 and p.total() == 99_200   # Karan was silent: the organiser's limit
     assert all(p.share(t) < before[t] for t in before)                              # everyone's share dropped
     assert any("Karan joined" in t and "down from" in t for t in dms(trip, members[0]))
     for m in members:
@@ -133,10 +133,9 @@ def test_missed_flight_offers_flights_a_train_and_a_cab_on_the_members_own_money
     dm = dms(trip, karan)[-1]
     assert "No refund on that one" in dm and "Uber Outstation cab" in dm and "Everyone else's plan stands" in dm
     assert "missed the Akasa 08:00" in group_posts(trip)[-1]
+    assert "(inside your headroom)" in dm and "(needs ₹3,800 more than your headroom)" in dm   # cap 19,000 − share 13,400
     engine.member_chooses(trip, karan.id, 1)                                        # the 13:00 IndiGo at ₹3,200
-    top = trip.top_ups[karan.id]
-    assert top.amount == 1_800                                                      # his ₹1,400 headroom covers the rest
-    engine.member_approves(trip, karan.id)
+    assert karan.id not in trip.top_ups and karan.id not in trip.pending            # inside his ₹5,600 headroom: no new tap
     new = next(l for l in p.legs_for(karan.id) if l.destination == "Goa")
     assert new.status == "REBOOKED" and new.depart.hour == 13
     assert "a missed departure carries no refund" in dms(trip, karan)[-1]

@@ -41,7 +41,7 @@ class MockVoice(VoiceRail):
                                           f"[{stay.name}] Sorry, poora booked hai — ek shaadi ka block hai un dates pe."),
                               **base)
         rate = stay.rate_per_room_night + (400 if "Dona Maria" in stay.name else 0)
-        hold_until = clock.now() + timedelta(hours=48)
+        hold_until = clock.now() + timedelta(hours=96)            # at least 96 h: outlasts vote, flip-in and block
         return CallRecord(
             disposition="CONFIRMED", available=True, rate_per_room_night=rate, rooms=rooms, twin_sharing=True,
             refund_terms="Full refund up to 72 hours before check-in",
@@ -51,7 +51,7 @@ class MockVoice(VoiceRail):
                         f"[{stay.name}] Haan, {rooms} rooms hain. ₹{inr(rate)} per room per night, breakfast included.\n"
                         f"[agent] Twin sharing theek hai? Cancel karein toh refund?\n"
                         f"[{stay.name}] Twin theek hai. 72 ghante pehle tak full refund.\n"
-                        f"[agent] 48 ghante hold kar sakte hain? Group vote ke baad confirm karenge.\n"
+                        f"[agent] 96 ghante hold kar sakte hain? Group vote ke baad confirm karenge.\n"
                         f"[{stay.name}] Theek hai, {hold_until:%A} tak hold.\n[agent] Dhanyavaad."),
             **base)
 

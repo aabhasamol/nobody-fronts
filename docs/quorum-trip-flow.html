@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Quorum — the trip, from yes to receipts</title>
+  <style>
+    :root {
+      --ink: #102a42;
+      --ink-soft: #476178;
+      --lagoon: #078d8e;
+      --lagoon-deep: #06696d;
+      --seafoam: #d9f5eb;
+      --sky: #bfe8f5;
+      --sun: #ffd471;
+      --coral: #ee6d56;
+      --coral-deep: #b94b3f;
+      --pink: #ffe4dc;
+      --paper: #fffdf7;
+      --white: #ffffff;
+      --line: #dce9e8;
+      --shadow: 0 20px 55px rgba(18, 63, 74, .10);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(circle at 97% 0%, #fff0cd 0, transparent 24%), radial-gradient(circle at 0% 35%, #dff8f4 0, transparent 27%), #f7fbf9; }
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+    .shell { width: min(1480px, calc(100% - 48px)); margin: 0 auto; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 0 10px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); font-weight: 900; font-size: 1.55rem; letter-spacing: -.05em; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: linear-gradient(135deg, var(--lagoon), #37bea3); color: white; box-shadow: 0 7px 0 rgba(4, 98, 104, .12); font-weight: 900; font-size: 1.4rem; }
+    .top-note { font-size: .75rem; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; color: var(--lagoon-deep); }
+    .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr); gap: clamp(26px, 5vw, 76px); align-items: center; padding: 52px 0 72px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 9px; color: var(--lagoon-deep); font-size: .76rem; letter-spacing: .15em; text-transform: uppercase; font-weight: 900; }
+    .eyebrow::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--coral); box-shadow: 14px 0 var(--sun); margin-right: 14px; }
+    h1 { margin: 20px 0 18px; font-size: clamp(2.5rem, 5.5vw, 5.4rem); line-height: .99; letter-spacing: -.07em; max-width: 870px; }
+    h1 em { font-style: normal; color: var(--lagoon); }
+    .hero-copy { max-width: 690px; color: var(--ink-soft); font-size: clamp(1rem, 1.55vw, 1.25rem); line-height: 1.55; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+    .action { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; border: 0; border-radius: 999px; padding: 12px 20px; text-decoration: none; font-weight: 800; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+    .action:hover { transform: translateY(-2px); }
+    .action-primary { color: white; background: var(--ink); box-shadow: 0 7px 0 rgba(16, 42, 66, .13); }
+    .action-primary:hover { background: #1b405c; }
+    .action-secondary { color: var(--lagoon-deep); background: white; border: 1px solid #b6ddda; }
+    .ticket-wrap { position: relative; padding: 16px; transform: rotate(2deg); }
+    .ticket-wrap::before { content: ""; position: absolute; width: 95px; height: 95px; border: 8px solid var(--sun); border-radius: 50%; right: -25px; top: -27px; opacity: .8; }
+    .ticket { position: relative; overflow: hidden; border-radius: 28px; background: var(--ink); color: white; box-shadow: 18px 22px 0 #c7efe8, var(--shadow); padding: 28px; min-height: 320px; }
+    .ticket::after { content: ""; position: absolute; width: 150px; height: 150px; border: 2px dashed rgba(255,255,255,.2); border-radius: 50%; right: -48px; bottom: -55px; }
+    .ticket-top { display: flex; justify-content: space-between; align-items: center; color: #a6e4d7; font-size: .72rem; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+    .ticket-arc { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 38px 0 10px; }
+    .ticket-code { font-size: clamp(2.9rem, 5vw, 4.5rem); line-height: 1; letter-spacing: -.08em; font-weight: 900; }
+    .ticket-path { position: relative; height: 3px; flex: 1; min-width: 55px; margin: 0 10px; background: repeating-linear-gradient(90deg, #79d4c3 0 9px, transparent 9px 17px); }
+    .ticket-path::after { content: "✈"; position: absolute; top: -23px; left: 47%; color: var(--sun); font-size: 26px; transform: rotate(15deg); }
+    .ticket-caption { display: flex; justify-content: space-between; color: #9fcacb; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+    .ticket-divider { border-top: 2px dashed rgba(255,255,255,.26); margin: 30px -28px 23px; position: relative; }
+    .ticket-divider::before, .ticket-divider::after { content: ""; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%; background: #f7fbf9; }
+    .ticket-divider::before { left: -11px; } .ticket-divider::after { right: -11px; }
+    .ticket-bottom { display: flex; justify-content: space-between; gap: 15px; align-items: end; }
+    .ticket-bottom small { display: block; color: #a6e4d7; letter-spacing: .1em; font-weight: 800; font-size: .65rem; text-transform: uppercase; margin-bottom: 6px; }
+    .ticket-bottom strong { font-size: .95rem; }
+    .ticket-stamp { padding: 8px 11px; border: 1.5px solid var(--sun); border-radius: 7px; color: var(--sun); font-size: .7rem; font-weight: 900; text-transform: uppercase; letter-spacing: .06em; transform: rotate(-7deg); text-align: center; max-width: 122px; }
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin: 0 0 22px; }
+    .section-head h2 { margin: 8px 0 0; font-size: clamp(1.75rem, 3vw, 2.8rem); line-height: 1.08; letter-spacing: -.045em; }
+    .section-head p { color: var(--ink-soft); max-width: 460px; line-height: 1.5; margin: 0; }
+    .section-number { font-size: .75rem; font-weight: 900; color: var(--lagoon); letter-spacing: .16em; text-transform: uppercase; }
+    .experience { background: white; border: 1px solid var(--line); border-radius: 30px; box-shadow: var(--shadow); overflow: hidden; }
+    .experience-top { padding: 26px 30px 0; }
+    .experience-title { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .experience-title strong { font-size: 1.06rem; }
+    .progress-label { color: var(--ink-soft); font-size: .84rem; font-weight: 750; }
+    .progress-track { height: 7px; border-radius: 20px; overflow: hidden; background: #e9f4f1; margin: 20px 0 28px; }
+    .progress-fill { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--lagoon), #53cc9e); transition: width .35s ease; }
+    .steps { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; padding-bottom: 18px; }
+    .step { min-height: 100px; border: 1px solid #dae9e7; border-radius: 16px; padding: 13px 9px 11px; background: #f7fbf9; color: var(--ink); text-align: left; transition: .2s ease; position: relative; }
+    .step:hover { transform: translateY(-3px); background: #eaf8f3; }
+    .step.is-current { background: var(--seafoam); border-color: #76cbbb; box-shadow: inset 0 0 0 1px #76cbbb; }
+    .step.is-affected::after { content: "!"; position: absolute; top: 8px; right: 10px; display: grid; place-items: center; width: 21px; height: 21px; border-radius: 50%; background: var(--coral); color: white; font-size: .8rem; font-weight: 900; }
+    .step-number { display: block; color: var(--lagoon); font-size: .76rem; font-weight: 900; margin-bottom: 12px; }
+    .step-name { display: block; font-size: clamp(.68rem, 1vw, .84rem); font-weight: 900; letter-spacing: -.02em; line-height: 1.2; overflow-wrap: anywhere; }
+    .story { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .82fr); background: linear-gradient(145deg, #f8fdfb, #fffefb); border-top: 1px solid var(--line); }
+    .state-detail { padding: clamp(24px, 3vw, 48px); }
+    .state-kicker { color: var(--lagoon); font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .14em; }
+    .state-detail h3 { font-size: clamp(2rem, 3.5vw, 3.4rem); letter-spacing: -.055em; line-height: 1.05; margin: 14px 0 17px; }
+    .state-description { font-size: 1.07rem; line-height: 1.55; color: var(--ink-soft); max-width: 630px; min-height: 84px; }
+    .state-facts { padding: 0; margin: 24px 0 26px; list-style: none; display: grid; gap: 12px; }
+    .state-facts li { display: flex; gap: 11px; line-height: 1.4; font-size: .96rem; }
+    .state-facts li::before { content: "✓"; flex: none; color: var(--lagoon); font-weight: 900; }
+    .gate { display: inline-flex; align-items: baseline; gap: 10px; flex-wrap: nowrap; border-radius: 13px; padding: 11px 14px; background: #e4f5ee; color: var(--lagoon-deep); line-height: 1.35; font-size: .91rem; font-weight: 750; }
+    .state-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .state-buttons button { cursor: pointer; }
+    .state-buttons button[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
+    .phone-area { display: grid; place-items: center; min-height: 510px; padding: 32px; background: radial-gradient(circle at 20% 10%, #fff2c9 0, transparent 30%), linear-gradient(150deg, #d8f2e8, #c8e9f0); overflow: hidden; }
+    .phone { width: min(100%, 350px); border: 7px solid var(--ink); border-radius: 32px; background: #e9f5f0; box-shadow: 15px 18px 0 rgba(5,78,82,.14), 0 25px 50px rgba(5,50,60,.17); overflow: hidden; transform: rotate(1deg); }
+    .phone-head { color: white; background: #0d7c75; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 15px 16px; font-size: .84rem; font-weight: 850; }
+    .phone-dot { width: 9px; height: 9px; border-radius: 50%; background: #99e8a8; box-shadow: 0 0 0 4px rgba(153,232,168,.13); flex: none; }
+    .phone-label { flex: 1; }
+    .phone-body { min-height: 300px; padding: 18px 12px; display: flex; flex-direction: column; gap: 12px; background-color: #e7f2ed; background-image: radial-gradient(rgba(3,111,102,.06) 1px, transparent 1px); background-size: 18px 18px; }
+    .bubble { max-width: 90%; padding: 10px 12px; border-radius: 15px; font-size: .83rem; line-height: 1.4; background: white; box-shadow: 0 2px 5px rgba(3,60,60,.06); }
+    .bubble.me { align-self: flex-end; background: #cef4d9; border-bottom-right-radius: 3px; }
+    .bubble.agent { align-self: flex-start; border-bottom-left-radius: 3px; }
+    .bubble small { display: block; font-size: .65rem; color: var(--lagoon-deep); font-weight: 850; margin-bottom: 4px; }
+    .phone-foot { padding: 12px 15px; color: #557b78; font-size: .7rem; font-weight: 750; background: #f7fbf9; }
+    .rails { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; border-top: 1px solid var(--line); padding: 16px 30px; background: white; }
+    .rails strong { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin-right: 3px; }
+    #active-rails { display: flex; flex-wrap: wrap; gap: 8px; }
+    .rail { border-radius: 999px; padding: 7px 11px; background: #edf6f3; color: var(--lagoon-deep); font-size: .76rem; font-weight: 850; }
+    .detours { padding: 88px 0 42px; scroll-margin-top: 25px; }
+    .detours .section-number { color: var(--coral-deep); }
+    .detour-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin: 26px 0 18px; }
+    .detour { cursor: pointer; min-height: 112px; text-align: left; border: 1px solid #f1cbbf; border-radius: 18px; background: #fffaf7; padding: 18px; transition: transform .2s ease, background .2s ease, box-shadow .2s ease; }
+    .detour:hover { transform: translateY(-3px); background: #fff1eb; }
+    .detour[aria-pressed="true"] { background: var(--pink); border-color: var(--coral); box-shadow: inset 0 0 0 1px var(--coral), 0 9px 20px rgba(180,80,58,.1); }
+    .detour .icon { display: block; font-size: 1.3rem; margin-bottom: 8px; }
+    .detour strong { display: block; font-size: .96rem; line-height: 1.2; }
+    .detour small { color: var(--coral-deep); font-size: .7rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; display: block; margin-top: 7px; }
+    .recovery { border-radius: 28px; background: var(--ink); color: white; overflow: hidden; box-shadow: var(--shadow); }
+    .recovery-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 23px 29px; background: rgba(255,255,255,.07); }
+    .recovery-head h3 { margin: 0; font-size: clamp(1.35rem, 2vw, 1.9rem); letter-spacing: -.035em; }
+    .recovery-head span { color: #9fe5d8; font-size: .73rem; font-weight: 850; letter-spacing: .11em; text-transform: uppercase; }
+    .recovery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .recovery-step { min-height: 206px; padding: 29px; border-right: 1px solid rgba(255,255,255,.16); }
+    .recovery-step:last-child { border-right: 0; }
+    .recovery-step small { display: block; font-size: .7rem; color: #8ddccb; letter-spacing: .15em; text-transform: uppercase; font-weight: 850; margin-bottom: 20px; }
+    .recovery-step p { margin: 0; line-height: 1.45; font-size: 1rem; }
+    .recovery-bottom { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: var(--coral); padding: 16px 29px; font-weight: 800; }
+    .recovery-bottom strong { background: rgba(255,255,255,.18); border-radius: 999px; padding: 5px 10px; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+    .numbers { padding: 64px 0 78px; }
+    .numbers-grid { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,.9fr); gap: 18px; }
+    .rule-panel { border-radius: 24px; padding: clamp(22px,3vw,34px); background: #fff; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(18,63,74,.05); }
+    .rule-panel.sun { background: #fff5d9; border-color: #f6dfaa; }
+    .rule-panel h3 { margin: 0 0 16px; font-size: 1.18rem; }
+    .formula { display: grid; grid-template-columns: 120px 1fr; gap: 13px; align-items: center; padding: 13px 0; border-top: 1px solid rgba(13,75,77,.13); }
+    .formula strong { color: var(--lagoon-deep); font-size: .84rem; }
+    .formula span { line-height: 1.45; font-size: .9rem; }
+    .rule-panel p { line-height: 1.55; color: var(--ink-soft); margin: 0 0 15px; }
+    .rail-notes { display: flex; flex-wrap: wrap; gap: 7px; }
+    .rail-notes span { border-radius: 999px; padding: 7px 10px; background: rgba(255,255,255,.75); color: var(--ink); font-weight: 800; font-size: .73rem; }
+    footer { border-top: 1px solid #d7e5e3; padding: 24px 0 36px; display: flex; align-items: center; justify-content: space-between; gap: 20px; color: var(--ink-soft); font-size: .82rem; }
+    footer strong { color: var(--lagoon-deep); }
+    @media (max-width: 1050px) {
+      .hero { grid-template-columns: 1fr .75fr; gap: 20px; }
+      .detour-list { grid-template-columns: repeat(2, 1fr); }
+      .steps { overflow-x: auto; grid-template-columns: repeat(8, minmax(136px, 1fr)); padding-bottom: 17px; }
+    }
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 28px, 540px); }
+      .topbar { padding-top: 18px; } .top-note { display: none; }
+      .hero { grid-template-columns: 1fr; padding: 34px 0 62px; }
+      .ticket-wrap { width: min(100%, 440px); margin: 8px auto 0; }
+      .ticket { min-height: 280px; }
+      .section-head { display: block; } .section-head p { margin-top: 10px; }
+      .experience-top { padding: 20px 18px 0; }
+      .story { grid-template-columns: 1fr; }
+      .state-detail { padding: 25px 20px 30px; }
+      .state-description { min-height: 0; }
+      .phone-area { min-height: 380px; padding: 25px; }
+      .phone { max-width: 300px; }
+      .phone-body { min-height: 230px; }
+      .rails { padding: 16px 20px; }
+      .detours { padding-top: 68px; }
+      .recovery-grid, .numbers-grid { grid-template-columns: 1fr; }
+      .recovery-step { min-height: 0; padding: 20px 23px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.16); }
+      .recovery-step small { margin-bottom: 8px; }
+      .recovery-head { padding: 20px 23px; }
+      .recovery-bottom { padding: 16px 23px; }
+      .numbers { padding: 54px 0; }
+      footer { display: block; line-height: 1.5; }
+    }
+    @media (max-width: 430px) {
+      .detour-list { gap: 9px; } .detour { padding: 13px; min-height: 120px; }
+      .detour strong { font-size: .85rem; }
+      .formula { grid-template-columns: 1fr; gap: 2px; }
+      .ticket-code { font-size: 2.8rem; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar shell">
+    <a class="brand" href="#top" aria-label="Quorum, back to top"><span class="brand-mark">Q</span> quorum.</a>
+    <span class="top-note">The Ken · Great Rewiring · Round 2</span>
+  </header>
+  <main id="top" class="shell">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <span class="eyebrow">Planning the trip · interactive story</span>
+        <h1 id="hero-title">Everyone’s in.<br><em>Bags are packed.</em><br>No one fronts.</h1>
+        <p class="hero-copy">Walk through Quorum’s happy path, then throw a few real-world detours at it. The trip is what the group shares and votes on: dates, the stay and the pool. Travel is each person’s own legs there and back, priced and watched per payer. The group decides; the agent coordinates, authorises and books within each payer’s limit.</p>
+        <div class="hero-actions">
+          <a class="action action-primary" href="#journey">Walk the happy path <span aria-hidden="true">&nbsp;↗</span></a>
+          <a class="action action-secondary" href="#detours">Try a detour <span aria-hidden="true">&nbsp;↘</span></a>
+        </div>
+      </div>
+      <div class="ticket-wrap" aria-label="Illustrative Goa wedding trip: 2 to 6 October 2026, twenty thousand rupees per head, ten percent overshoot">
+        <div class="ticket">
+          <div class="ticket-top"><span>Quorum · trip card</span><span>2–6 Oct ’26</span></div>
+          <div class="ticket-arc"><span class="ticket-code">YOU</span><span class="ticket-path" aria-hidden="true"></span><span class="ticket-code">GOA</span></div>
+          <div class="ticket-caption"><span>Each payer’s own travel</span><span>One shared trip</span></div>
+          <div class="ticket-divider"></div>
+          <div class="ticket-bottom">
+            <div><small>Example · wedding</small><strong>₹20,000 / head · 10% overshoot</strong></div>
+            <span class="ticket-stamp" id="ticket-stamp">Just getting started</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="journey" aria-labelledby="journey-title">
+      <div class="section-head">
+        <div><span class="section-number">01 / The happy path</span><h2 id="journey-title">Eight stops, from a rough idea to a receipt.</h2></div>
+        <p>Pick any stop, or use Next to step through the whole state machine.</p>
+      </div>
+      <div class="experience">
+        <div class="experience-top">
+          <div class="experience-title"><strong>Trip progress</strong><span class="progress-label" id="progress-label">01 of 08 · Initiated</span></div>
+          <div class="progress-track" aria-hidden="true"><span class="progress-fill" id="progress-fill"></span></div>
+          <div class="steps" id="step-buttons" role="group" aria-label="Trip states"></div>
+        </div>
+        <div class="story">
+          <div class="state-detail" aria-live="polite">
+            <div class="state-kicker" id="state-kicker"></div>
+            <h3 id="state-title"></h3>
+            <p class="state-description" id="state-description"></p>
+            <ul class="state-facts" id="state-facts"></ul>
+            <div class="gate"><span aria-hidden="true">✦</span><span id="state-gate"></span></div>
+            <div class="state-buttons">
+              <button class="action action-primary" type="button" id="next-state">Next stop <span aria-hidden="true">&nbsp;→</span></button>
+              <button class="action action-secondary" type="button" id="restart">Start again</button>
+            </div>
+          </div>
+          <div class="phone-area">
+            <div class="phone" aria-label="Illustrative Quorum conversation">
+              <div class="phone-head"><span class="phone-dot" aria-hidden="true"></span><span class="phone-label" id="phone-title"></span><span aria-hidden="true">⋮</span></div>
+              <div class="phone-body" id="phone-messages"></div>
+              <div class="phone-foot">Illustrative messages · one ask, one deadline</div>
+            </div>
+          </div>
+        </div>
+        <div class="rails"><strong>Active rail</strong><div id="active-rails"></div></div>
+      </div>
+    </section>
+
+    <section id="detours" class="detours" aria-labelledby="detours-title">
+      <div class="section-head">
+        <div><span class="section-number">02 / What breaks</span><h2 id="detours-title">Choose a plot twist.</h2></div>
+        <p>Each setback shows the trigger, Quorum’s response and the actual next state. Trip setbacks can send the whole trip back a state; travel setbacks are fixed for one payer while the trip stays BOOKED. Red means a recovery path, not a surprise charge.</p>
+      </div>
+      <div class="detour-list" id="detour-list" role="group" aria-label="Choose a trip or travel disruption"></div>
+      <div class="recovery" aria-live="polite">
+        <div class="recovery-head"><h3 id="recovery-title"></h3><span id="recovery-state"></span></div>
+        <div class="recovery-grid">
+          <div class="recovery-step"><small>01 / What broke</small><p id="recovery-trigger"></p></div>
+          <div class="recovery-step"><small>02 / What Quorum does</small><p id="recovery-action"></p></div>
+          <div class="recovery-step"><small>03 / Where it goes</small><p id="recovery-next"></p></div>
+        </div>
+        <div class="recovery-bottom"><strong id="recovery-tag"></strong><span id="recovery-money"></span></div>
+      </div>
+    </section>
+
+    <section class="numbers" aria-label="Rules behind the trip">
+      <div class="section-head"><div><span class="section-number">03 / The receipts</span><h2>Why nobody has to front the group.</h2></div></div>
+      <div class="numbers-grid">
+        <div class="rule-panel">
+          <h3>Three money checks</h3>
+          <div class="formula"><strong>Before the vote</strong><span>Each payer’s quote per head ≤ organiser’s budget × (1 + overshoot), and ≤ their own ceiling. This is the only place overshoot applies.</span></div>
+          <div class="formula"><strong>After the vote</strong><span>Each yes-voter’s share (their part of the stay plus their own travel) must fit their heads × their own per-head ceiling. Rooms and legs are resized for that group.</span></div>
+          <div class="formula"><strong>Before booking</strong><span>Each payer blocks their cap: heads × their own ceiling, not rounded up. Headroom is cap minus what has been charged. They are charged only when booking begins.</span></div>
+        </div>
+        <div class="rule-panel sun">
+          <h3>The rail reality check</h3>
+          <p><strong>Pine Labs today:</strong> capture payer by payer. If one debit fails, refund earlier debits, release remaining holds and enter <strong>LAPSED</strong> before paying suppliers.</p>
+          <p><strong>The ask:</strong> one atomic, multi-payer group order with escrow. That would remove the refund window entirely.</p>
+          <p><strong>Paying in parts:</strong> nobody pays for the group, and nobody has to find their own share at once. The payment link takes credit cards, card EMI and pay-later plans; any credit is between the payer and their lender, never Quorum.</p>
+          <div class="rail-notes"><span>Gnani: speech, not the phone line</span><span>Delhivery: distance data proposed</span><span>Calls only for phone-only stays, late arrivals and urgent unanswered choices</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="shell"><span><strong>Quorum.</strong> The organiser never fronts money, the pool never goes negative, and private decisions stay private.</span><span>Group chat: kickoff · tally · booked · disruptions</span></footer>
+
+  <script>
+    (() => {
+      const states = [
+        {
+          name: 'INITIATED', label: 'Initiated', channel: 'Group chat', title: 'It starts with a rough idea.',
+          description: 'The organiser adds Quorum to the WhatsApp group with the destination, dates, occasion, rough per-head budget and the maximum permitted overshoot.',
+          facts: ['Sets a reply deadline and a default plan.', 'No one pays or authorises anything at this stage.'],
+          gate: 'The brief includes B = ₹20,000 per head and o = 10% in this example.',
+          rails: ['WhatsApp group'], stamp: 'Trip proposed', phone: 'Goa wedding · group',
+          messages: [{from:'me',who:'Sayan',text:'Goa, 2–6 Oct. Wedding in Assagao. About ₹20k a head, max 10% over.'},{from:'agent',who:'Quorum',text:'Got it. I’ll ask everyone privately about their starting city and constraints, then bring back one plan.'}]
+        },
+        {
+          name: 'GATHERING', label: 'Gathering', channel: 'Private DMs', title: 'Everyone gets their own lane.',
+          description: 'Quorum collects one payer’s party size, start and return cities, date limits, interests and ceiling privately. It does not ask for traveller details until that payer says yes.',
+          facts: ['One payer can cover several travellers; votes are one per payer.', 'After 24 hours of silence, defaults apply. No chase call.'],
+          gate: 'Six quick taps now; names, DOB, food and medical details only after a yes.',
+          rails: ['WhatsApp DMs'], stamp: 'Asking the group', phone: 'Aditi · private DM',
+          messages: [{from:'agent',who:'Quorum',text:'Where will you start and return? I’ll use Bengaluru both ways if you don’t reply by tomorrow.'},{from:'me',who:'Aditi',text:'Bengaluru out, Mumbai back. Water sports if it fits. Ceiling ₹20k/head.'}]
+        },
+        {
+          name: 'PLANNING', label: 'Planning', channel: 'Fares + supplier call', title: 'One trip. Different ways in.',
+          description: 'Quorum builds the trip (the shared stay) and each payer’s own travel (outward and return legs). A phone-only homestay gets a call for availability, group rate, terms and a hold of at least 96 hours, so it outlasts the vote, flip-ins and blocks.',
+          facts: ['The occasion sets priorities: arrival buffer for a wedding, price for leisure.', 'A spoken supplier rate replaces a conflicting listing.', 'Vote 24 h + flip-in 12 h + block 48 h = 84 h; asking for 96 h leaves 12 h of slack. If a revision would outrun the hold, a re-hold call goes first.', 'A payer whose own quote breaks their ceiling hears it privately, with a cheaper leg or other dates.'],
+          gate: 'Each payer’s quote must fit ₹20,000 × 1.10 = ₹22,000 per head and their own ceiling.',
+          rails: ['Fare search', 'Gnani TTS/STT', 'Delhivery distances: proposed'], stamp: 'Finding the route', phone: 'Supplier call · transcript',
+          messages: [{from:'agent',who:'Quorum',text:'Do you have rooms for 2–6 October? What is the group rate and refund rule, and can you hold them for 96 hours?'},{from:'me',who:'Homestay',text:'Three twin rooms at ₹3,200 per room per night. Yes, I can hold them for 96 hours.'}]
+        },
+        {
+          name: 'VOTING', label: 'Voting', channel: 'Private DMs', title: 'A real yes, said privately.',
+          description: 'Each payer sees the itinerary, their own all-in price and a personal place hook. They vote yes or no by DM. Only the tally goes to the group, so nobody has to say no in front of friends.',
+          facts: ['A simple majority passes; only yes-voters are in.', 'Out-voters get one private 12-hour offer with their own price to flip in.'],
+          gate: 'The vote chooses the trip. It is separate from authorising money.',
+          rails: ['WhatsApp DMs'], stamp: 'Private vote', phone: 'Riya · private DM',
+          messages: [{from:'agent',who:'Quorum',text:'Your Delhi–Goa return flights + shared stay: ₹18,200/head. Yes or no by 6 pm? Your sunset-and-reels window still fits.'},{from:'me',who:'Riya',text:'Yes. Keep the arrival before the first function.'}]
+        },
+        {
+          name: 'AUTHORISING', label: 'Authorising', channel: 'Pine Labs', title: 'Only the yes-voters block.',
+          description: 'Quorum resizes rooms, seats and shares for exactly those in. A payer’s share is their part of the shared stay plus their own travel, and it must fit their heads × their own per-head ceiling. Each payer then approves their own capped amount.',
+          facts: ['Example: Aabhas covers 2 heads at a ₹22,000 ceiling, so his cap is 2 × ₹22,000 = ₹44,000. His share of ₹39,960 fits, leaving ₹4,040 of headroom.', 'Two ways to block the cap: a UPI mandate, or a payment link that takes a credit card, card EMI or pay later, so nobody has to find their whole share at once. Nothing is charged yet.'],
+          gate: 'Every payer still in must authorise before Quorum starts booking.',
+          rails: ['Pine Labs mandate', 'Payment link: card · EMI · pay later'], stamp: 'Blocks in place', phone: 'Aabhas · private DM',
+          messages: [{from:'agent',who:'Quorum',text:'You cover two people. Your share is ₹39,960; I’ll block ₹44,000, your ceiling for two. UPI mandate, or a link for card, EMI or pay later? No debit until booking.'},{from:'me',who:'Aabhas',text:'Link, please. I’ll put it on card EMI.'}]
+        },
+        {
+          name: 'BOOKING', label: 'Booking', channel: 'Pine Labs + suppliers', title: 'Now the money moves.',
+          description: 'Quorum checks live fares and any phone-only hold, captures each approved share into its merchant account, and pays the travel and stay suppliers only after all member captures succeed.',
+          facts: ['The organiser is never in the payment path.', 'Sequential capture is the current workaround; a failed debit triggers refunds and LAPSED.'],
+          gate: 'Every capture remains inside that payer’s cap; Quorum’s pool never goes negative.',
+          rails: ['Pine Labs captures', 'Supplier payouts'], stamp: 'Booking in motion', phone: 'Sayan · private DM',
+          messages: [{from:'agent',who:'Quorum',text:'Live prices still fit the approved limits. I’m collecting the shares, then paying the suppliers.'},{from:'agent',who:'Quorum',text:'Captured and paid. Tickets are on their way; your full receipt comes when the trip closes.'}]
+        },
+        {
+          name: 'BOOKED', label: 'Booked', channel: 'Travel monitor', title: 'Tickets out. Eyes on the road.',
+          description: 'The trip is booked: tickets and vouchers go to the group. Quorum now watches each traveller’s travel. If a carrier cancels a leg, it uses the refund and that payer’s headroom to rebook, without reopening the trip.',
+          facts: ['A late arrival at a phone-only stay triggers a supplier call.', 'Anything beyond headroom goes back to the affected payer for a choice or top-up.'],
+          gate: 'The trip stays BOOKED until the last return and every pending refund; then it closes.',
+          rails: ['Carrier / fare status', 'Gnani: late-arrival and urgent calls'], stamp: 'Booked + watched', phone: 'Goa wedding · group',
+          messages: [{from:'agent',who:'Quorum',text:'It’s booked for the four payers and five travellers who opted in. Tickets and vouchers are here.'},{from:'agent',who:'Quorum',text:'I’m watching the legs. If a disruption changes the plan, I’ll update the affected people first.'}]
+        },
+        {
+          name: 'CLOSED', label: 'Closed', channel: 'Private DMs + Pine Labs', title: 'Every rupee accounted for.',
+          description: 'After the last return, and once every pending carrier refund has landed, each payer gets a receipt: blocked, charged, refunded, released. Every rupee that entered the pool matches a supplier payout or a refund.',
+          facts: ['Receipts go by DM, because they show each payer’s own amounts.', 'Unused blocks are released; the pool ends at zero.'],
+          gate: 'Receipts sent; pool at zero.',
+          rails: ['Pine Labs releases', 'WhatsApp DMs'], stamp: 'Closed · pool at ₹0', phone: 'Aabhas · private DM',
+          messages: [{from:'agent',who:'Quorum',text:'Trip closed. Your receipt: blocked ₹44,000 · charged ₹39,960 · refunded ₹0 · released ₹4,040.'},{from:'me',who:'Aabhas',text:'All square. Thanks.'}]
+        }
+      ];
+      const detours = [
+        {id:'stay',icon:'☎',title:'The stay is full',stage:2,trigger:'The phone-only homestay has no rooms, or never answers.',action:'Retry once on no answer. If full, switch to the next suitable stay. Use the price and refund terms spoken on the call.',next:'PLANNING → another stay → VOTING, if the revised plan still fits.',money:'No blocks, captures or supplier payouts yet.',tag:'REPLAN'},
+        {id:'budget',icon:'↗',title:'Nothing fits budget',stage:2,trigger:'Even the cheapest plan exceeds the per-head budget plus the authorised overshoot.',action:'Show the organiser the cheapest plan and the driver: dates, a costly origin city or the stay. Ask them to change a constraint.',next:'PLANNING resumes with the new budget, dates or stay. Quorum never quietly exceeds the limit.',money:'No one is asked to pay for a plan that does not fit.',tag:'ORGANISER DECIDES'},
+        {id:'vote',icon:'✗',title:'The vote fails',stage:3,trigger:'There is no majority. Silence counts as out after one text reminder.',action:'Ask privately what would make it a yes. Make up to two revisions, each shown again to the group. One personal place hook accompanies a required DM.',next:'VOTING → PLANNING → VOTING. After two revisions the organiser decides: proceed to AUTHORISING with the yes-voters, or end it in LAPSED. A no is never overridden.',money:'A vote is not a payment block. No money moved.',tag:'REVISION LOOP'},
+        {id:'block',icon:'◌',title:'A payer never blocks',stage:4,trigger:'A yes-voter does not authorise by the deadline or asks Quorum to release their block.',action:'Drop them, then resize rooms, seats and shares for those still in. Recheck each remaining share against that payer’s own ceiling and cap.',next:'If it fits, AUTHORISING → BOOKING. If limits fail, return to VOTING; if nobody remains, LAPSED.',money:'The remaining payers are never silently charged for the dropout.',tag:'RESIZE + RECHECK'},
+        {id:'fare',icon:'₹',title:'A fare spikes',stage:5,trigger:'The live price moves above one payer’s approved cap before booking.',action:'Ask only that payer for a short-clock top-up, or offer a leg that fits. If the stay hold is about to lapse, call to re-hold first.',next:'BOOKING waits for that payer’s decision. Within cap, Quorum books and shows the difference on the receipt.',money:'Nobody else’s share absorbs the overrun.',tag:'PAYER CHOICE'},
+        {id:'capture',icon:'!',title:'One debit fails',stage:5,trigger:'Three payers were captured; the fourth debit fails. Pine Labs does not supply atomic N-payer capture today.',action:'Refund the three successful debits, release remaining blocks, and stop before paying any supplier.',next:'BOOKING → LAPSED. The organiser may rerun with fresh blocks. A proposed atomic group order would close this gap.',money:'Refunds may take time to post; the pool does not fund a trip with missing shares.',tag:'LAPSED'},
+        {id:'cancel',icon:'✈',title:'A leg is cancelled',stage:6,trigger:'The carrier cancels a booked leg and refunds its fare.',action:'Rebook within that payer’s headroom now; when the carrier’s refund lands, it goes back to them. If arrival is late, call a phone-only stay. If beyond headroom, text two options and request a top-up.',next:'The trip stays BOOKED; only that payer’s travel is rebooked. For an urgent choice left unanswered for 20 minutes, call that member.',money:'Only the affected payer’s existing authority or fresh top-up can cover the difference.',tag:'RECOVERY'},
+        {id:'miss',icon:'⌛',title:'A traveller misses it',stage:6,trigger:'A member misses the departure. There is no carrier refund.',action:'Offer the soonest ways to still arrive: later flight, train or cab where practical. Use headroom first, then ask that member to top up.',next:'The trip stays BOOKED; the choice is that traveller’s. An urgent unanswered choice escalates to a call after 20 minutes.',money:'The missed leg remains that traveller’s cost.',tag:'NO REFUND'}
+      ];
+      const $ = id => document.getElementById(id);
+      const stepWrap = $('step-buttons');
+      const detourWrap = $('detour-list');
+      let current = 0;
+      let selectedDetour = 'capture';
+
+      states.forEach((state,index) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'step';
+        button.setAttribute('aria-label', `${index+1} of ${states.length}: ${state.label}`);
+        button.innerHTML = `<span class="step-number">${String(index+1).padStart(2,'0')}</span><span class="step-name">${state.name}</span>`;
+        button.addEventListener('click', () => chooseState(index));
+        stepWrap.appendChild(button);
+      });
+      detours.forEach(d => {
+        const button = document.createElement('button');
+        button.type='button'; button.className='detour'; button.dataset.id=d.id;
+        button.setAttribute('aria-pressed','false');
+        button.innerHTML=`<span class="icon" aria-hidden="true">${d.icon}</span><strong>${d.title}</strong><small>${states[d.stage].name}</small>`;
+        button.addEventListener('click', () => chooseDetour(d.id));
+        detourWrap.appendChild(button);
+      });
+      function chooseState(index) {
+        current = index;
+        const s = states[index];
+        $('state-kicker').textContent = `${String(index+1).padStart(2,'0')} / ${String(states.length).padStart(2,'0')} · ${s.channel}`;
+        $('state-title').textContent=s.title;
+        $('state-description').textContent=s.description;
+        const facts=$('state-facts'); facts.replaceChildren();
+        s.facts.forEach(t => { const li=document.createElement('li'); li.textContent=t; facts.appendChild(li); });
+        $('state-gate').textContent=s.gate;
+        $('phone-title').textContent=s.phone;
+        const phone=$('phone-messages'); phone.replaceChildren();
+        s.messages.forEach(m => { const b=document.createElement('div'); b.className=`bubble ${m.from}`; const who=document.createElement('small'); who.textContent=m.who; const msg=document.createElement('span'); msg.textContent=m.text; b.append(who,msg); phone.appendChild(b); });
+        const rails=$('active-rails'); rails.replaceChildren();
+        s.rails.forEach(t => {const el=document.createElement('span'); el.className='rail'; el.textContent=t; rails.appendChild(el);});
+        $('ticket-stamp').textContent=s.stamp;
+        $('progress-label').textContent=`${String(index+1).padStart(2,'0')} of ${String(states.length).padStart(2,'0')} · ${s.label}`;
+        $('progress-fill').style.width=`${(index+1)/states.length*100}%`;
+        [...stepWrap.children].forEach((b,i)=> {b.classList.toggle('is-current',i===index); if(i===index) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current');});
+        $('next-state').disabled=index===states.length-1;
+        $('next-state').textContent=index===states.length-1?'Trip closed ✓':'Next stop →';
+      }
+      function chooseDetour(id) {
+        selectedDetour=id;
+        const d=detours.find(x=>x.id===id);
+        [...detourWrap.children].forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===id)));
+        [...stepWrap.children].forEach((b,i)=>b.classList.toggle('is-affected',i===d.stage));
+        $('recovery-title').textContent=d.title;
+        $('recovery-state').textContent=`At ${states[d.stage].name}`;
+        $('recovery-trigger').textContent=d.trigger;
+        $('recovery-action').textContent=d.action;
+        $('recovery-next').textContent=d.next;
+        $('recovery-money').textContent=d.money;
+        $('recovery-tag').textContent=d.tag;
+      }
+      $('next-state').addEventListener('click',()=>chooseState(Math.min(current+1,states.length-1)));
+      $('restart').addEventListener('click',()=>chooseState(0));
+      chooseState(0);
+      chooseDetour(selectedDetour);
+    })();
+  </script>
+</body>
+</html>

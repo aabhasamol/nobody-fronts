@@ -15,7 +15,8 @@ def five_friends() -> list[Member]:
 
 # Two ways to run the same five people. The occasion changes what the agent optimises and which stays it
 # ranks first; the budget and overshoot are the organiser's two numbers for the proposal. Each member then
-# gives their own ceiling, and the yes-voters' lowest ceiling × their number is the trip's real budget.
+# gives their own per-head ceiling (silence = the organiser's limit); after the vote each share must fit heads ×
+# that payer's own ceiling, and that product is what they block.
 WEDDING = dict(name="Priya's wedding, Goa", destination="Goa", venue="Assagao", start=date(2026, 10, 2),
                end=date(2026, 10, 6), occasion="wedding", budget=20000, overshoot=0.10)
 LEISURE = dict(name="Goa, October", destination="Goa", venue="", start=date(2026, 10, 2),
@@ -26,9 +27,9 @@ TRIP = WEDDING
 REPLIES = {
     "Sayan":  dict(start_city="Kolkata", return_city="Kolkata", budget=24000, must_haves=["no hostels"],
                    interests=["trekking", "food"], text="Kolkata both ways. Dates fine. Up to 24k. No hostels please. Trek + food."),
-    "Aabhas": dict(start_city="Kolkata", return_city="Kolkata", budget=25000, party=2, party_names=["Aabhas", "Meera"],
+    "Aabhas": dict(start_city="Kolkata", return_city="Kolkata", budget=22000, party=2, party_names=["Aabhas", "Meera"],
                    interests=["heritage", "food"], must_haves=[],
-                   text="Two of us — Meera's coming. Kolkata and back. All dates work. 25k a head is fine. Old Goa, food."),
+                   text="Two of us — Meera's coming. Kolkata and back. All dates work. 22k a head is fine. Old Goa, food."),
     "Aditi":  dict(start_city="Bengaluru", return_city="Mumbai", budget=20000, must_haves=["no hostels"],
                    interests=["water sports", "trekking"], text="I'm in Bengaluru but flying back to Mumbai after — work. 20k max. Not a hostel. Kayaking, trek."),
     "Riya":   dict(start_city="Delhi", return_city="Delhi", budget=23000, must_haves=[],

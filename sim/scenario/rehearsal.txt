@@ -1,0 +1,23 @@
+# Operator lines for a rehearsal (python -m sim.agent --script sim/scenario/rehearsal.txt).
+# Only chat messages and clock ticks are scripted; the curtain still asks you for every rail response.
+# For the recording, people type on their own phones instead (SIM_CHANNEL=telegram).
+@Sayan group: Hey @Quorum! Priya's wedding in Assagao, Goa, 20 to 24 Nov 2026. Wedding trip. Around ₹20k a head all-in, at most 10% over. Sort it out for whoever's in.
+@Sayan: Just me. Kolkata both ways. Up to 24k. No hostels please. Trek and food.
+@Aabhas: Two of us, Meera's coming. Kolkata and back. All dates work. 22k a head is fine. Old Goa, food.
+@Aditi: I'm in Bengaluru but flying back to Mumbai after, work. 20k max. Not a hostel. Kayaking, trek.
+@Riya: Delhi both ways. 23k. Nothing fancy. Nightlife and the reel spots.
+/advance 24h
+# The agent now searches fares and stays, geocodes the venue, and calls the phone-only homestay.
+# Then it sends each payer their own price to vote on.
+@Sayan: Yes
+@Aabhas: Yes. Keep the arrival before the first function.
+@Aditi: Yes
+@Riya: Yes!
+@Karan: No, can't get leave that week, sorry.
+# Tally, re-size for five heads, one payment link per payer.
+/webhook Sayan AUTHORIZED UPI
+/webhook Aabhas AUTHORIZED CARD
+/webhook Aditi AUTHORIZED UPI
+/webhook Riya AUTHORIZED UPI
+# Booking: live fares re-check, four captures, payout to the homestay, tickets by DM, "Booked" to the group.
+/quit
