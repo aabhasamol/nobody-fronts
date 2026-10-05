@@ -174,6 +174,32 @@ class Curtain:
                 except json.JSONDecodeError as e:
                     print(paint(C_WARN, f"not JSON: {e}"))
 
+    def confirm(self, key: str, request: dict, status: int, body: Any) -> tuple[int, Any]:
+        """Show the response the ledger computed (what the documented API would return given everything so far) and let
+        the operator send it, edit it, paste their own, or play the documented error. auto/scripted: send as computed."""
+        meta = self.templates.get(key, {})
+        if self.mode == "scripted" and self.scripted:
+            return self.scripted.pop(0)(key, request, body)
+        if self.mode != "interactive":
+            return status, body
+        banner(f"CURTAIN · {meta.get('partner', 'Pine Labs')} · {request.get('method')} {request.get('url')}", colour=C_WARN)
+        print(paint(C_DIM, f"doc: {meta.get('doc', '?')}  verified={meta.get('verified')}"))
+        print(paint(C_DIM, f"what Pine Labs would return now (HTTP {status}):"))
+        print(json.dumps(body, indent=2, ensure_ascii=False))
+        while True:
+            choice = self.ask(paint(C_WARN, "curtain [Enter] send · e edit · p paste JSON · x documented error > ")).strip().lower()
+            if choice == "":
+                return status, body
+            if choice == "x":
+                e = meta.get("error") or {"status": 422, "response": {"code": "DECLINED", "message": "Request declined"}}
+                return e.get("status", 422), render(e["response"], self.context({}))
+            if choice in ("e", "p"):
+                text = _edit(json.dumps(body, indent=2, ensure_ascii=False)) if choice == "e" else _paste(self.ask)
+                try:
+                    return status, json.loads(text)
+                except json.JSONDecodeError as ex:
+                    print(paint(C_WARN, f"not JSON: {ex}"))
+
     def ask_free(self, prompt: str) -> str:
         """For the phone line: the operator gives the path of the callee's recorded reply (or 'none')."""
         if self.mode == "scripted" and self.scripted:
@@ -181,6 +207,14 @@ class Curtain:
         if self.mode != "interactive":
             return os.environ.get("SIM_AUTO_REPLY", "none")
         return self.ask(paint(C_WARN, prompt)).strip()
+
+
+def _paste(ask: Callable[[str], str]) -> str:
+    print("paste JSON, end with an empty line:")
+    lines = []
+    while (line := ask("")) != "":
+        lines.append(line)
+    return "\n".join(lines)
 
 
 def _edit(text: str) -> str:

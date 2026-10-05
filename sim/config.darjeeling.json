@@ -1,0 +1,16 @@
+{
+  "_read_me": "The cast from our Round 3 recording. Phones and Telegram ids are placeholders. The clock starts where the recording did; move 'start' if you rerun on other dates.",
+  "group_title": "Darjeeling trip",
+  "organiser_id": "n1",
+  "hooks_for": [],
+  "channel": "console",
+  "start": "2026-10-05T09:00:00+05:30",
+  "telegram_group_chat_id": "REPLACE with the group's chat id (negative number)",
+  "members": [
+    {"id": "n1", "name": "Nishant",  "phone": "+91 90000 00001", "telegram_user_id": null},
+    {"id": "n2", "name": "Paridhi",  "phone": "+91 90000 00002", "telegram_user_id": null},
+    {"id": "n3", "name": "Abhinav",  "phone": "+91 90000 00003", "telegram_user_id": null},
+    {"id": "n4", "name": "Anoushka", "phone": "+91 90000 00004", "telegram_user_id": null},
+    {"id": "n5", "name": "Amartya",  "phone": "+91 90000 00005", "telegram_user_id": null}
+  ]
+}

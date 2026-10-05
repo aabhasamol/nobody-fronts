@@ -1,0 +1,25 @@
+# The payment wall, live: one debit fails after others succeed.
+#   python -m sim.agent --config sim/config.darjeeling.json --script sim/scenario/failed_debit.txt
+# Expect (R18): every earlier debit refunded, the remaining mandates cancelled, no payout, group told the trip lapsed.
+# audit.md then shows "A failed debit rolled everyone back (R18): PASS".
+@Nishant group: Hi all! Adding Quorum for Darjeeling, 23–25 Oct, leisure. Quorum books the stay only. Around ₹3,000 a head for the stay, max 10% over. Me, Paridhi, Abhinav, Anoushka, Amartya.
+@Amartya: Just me. ₹3,500 max.
+@Abhinav: 1 person. 2,800 max.
+@Anoushka: Just me. Up to ₹4,000. Must be refundable.
+@Nishant: Just me. ₹3,500.
+@Paridhi: Just me, 3,000 is fine.
+/advance 24h
+@Nishant: Yes
+@Amartya: yes
+@Abhinav: yes
+@Anoushka: yes
+@Paridhi: yes
+/approve Nishant
+/approve Amartya
+/approve Abhinav
+/approve Anoushka
+/approve Paridhi
+# Abhinav's bank will decline his debit.
+/fail-debit Abhinav
+/event Dorjee Homestay (WhatsApp, host) | Haan ji, 3 kamre free hain 23–25 Oct. Rs 9,000 total. Bank: Dorjee Lepcha, A/c 50100234567812, IFSC HDFC0001234.
+/quit

@@ -1,172 +1,248 @@
 {
   "_read_me": [
-    "What the person behind the curtain sends back. One entry per endpoint the agent can call.",
-    "Pine Labs and Delhivery: replace each 'response' with the sample response from their documentation before recording,",
-    "then set verified=true and fill 'doc' with the page URL. {{placeholders}} are filled from the request automatically.",
-    "World lookups (fares, stays): replace the example values with what a real site shows at recording time; keep a screenshot.",
-    "Shapes below were written without access to the docs (the build sandbox could not reach them). Treat every field as [verify]."
+    "Pine Labs responses are computed by sim/pinelabs_world.py from everything that has happened (documented rules: no debit without an approved mandate, one debit per one-time mandate, nothing above the cap, no payout above the pool). The entries here only carry each endpoint's documentation status and its documented error, shown to the operator.",
+    "verified=true: endpoint and method as read from Pine Labs' docs (by the team, or from the docs excerpt for Payouts). verified=false: guessed; check before recording.",
+    "World lookups (fares, stays) and Delhivery still use the 'response' templates: replace example values with what a real site shows at recording time; keep a screenshot."
   ],
-
-  "pinelabs.token": {
-    "partner": "Pine Labs", "method": "POST", "path": "/api/auth/v1/token",
-    "doc": "developer.pinelabsonline.com → Generate Token [verify]", "verified": false,
-    "status": 200,
-    "response": { "access_token": "{{jwt}}", "expires_at": "{{now_plus_1h_iso}}" }
-  },
-
-  "pinelabs.create_payment_link": {
-    "partner": "Pine Labs", "method": "POST", "path": "/api/pay/v1/paymentlink",
-    "doc": "developer.pinelabsonline.com → Payment Links → Create Payment Link [verify]", "verified": false,
-    "status": 200,
-    "response": {
-      "payment_link_id": "{{payment_link_id}}",
-      "payment_link": "https://pbl.v2.pinepg.in/{{payment_link_id}}",
-      "status": "CREATED",
-      "amount": { "value": "{{amount_paisa}}", "currency": "INR" },
-      "merchant_payment_link_reference": "{{merchant_payment_link_reference}}",
-      "description": "{{description}}",
-      "expire_by": "{{expire_by}}",
-      "created_at": "{{now_iso}}",
-      "updated_at": "{{now_iso}}"
-    }
-  },
-
-  "pinelabs.get_payment_link": {
-    "partner": "Pine Labs", "method": "GET", "path": "/api/pay/v1/paymentlink/{payment_link_id}",
-    "doc": "developer.pinelabsonline.com → Payment Links → Get Payment Link by ID [verify]", "verified": false,
-    "status": 200,
-    "response": {
-      "payment_link_id": "{{payment_link_id}}",
-      "status": "PROCESSED",
-      "order_id": "{{order_id}}",
-      "amount": { "value": "{{amount_paisa}}", "currency": "INR" },
-      "payments": [ { "id": "{{payment_id}}", "status": "AUTHORIZED", "payment_method": "UPI",
-                      "payment_amount": { "value": "{{amount_paisa}}", "currency": "INR" } } ],
-      "updated_at": "{{now_iso}}"
-    }
-  },
-
-  "pinelabs.webhook": {
-    "partner": "Pine Labs", "method": "POST", "path": "(our) /webhooks/pinelabs  ← Pine Labs webhook",
-    "doc": "developer.pinelabsonline.com → Webhooks → Order events [verify]", "verified": false,
-    "status": 200,
-    "response": {
-      "event_type": "ORDER_AUTHORIZED",
-      "data": {
-        "order_id": "{{order_id}}",
-        "merchant_order_reference": "{{merchant_payment_link_reference}}",
-        "status": "AUTHORIZED",
-        "order_amount": { "value": "{{amount_paisa}}", "currency": "INR" },
-        "pre_auth": true,
-        "payments": [ { "id": "{{payment_id}}", "status": "AUTHORIZED", "payment_method": "{{payment_method}}" } ],
-        "updated_at": "{{now_iso}}"
-      }
-    }
-  },
-
-  "pinelabs.capture": {
-    "partner": "Pine Labs", "method": "PUT", "path": "/api/pay/v1/orders/{order_id}/capture",
-    "doc": "developer.pinelabsonline.com → Orders → Capture Order [verify method and path]", "verified": false,
-    "status": 200,
-    "response": {
-      "data": {
-        "order_id": "{{order_id}}",
-        "merchant_capture_reference": "{{merchant_capture_reference}}",
-        "status": "PROCESSED",
-        "captured_amount": { "value": "{{amount_paisa}}", "currency": "INR" },
-        "updated_at": "{{now_iso}}"
-      }
-    },
-    "error": {
-      "status": 422,
-      "response": { "code": "CAPTURE_FAILED", "message": "Capture could not be processed: payment declined by issuer" }
-    }
-  },
-
-  "pinelabs.cancel": {
-    "partner": "Pine Labs", "method": "PUT", "path": "/api/pay/v1/orders/{order_id}/cancel",
-    "doc": "developer.pinelabsonline.com → Orders → Cancel Order [verify method and path]", "verified": false,
-    "status": 200,
-    "response": { "data": { "order_id": "{{order_id}}", "status": "CANCELLED", "updated_at": "{{now_iso}}" } }
-  },
-
-  "pinelabs.refund": {
-    "partner": "Pine Labs", "method": "POST", "path": "/api/pay/v1/refunds/{order_id}",
-    "doc": "developer.pinelabsonline.com → Refunds → Create Refund [verify]", "verified": false,
-    "status": 200,
-    "response": {
-      "data": {
-        "order_id": "{{refund_order_id}}",
-        "parent_order_id": "{{order_id}}",
-        "type": "REFUND",
-        "status": "PENDING",
-        "order_amount": { "value": "{{amount_paisa}}", "currency": "INR" },
-        "created_at": "{{now_iso}}"
-      }
-    }
-  },
-
-  "pinelabs.payout": {
-    "partner": "Pine Labs", "method": "POST", "path": "/api/payouts/v1/payouts  [verify: Payouts API path]",
-    "doc": "developer.pinelabsonline.com → Payouts → Create Payout [verify]", "verified": false,
-    "status": 200,
-    "response": {
-      "payout_id": "{{payout_id}}",
-      "status": "PROCESSING",
-      "amount": { "value": "{{amount_paisa}}", "currency": "INR" },
-      "mode": "IMPS",
-      "beneficiary_name": "{{beneficiary_name}}",
-      "reference": "{{reference}}",
-      "created_at": "{{now_iso}}"
-    }
-  },
-
   "delhivery.geocode": {
-    "partner": "Delhivery", "method": "GET", "path": "Delhivery Maps → Geocoding  [verify exact path on Delhivery's developer portal]",
-    "doc": "Delhivery developer portal → Maps → Geocode [verify]", "verified": false,
+    "partner": "Delhivery",
+    "method": "GET",
+    "path": "Delhivery Maps → Geocoding  [verify exact path on Delhivery's developer portal]",
+    "doc": "Delhivery developer portal → Maps → Geocode [verify]",
+    "verified": false,
     "status": 200,
     "response": {
-      "results": [ { "formatted_address": "{{address}}", "lat": 15.5910, "lng": 73.7886, "confidence": 0.93 } ]
-    }
-  },
-
-  "delhivery.distance": {
-    "partner": "Delhivery", "method": "POST", "path": "Delhivery Maps → Distance Matrix  [verify exact path on Delhivery's developer portal]",
-    "doc": "Delhivery developer portal → Maps → Distance Matrix [verify]", "verified": false,
-    "status": 200,
-    "response": {
-      "rows": [ { "elements": [ { "distance_m": 1500, "duration_s": 360, "status": "OK" } ] } ]
-    }
-  },
-
-  "world.fares": {
-    "partner": "World (real site, looked up live)", "method": "LOOKUP", "path": "airline / OTA search page",
-    "doc": "Paste what the site shows; keep a screenshot as the real source", "verified": false,
-    "status": 200,
-    "response": {
-      "source": "REPLACE: e.g. goindigo.in search, 4 Oct 2026 20:05 IST (screenshot fares-kolkata.png)",
-      "route": "{{origin}} → {{destination}}", "date": "{{date}}",
-      "options": [
-        { "carrier": "IndiGo", "flight": "6E-REPLACE", "depart": "06:00", "arrive": "08:42", "price_per_seat_inr": 6400 },
-        { "carrier": "Air India", "flight": "AI-REPLACE", "depart": "14:00", "arrive": "16:48", "price_per_seat_inr": 9900 },
-        { "carrier": "IndiGo", "flight": "6E-REPLACE", "depart": "19:00", "arrive": "21:30", "price_per_seat_inr": 5900 }
+      "results": [
+        {
+          "formatted_address": "{{address}}",
+          "lat": 15.591,
+          "lng": 73.7886,
+          "confidence": 0.93
+        }
       ]
     }
   },
-
+  "delhivery.distance": {
+    "partner": "Delhivery",
+    "method": "POST",
+    "path": "Delhivery Maps → Distance Matrix  [verify exact path on Delhivery's developer portal]",
+    "doc": "Delhivery developer portal → Maps → Distance Matrix [verify]",
+    "verified": false,
+    "status": 200,
+    "response": {
+      "rows": [
+        {
+          "elements": [
+            {
+              "distance_m": 1500,
+              "duration_s": 360,
+              "status": "OK"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "world.fares": {
+    "partner": "World (real site, looked up live)",
+    "method": "LOOKUP",
+    "path": "airline / OTA search page",
+    "doc": "Paste what the site shows; keep a screenshot as the real source",
+    "verified": false,
+    "status": 200,
+    "response": {
+      "source": "REPLACE: e.g. goindigo.in search, 4 Oct 2026 20:05 IST (screenshot fares-kolkata.png)",
+      "route": "{{origin}} → {{destination}}",
+      "date": "{{date}}",
+      "options": [
+        {
+          "carrier": "IndiGo",
+          "flight": "6E-REPLACE",
+          "depart": "06:00",
+          "arrive": "08:42",
+          "price_per_seat_inr": 6400
+        },
+        {
+          "carrier": "Air India",
+          "flight": "AI-REPLACE",
+          "depart": "14:00",
+          "arrive": "16:48",
+          "price_per_seat_inr": 9900
+        },
+        {
+          "carrier": "IndiGo",
+          "flight": "6E-REPLACE",
+          "depart": "19:00",
+          "arrive": "21:30",
+          "price_per_seat_inr": 5900
+        }
+      ]
+    }
+  },
   "world.stays": {
-    "partner": "World (real listings, looked up live)", "method": "LOOKUP", "path": "OTA listing page / Google Maps",
-    "doc": "Paste real listings; phone-only stays come from Google Maps or a local tip; keep screenshots", "verified": false,
+    "partner": "World (real listings, looked up live)",
+    "method": "LOOKUP",
+    "path": "OTA listing page / Google Maps",
+    "doc": "Paste real listings; phone-only stays come from Google Maps or a local tip; keep screenshots",
+    "verified": false,
     "status": 200,
     "response": {
       "source": "REPLACE: e.g. OTA search + Google Maps, 4 Oct 2026 20:07 IST",
       "city": "{{city}}",
       "stays": [
-        { "name": "REPLACE homestay (phone-only)", "area": "Assagao", "phone": "REPLACE", "phone_only": true,
-          "listed_rate_per_twin_room_night_inr": 2800, "listing_note": "no online booking; call to confirm" },
-        { "name": "REPLACE listed hotel", "area": "Anjuna", "phone": "REPLACE", "phone_only": false,
-          "rate_per_twin_room_night_inr": 3800, "refund": "free cancellation till 7 days before" }
+        {
+          "name": "REPLACE homestay (phone-only)",
+          "area": "Assagao",
+          "phone": "REPLACE",
+          "phone_only": true,
+          "listed_rate_per_twin_room_night_inr": 2800,
+          "listing_note": "no online booking; call to confirm"
+        },
+        {
+          "name": "REPLACE listed hotel",
+          "area": "Anjuna",
+          "phone": "REPLACE",
+          "phone_only": false,
+          "rate_per_twin_room_night_inr": 3800,
+          "refund": "free cancellation till 7 days before"
+        }
       ]
     }
+  },
+  "pinelabs.token": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/auth/v1/token",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: Generate Token",
+    "verified": true
+  },
+  "pinelabs.create_customer": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/v1/customer",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: Create Customer",
+    "verified": true
+  },
+  "pinelabs.create_subscription_ot": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/v1/public/subscriptions/ot",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: UPI One-Time Mandate, create subscription",
+    "verified": true,
+    "note": "plan_details.amount (paisa) is the most that can ever be debited"
+  },
+  "pinelabs.register_mandate": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/pay/v1/orders/{order_id}/payments",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: create payment with mandate_info.request_type CREATE_MANDATE",
+    "verified": true
+  },
+  "pinelabs.get_subscription_ot": {
+    "partner": "Pine Labs",
+    "method": "GET",
+    "path": "/api/v1/subscriptions/ot/{subscription_id}",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: Get subscription",
+    "verified": true
+  },
+  "pinelabs.cancel_subscription_ot": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/v1/public/subscriptions/{subscription_id}/cancel",
+    "doc": "NOT CONFIRMED: path guessed; check the mandate docs for cancel/revoke",
+    "verified": false
+  },
+  "pinelabs.create_presentation": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/v1/public/presentations",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: Create presentation (debit)",
+    "verified": true,
+    "error": {
+      "status": 422,
+      "response": {
+        "code": "PRESENTATION_FAILED",
+        "message": "Debit declined by the payer's bank"
+      }
+    }
+  },
+  "pinelabs.get_presentation": {
+    "partner": "Pine Labs",
+    "method": "GET",
+    "path": "/api/v1/public/presentations/{presentation_id}",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: Get presentation",
+    "verified": true
+  },
+  "pinelabs.create_payment_link": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/pay/v1/paymentlink",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: Create Payment Link (pre_auth)",
+    "verified": true
+  },
+  "pinelabs.get_payment_link": {
+    "partner": "Pine Labs",
+    "method": "GET",
+    "path": "/api/pay/v1/paymentlink/{payment_link_id}",
+    "doc": "Payment Links: Get by ID [verify]",
+    "verified": false
+  },
+  "pinelabs.capture": {
+    "partner": "Pine Labs",
+    "method": "PUT",
+    "path": "/api/pay/v1/orders/{order_id}/capture",
+    "doc": "Orders: Capture Order [verify method and path]",
+    "verified": false,
+    "error": {
+      "status": 422,
+      "response": {
+        "code": "CAPTURE_FAILED",
+        "message": "Capture could not be processed: payment declined by issuer"
+      }
+    }
+  },
+  "pinelabs.cancel": {
+    "partner": "Pine Labs",
+    "method": "PUT",
+    "path": "/api/pay/v1/orders/{order_id}/cancel",
+    "doc": "Orders: Cancel Order [verify method and path]",
+    "verified": false
+  },
+  "pinelabs.refund": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/api/pay/v1/refunds/{order_id}",
+    "doc": "Pine Labs Online docs, as read by the team for Round 3: Create Refund",
+    "verified": true
+  },
+  "pinelabs.payout": {
+    "partner": "Pine Labs",
+    "method": "POST",
+    "path": "/payouts/v3/payments",
+    "doc": "Pine Labs API reference: Payouts, Create Payout (body: clientReferenceId, amount, payeeName, accountNumber, branchCode; 201)",
+    "verified": true,
+    "error": {
+      "status": 422,
+      "response": {
+        "code": "INSUFFICIENT_BALANCE",
+        "message": "Funding account balance is insufficient"
+      }
+    },
+    "note": "response body fields not shown in the docs excerpt; ledger returns paymentReferenceId, clientReferenceId, status"
+  },
+  "pinelabs.get_balance": {
+    "partner": "Pine Labs",
+    "method": "GET",
+    "path": "/payouts/v3/payments/funding-account",
+    "doc": "Pine Labs API reference: Payouts, Get Account Balance",
+    "verified": true,
+    "note": "response body fields not shown in the docs excerpt"
+  },
+  "pinelabs.get_payouts": {
+    "partner": "Pine Labs",
+    "method": "GET",
+    "path": "/payouts/v3/payments",
+    "doc": "Pine Labs API reference: Payouts, Get Payouts (query clientReferenceId, status, …)",
+    "verified": true
   }
 }

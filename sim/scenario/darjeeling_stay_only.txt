@@ -1,0 +1,27 @@
+# The Round 3 recording, redone so every rail call comes from the agent.
+#   python -m sim.agent --config sim/config.darjeeling.json --script sim/scenario/darjeeling_stay_only.txt
+# Only world inputs are scripted. The curtain still asks you to confirm every Pine Labs / fare / stay response, and the
+# phone line asks for the homestay's recorded reply (record it first: rooms, ₹1,500 a room, refund 7 days, 96 h hold).
+# When the agent searches stays, paste the real listings (MakeMyTrip screenshot + the phone-only homestay from Google Maps).
+@Nishant group: Hi all! Adding Quorum for Darjeeling, 23–25 Oct, leisure. Quorum books the stay only, everyone gets to Darjeeling on their own. Around ₹3,000 a head for the stay, max 10% over. Me, Paridhi, Abhinav, Anoushka, Amartya.
+@Amartya: Just me. Dates fine. ₹3,500 max. Mountain view, that's all.
+@Abhinav: 1 person. ok dates. 2,800 max, student budget 😅 wifi chahiye
+@Anoushka: Just me. Dates should work but work is unpredictable. Up to ₹4,000. Must be refundable.
+@Nishant: Just me. ₹3,500. Hot water is a must.
+# Paridhi stays silent: at the deadline she gets the defaults.
+/advance 24h
+# The agent plans, calls the phone-only homestay (Gnani TTS → your recorded reply → Gnani STT) and sends the vote DMs.
+@Nishant: Yes, looks good
+@Amartya: yes
+@Abhinav: haan yes, within budget 👍
+@Anoushka: Yes, if it's refundable
+# Tally, one private nudge to Paridhi, then mandates: customer → mandate → approval link by DM.
+/advance 12h
+/approve Nishant
+/approve Amartya
+/approve Abhinav
+/approve Anoushka
+# All four blocked: the agent texts the host for confirmation and bank details, then debits.
+/event Dorjee Homestay (WhatsApp, host) | Namaste. Haan ji, 23–25 Oct ke liye 2 kamre free hain. Geyser har kamre mein hai, wifi bhi hai. Rs 6,000 total theek hai. Bank: Dorjee Lepcha, A/c 50100234567812, IFSC HDFC0001234.
+# Debits verified → payout → receipts → "Booked".
+/quit

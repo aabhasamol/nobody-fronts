@@ -2,15 +2,18 @@
 
     python -m sim.agent                      # console channel, curtain plays Pine Labs/Delhivery/fares
     SIM_CHANNEL=telegram python -m sim.agent # real group + DMs through a Telegram bot
-    python -m sim.agent --script sim/scenario/rehearsal.txt   # feed the operator's lines from a file
+    python -m sim.agent --script sim/scenario/goa_wedding.txt   # feed the operator's lines from a file
+    python -m sim.agent --config sim/config.darjeeling.json --script sim/scenario/darjeeling_stay_only.txt
 
 The operator ("world>" prompt) only feeds in the world. Commands:
     @Name: text            a DM from Name           (console channel; on Telegram people type on their phones)
     @Name group: text      Name posts in the group
     /advance 24h           the clock moves on (30m, 6h, 1d)
-    /webhook Name [STATUS] Pine Labs webhook for Name's latest payment link (AUTHORIZED by default; FAILED, EXPIRED)
+    /approve Name [UPI|CARD]  Name approves their mandate (or card hold) in their own app; Pine Labs' webhook follows.
+                           Refused unless the agent created it, registered it, and DMed Name the approval link.
+    /fail-debit Name       Name's bank will decline the next debit (to show the refund-everyone path)
     /event SOURCE | TEXT   anything else from a real source (e.g. "IndiGo SMS | 6E 523 on 20 Nov is cancelled")
-    /status                the operator's ledger (links, orders, pool) — never shown to the agent
+    /status                the operator's ledger (mandates, card holds, pool, payouts) — never shown to the agent
     /export                write the decision table, rail-call log and transcript as Markdown
     /quit
     (empty line)           check the channel for new messages
@@ -27,7 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sim.world import SimClock, RunLog, Curtain, banner, paint, render, C_EVENT, C_THINK, C_WARN, C_DIM, C_RESP  # noqa: E402
+from sim.world import SimClock, RunLog, Curtain, banner, paint, C_EVENT, C_THINK, C_WARN, C_DIM, C_RESP  # noqa: E402
 from sim.channels import build_channel, Channel  # noqa: E402
 from sim.tools import TOOLS, Toolbox  # noqa: E402
 from sim import export  # noqa: E402
@@ -128,23 +131,26 @@ def find_member(cfg: dict, name: str) -> Optional[dict]:
     return None
 
 
-def webhook(toolbox: Toolbox, curtain: Curtain, member: dict, status: str, method: str) -> Optional[dict]:
-    links = [(lid, l) for lid, l in toolbox.pinelabs.links.items() if l["member_id"] == member["id"]]
-    if not links:
-        print(paint(C_WARN, f"no payment link for {member['name']} yet"))
-        return None
-    lid, link = links[-1]
-    ctx = curtain.context({"payment_link_id": lid, "amount_paisa": link["amount_inr"] * 100,
-                           "merchant_payment_link_reference": link["ref"], "payment_method": method})
-    if link.get("order_id"):
-        ctx["order_id"] = link["order_id"]
-    payload = render(curtain.template("pinelabs.webhook")["response"], ctx)
-    payload["event_type"] = f"ORDER_{status}"
-    payload["data"]["status"] = status
-    toolbox._note_order(lid, payload["data"])
+def approve(toolbox: Toolbox, member: dict, method: str) -> tuple[Optional[dict], str]:
+    """A member approves in their own app. Only possible for something the agent created and whose approval link the
+    agent actually sent that member; otherwise nothing happens and the operator is told why."""
+    from sim.pinelabs_world import Mandate
+    item = toolbox.ledger.latest_for(member["id"])
+    if item is None:
+        return None, f"the agent has not created a mandate or card hold for {member['name']}"
+    link = item.challenge_url if isinstance(item, Mandate) else item.url
+    if not link:
+        return None, f"the agent has not registered {member['name']}'s mandate, so there is no approval link"
+    if not any(link in text for text in toolbox.dms.get(member["id"], [])):
+        return None, f"the agent never sent {member['name']} the approval link, so they cannot approve it"
+    payload, why = toolbox.ledger.approve(member["id"], method)
+    if payload is None:
+        return None, why
+    created_by = toolbox.pinelabs.requests.get(getattr(item, "subscription_id", None) or getattr(item, "payment_link_id", ""))
     toolbox.log.rail({"at": toolbox.clock.now().isoformat(), "partner": "Pine Labs", "endpoint": "webhook → /webhooks/pinelabs",
-                      "request": None, "status": 200, "response": payload, "played_by": "curtain (documented webhook)"})
-    return payload
+                      "initiated_by": "world", "in_reply_to": created_by, "request": None, "status": 200,
+                      "response": payload, "played_by": f"curtain: {member['name']} approved in their app (real action)"})
+    return payload, ""
 
 
 def lines(script: Optional[str]) -> Iterator[str]:
@@ -176,6 +182,7 @@ def main(argv: Optional[list[str]] = None) -> None:
     toolbox = Toolbox(cfg, channel, curtain, log, clock)
     agent = Agent(anthropic.Anthropic(), toolbox, build_system(cfg), log, clock)
     (log.dir / "system_prompt.md").write_text(agent.system, encoding="utf-8")
+    (log.dir / "roster.json").write_text(json.dumps([m["name"] for m in cfg["members"]], ensure_ascii=False), encoding="utf-8")
     banner(f"Quorum simulation · model {agent.model} · effort {agent.effort} · channel {channel.name} · "
            f"Pine Labs {toolbox.pinelabs.mode} · {clock.stamp()}", colour=C_RESP)
     print(paint(C_DIM, f"run log: {log.dir}"))
@@ -199,24 +206,32 @@ def main(argv: Optional[list[str]] = None) -> None:
             elif line.startswith("/advance"):
                 clock.advance(line.split(maxsplit=1)[1])
                 agent.handle("Clock", "system clock", f"It is now {clock.stamp()}.")
-            elif line.startswith("/webhook"):
+            elif line.startswith("/approve") or line.startswith("/webhook"):
                 parts = line.split()
                 m = find_member(cfg, parts[1]) if len(parts) > 1 else None
                 if not m:
-                    print(paint(C_WARN, "usage: /webhook Name [AUTHORIZED|FAILED|EXPIRED] [UPI|CARD|BNPL]"))
+                    print(paint(C_WARN, "usage: /approve Name [UPI|CARD]"))
                     continue
-                status = parts[2].upper() if len(parts) > 2 else "AUTHORIZED"
-                method = parts[3].upper() if len(parts) > 3 else "UPI"
-                payload = webhook(toolbox, curtain, m, status, method)
-                if payload:
-                    agent.handle("Pine Labs webhook", "Pine Labs → our callback_url (played from the documented payload)",
-                                 json.dumps(payload, ensure_ascii=False, indent=1))
+                method = parts[2].upper() if len(parts) > 2 else "UPI"
+                payload, why = approve(toolbox, m, method)
+                if payload is None:
+                    print(paint(C_WARN, f"refused: {why}"))
+                    continue
+                agent.handle("Pine Labs webhook", f"Pine Labs → our callback_url, after {m['name']} approved in their app",
+                             json.dumps(payload, ensure_ascii=False, indent=1))
+            elif line.startswith("/fail-debit"):
+                parts = line.split()
+                m = find_member(cfg, parts[1]) if len(parts) > 1 else None
+                if not m:
+                    print(paint(C_WARN, "usage: /fail-debit Name"))
+                    continue
+                toolbox.ledger.fail_next_debit.add(m["id"])
+                print(paint(C_DIM, f"(operator) {m['name']}'s bank will decline the next debit"))
             elif line.startswith("/event"):
                 src, _, text = line[len("/event"):].partition("|")
                 agent.handle("World event", src.strip() or "operator", text.strip())
             elif line == "/status":
-                print(json.dumps({"links": toolbox.pinelabs.links, "orders": toolbox.pinelabs.orders, "pool_inr": toolbox.pool},
-                                 indent=1, ensure_ascii=False))
+                print(json.dumps(toolbox.ledger.summary(), indent=1, ensure_ascii=False))
             elif line == "/export":
                 print(paint(C_RESP, f"exported to {export.write(log.dir)}"))
             elif line in ("/quit", "/exit"):

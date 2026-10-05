@@ -5,6 +5,7 @@
 decisions.md     Q2: every decision, in order — when, received, from, decided, why, did/said to whom, through
 rail_calls.md    Q4: every Pine Labs / Delhivery / Gnani call with endpoint, request and response
 transcript.md    every message the agent sent, in order (for the mockups and the story)
+audit.md         the run checked against our rules and Pine Labs' documented behaviour (sim/audit.py)
 """
 from __future__ import annotations
 import json
@@ -36,7 +37,9 @@ def write(run_dir: Path) -> Path:
     rc = _rows(run_dir / "rail_calls.jsonl")
     out = ["# Rail calls (every call to Pine Labs, Delhivery, Gnani and the world)\n"]
     for r in rc:
-        out += [f"## {r['n']}. {r['partner']} — `{r['endpoint']}`", f"*{r['at']} · played by: {r['played_by']} · status {r['status']}*\n",
+        origin = r.get("initiated_by", "agent") + (f", in reply to call {r['in_reply_to']}" if r.get("in_reply_to") else "")
+        out += [f"## {r['n']}. {r['partner']} — `{r['endpoint']}`",
+                f"*{r['at']} · initiated by: {origin} · played by: {r['played_by']} · status {r['status']}*\n",
                 "Request:", "```json", json.dumps(r.get("request"), indent=2, ensure_ascii=False), "```",
                 "Response:", "```json", json.dumps(r.get("response"), indent=2, ensure_ascii=False), "```\n"]
     (run_dir / "rail_calls.md").write_text("\n".join(out), encoding="utf-8")
@@ -46,6 +49,8 @@ def write(run_dir: Path) -> Path:
     for m in msgs:
         out += [f"**{m['at']} → {m['to']}**", "", m["text"], ""]
     (run_dir / "transcript.md").write_text("\n".join(out), encoding="utf-8")
+    from . import audit
+    audit.write(run_dir)
     return run_dir
 
 

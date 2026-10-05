@@ -1,3 +1,4 @@
+# Goa wedding with travel legs, Delhivery distances and a carrier cancellation.
 # Operator lines for a rehearsal (python -m sim.agent --script sim/scenario/rehearsal.txt).
 # Only chat messages and clock ticks are scripted; the curtain still asks you for every rail response.
 # For the recording, people type on their own phones instead (SIM_CHANNEL=telegram).
@@ -14,10 +15,13 @@
 @Aditi: Yes
 @Riya: Yes!
 @Karan: No, can't get leave that week, sorry.
-# Tally, re-size for five heads, one payment link per payer.
-/webhook Sayan AUTHORIZED UPI
-/webhook Aabhas AUTHORIZED CARD
-/webhook Aditi AUTHORIZED UPI
-/webhook Riya AUTHORIZED UPI
-# Booking: live fares re-check, four captures, payout to the homestay, tickets by DM, "Booked" to the group.
+# Tally, re-size for five heads, one UPI mandate per payer, approval links by DM.
+/approve Sayan
+/approve Aabhas
+/approve Aditi
+/approve Riya
+/event Dona Maria Homestay (WhatsApp, host) | Haan ji, 3 kamre confirm hain 20–24 Nov. Bank: Maria D'Souza, A/c 30200111222333, IFSC SBIN0004567.
+# Booking: live fares re-check, four debits, payout to the homestay, tickets by DM, "Booked" to the group.
+# Then a disruption from a real source: the carrier's cancellation SMS.
+/event IndiGo SMS to Aabhas | Your flight 6E 5214 Kolkata–Goa on 20 Nov 06:00 is cancelled. A full refund will be processed to the original payment method.
 /quit

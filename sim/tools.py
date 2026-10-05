@@ -21,7 +21,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Any, Callable, Optional
 import httpx
-from .world import Curtain, RunLog, SimClock, banner, paint, C_CALL, C_RESP, C_DEC, C_WARN, C_DIM
+from .world import Curtain, RunLog, SimClock, banner, paint, C_CALL, C_RESP, C_DEC, C_WARN, C_DIM, C_SAY
 from .channels import Channel
 
 # ------------------------------------------------------------------ schemas
@@ -55,6 +55,9 @@ TOOLS: list[dict] = [
           {"text": {"type": "string"}}, ["text"]),
     _tool("send_dm", "Send a private message to one member.",
           {"member_id": {"type": "string"}, "text": {"type": "string"}}, ["member_id", "text"]),
+    _tool("text_supplier", "Send a WhatsApp text to a supplier (a homestay host, a driver) at the number on its listing. "
+          "Their reply arrives later as an event.", {"supplier": {"type": "string"}, "phone": {"type": "string"},
+          "text": {"type": "string"}}, ["supplier", "phone", "text"]),
     _tool("log_decision", "Record a decision that needs no other action right now (for example: wait for the deadline).",
           {}, []),
     _tool("search_fares", "Look up real fares for one leg on one date. Returns the options a real airline/OTA site shows now.",
@@ -80,23 +83,54 @@ TOOLS: list[dict] = [
           ["callee", "phone", "audio_file", "p0_reason"]),
     _tool("gnani_stt", "Gnani speech-to-text on a recorded reply. Returns exactly what Gnani returns.",
           {"audio_file": {"type": "string"}, "language": {"type": "string"}}, ["audio_file", "language"], decision=False),
-    _tool("pinelabs_create_payment_link",
-          "Pine Labs: create a pre-authorised payment link for one payer for exactly their cap. Nothing is charged until capture.",
+    # Pine Labs, default instrument: UPI One-Time Mandate (block once, debit once, the rest is never taken)
+    _tool("pinelabs_create_customer", "Pine Labs POST /api/v1/customer: register one payer as a customer (moves no money).",
+          {"member_id": {"type": "string"}}, ["member_id"]),
+    _tool("pinelabs_create_mandate",
+          "Pine Labs POST /api/v1/public/subscriptions/ot: create a UPI one-time mandate for one payer. max_amount_inr is "
+          "the most that can ever be debited (their cap). Returns subscription_id and order_id. Nothing is blocked until the "
+          "payer approves the link from pinelabs_register_mandate.",
+          {"member_id": {"type": "string"}, "customer_id": {"type": "string"}, "max_amount_inr": MONEY,
+           "valid_hours": {"type": "integer"}}, ["member_id", "customer_id", "max_amount_inr", "valid_hours"]),
+    _tool("pinelabs_register_mandate",
+          "Pine Labs POST /api/pay/v1/orders/{order_id}/payments with mandate_info.request_type CREATE_MANDATE. Returns the "
+          "approval link (challenge_url). Send it to that payer by DM; they approve it in their own UPI app.",
+          {"member_id": {"type": "string"}, "order_id": {"type": "string"}}, ["member_id", "order_id"]),
+    _tool("pinelabs_get_mandate", "Pine Labs GET /api/v1/subscriptions/ot/{subscription_id}: status (CREATED until the payer "
+          "approves, then ACTIVE) and cap.", {"subscription_id": {"type": "string"}}, ["subscription_id"], decision=False),
+    _tool("pinelabs_cancel_mandate", "Pine Labs: cancel an un-debited mandate so the payer's block is released (a dropout).",
+          {"member_id": {"type": "string"}, "subscription_id": {"type": "string"}}, ["member_id", "subscription_id"]),
+    _tool("pinelabs_debit", "Pine Labs POST /api/v1/public/presentations: debit an ACTIVE mandate once, for the payer's actual "
+          "share (never above the cap).", {"member_id": {"type": "string"}, "subscription_id": {"type": "string"},
+          "amount_inr": MONEY}, ["member_id", "subscription_id", "amount_inr"]),
+    _tool("pinelabs_get_debit", "Pine Labs GET /api/v1/public/presentations/{presentation_id}: status of a debit.",
+          {"presentation_id": {"type": "string"}}, ["presentation_id"], decision=False),
+    # Pine Labs, alternative instrument: a card pre-authorisation through a payment link
+    _tool("pinelabs_create_card_hold_link",
+          "Pine Labs POST /api/pay/v1/paymentlink with pre_auth: a link where the payer holds their cap on a card (EMI "
+          "possible). Use only if the payer asks for card instead of UPI.",
           {"member_id": {"type": "string"}, "amount_inr": MONEY, "valid_hours": {"type": "integer"},
            "description": {"type": "string"}}, ["member_id", "amount_inr", "valid_hours", "description"]),
-    _tool("pinelabs_get_payment_link", "Pine Labs: status of a payment link, the order behind it and the method used.",
+    _tool("pinelabs_get_payment_link", "Pine Labs GET /api/pay/v1/paymentlink/{payment_link_id}: status and the order behind it.",
           {"payment_link_id": {"type": "string"}}, ["payment_link_id"], decision=False),
-    _tool("pinelabs_capture", "Pine Labs: capture an amount (the payer's share, never above their cap) on an authorised order.",
-          {"member_id": {"type": "string"}, "order_id": {"type": "string"}, "amount_inr": MONEY},
+    _tool("pinelabs_capture_card_hold", "Pine Labs: capture the payer's share (one capture, never above the hold) on an "
+          "AUTHORIZED card order.", {"member_id": {"type": "string"}, "order_id": {"type": "string"}, "amount_inr": MONEY},
           ["member_id", "order_id", "amount_inr"]),
-    _tool("pinelabs_cancel", "Pine Labs: cancel an order, releasing a hold or the uncaptured balance.",
+    _tool("pinelabs_cancel_card_hold", "Pine Labs: release an uncaptured card hold.",
           {"member_id": {"type": "string"}, "order_id": {"type": "string"}}, ["member_id", "order_id"]),
-    _tool("pinelabs_refund", "Pine Labs: refund a captured amount.",
-          {"member_id": {"type": "string"}, "order_id": {"type": "string"}, "amount_inr": MONEY},
-          ["member_id", "order_id", "amount_inr"]),
-    _tool("pinelabs_payout", "Pine Labs Payouts: pay a supplier from Quorum's account (the pool).",
-          {"beneficiary_name": {"type": "string"}, "amount_inr": MONEY, "purpose": {"type": "string"},
-           "reference": {"type": "string"}}, ["beneficiary_name", "amount_inr", "purpose", "reference"]),
+    # Pine Labs, money back and money out
+    _tool("pinelabs_refund", "Pine Labs POST /api/pay/v1/refunds/{order_id}: refund money taken on a mandate or card order "
+          "(use the order_id of that mandate or hold).", {"member_id": {"type": "string"}, "order_id": {"type": "string"},
+          "amount_inr": MONEY}, ["member_id", "order_id", "amount_inr"]),
+    _tool("pinelabs_get_balance", "Pine Labs GET /payouts/v3/payments/funding-account: what Quorum's account (the pool) holds.",
+          {}, [], decision=False),
+    _tool("pinelabs_payout", "Pine Labs POST /payouts/v3/payments (Create Payout): pay a supplier from the pool to their bank "
+          "account. Needs the payee's account number and IFSC, so ask the supplier for them.",
+          {"payee_name": {"type": "string"}, "account_number": {"type": "string"}, "ifsc": {"type": "string"},
+           "amount_inr": MONEY, "client_reference": {"type": "string", "description": "your unique id for this payout"}},
+          ["payee_name", "account_number", "ifsc", "amount_inr", "client_reference"]),
+    _tool("pinelabs_get_payouts", "Pine Labs GET /payouts/v3/payments: payout records, filtered by your client_reference.",
+          {"client_reference": {"type": "string"}}, [], decision=False),
     _tool("quote_plan",
           "Arithmetic only. Prices one plan: twin rooms = ceil(heads/2); stay per head = ceil(rooms × rate × nights / heads); "
           "per head = own legs + stay per head + essentials per head; share = per head × party.",
@@ -114,7 +148,7 @@ TOOLS: list[dict] = [
           ["payers"], decision=False),
 ]
 
-CONNECTOR = {"send_group": "Chat (group)", "send_dm": "Chat (DM)", "log_decision": "—",
+CONNECTOR = {"send_group": "Chat (group)", "send_dm": "Chat (DM)", "text_supplier": "WhatsApp (supplier)", "log_decision": "—",
              "search_fares": "World: fare site (curtain)", "search_stays": "World: listings (curtain)",
              "delhivery_geocode": "Delhivery Maps", "delhivery_distance": "Delhivery Maps",
              "gnani_tts": "Gnani TTS", "gnani_stt": "Gnani STT", "place_call": "Phone line (curtain) + Gnani audio",
@@ -123,17 +157,22 @@ CONNECTOR = {"send_group": "Chat (group)", "send_dm": "Chat (DM)", "log_decision
 
 # ------------------------------------------------------------------ Pine Labs gateway
 class PineLabsGateway:
-    """Builds the request Pine Labs' docs describe. curtain: a teammate returns the documented response.
-    uat: sends it to Pine Labs UAT (PINELABS_CLIENT_ID / _SECRET / _MERCHANT_ID; base PINELABS_BASE)."""
+    """Builds the request Pine Labs' docs describe and gets the answer.
+
+    curtain (default): the ledger (sim/pinelabs_world.py) computes what Pine Labs would return given everything so far;
+    the person behind the curtain confirms it, edits it, or plays the documented error. Only calls the agent makes
+    are answered, and state changes only by what the final response says.
+    uat: the same request goes to Pine Labs UAT (PINELABS_CLIENT_ID / _SECRET; base PINELABS_BASE)."""
 
     def __init__(self, curtain: Curtain, log: RunLog, clock: SimClock, mode: Optional[str] = None):
+        from .pinelabs_world import PineLabsLedger
         self.curtain, self.log, self.clock = curtain, log, clock
         self.mode = mode or os.environ.get("SIM_PINELABS", "curtain")
         self.base = os.environ.get("PINELABS_BASE", "https://pluraluat.v2.pinepg.in").rstrip("/")
         self.token: Optional[str] = None
         self.http = httpx.Client(timeout=30) if self.mode == "uat" else None
-        self.links: dict[str, dict] = {}            # payment_link_id → member, amount, order_id (the operator's view)
-        self.orders: dict[str, dict] = {}           # order_id → member, authorised, captured
+        self.ledger = PineLabsLedger()
+        self.requests: dict[str, int] = {}          # object id → rail-log row of the request that created it
 
     def _headers(self) -> dict:
         h = {"Content-Type": "application/json", "Request-ID": str(uuid.uuid4()), "Request-Timestamp": self.clock.now().isoformat()}
@@ -141,7 +180,7 @@ class PineLabsGateway:
             h["Authorization"] = "Bearer <access_token>"
         return h
 
-    def call(self, key: str, method: str, path: str, body: Optional[dict], ctx: dict) -> tuple[int, Any]:
+    def call(self, key: str, method: str, path: str, body: Optional[dict], expected: tuple[int, Any]) -> tuple[int, Any]:
         if self.token is None and key != "pinelabs.token":
             self._token()
         request = {"method": method, "url": f"{self.base}{path}", "headers": self._headers(), "body": body}
@@ -153,11 +192,15 @@ class PineLabsGateway:
             r = self.http.request(method, request["url"], headers=hdrs, json=body)
             status, resp, played = r.status_code, (r.json() if r.content else {}), "Pine Labs UAT (live)"
         else:
-            status, resp = self.curtain.answer(key, request, ctx)
-            played = "curtain (documented response)"
+            status, resp = self.curtain.confirm(key, request, *expected)
+            played = "curtain (ledger-computed documented response)"
         _show_response(status, resp)
-        self.log.rail({"at": self.clock.now().isoformat(), "partner": "Pine Labs", "endpoint": f"{method} {path}",
-                       "request": request, "status": status, "response": resp, "played_by": played})
+        n = self.log.rail({"at": self.clock.now().isoformat(), "initiated_by": "agent", "partner": "Pine Labs", "endpoint": f"{method} {path}",
+                           "initiated_by": "agent", "request": request, "status": status, "response": resp, "played_by": played})
+        for k in ("subscription_id", "order_id", "payment_link_id", "presentation_id", "paymentReferenceId"):
+            v = _data(resp).get(k) if isinstance(resp, dict) else None
+            if v and v not in self.requests:
+                self.requests[v] = n
         return status, resp
 
     def _token(self) -> None:
@@ -166,7 +209,9 @@ class PineLabsGateway:
             body = {"client_id": os.environ["PINELABS_CLIENT_ID"], "client_secret": os.environ["PINELABS_CLIENT_SECRET"],
                     "grant_type": "client_credentials"}
         self.token = "pending"
-        status, resp = self.call("pinelabs.token", "POST", "/api/auth/v1/token", body, {})
+        expiry = (self.clock.now() + timedelta(hours=1)).isoformat()
+        status, resp = self.call("pinelabs.token", "POST", "/api/auth/v1/token", body,
+                                 (200, {"access_token": "eyJhbGciOiJSUzI1NiJ9." + uuid.uuid4().hex, "expires_at": expiry}))
         self.token = (resp or {}).get("access_token") or "curtain-token"
 
 
@@ -191,10 +236,10 @@ class Toolbox:
         self.cfg, self.channel, self.curtain, self.log, self.clock = cfg, channel, curtain, log, clock
         self.members = {m["id"]: m for m in cfg["members"]}
         self.pinelabs = PineLabsGateway(curtain, log, clock)
+        self.dms: dict[str, list[str]] = {}         # member id → every DM text sent (the approval link must reach them)
         self.speech = speech                       # GnaniSpeech, built lazily so a run without calls needs no key
         self.player = player or _play
         self.audio: dict[str, Path] = {}           # audio file id → path
-        self.pool = 0                              # operator's view of Quorum's account; the agent sees only responses
         self.current_event: dict = {}
 
     # dispatch -----------------------------------------------------
@@ -217,7 +262,7 @@ class Toolbox:
     def _decision(self, name: str, args: dict, d: dict, result: Any) -> None:
         said = args.get("text") or json.dumps({k: v for k, v in args.items()}, ensure_ascii=False)
         to = ("group" if name == "send_group" else self.members.get(args.get("member_id", ""), {}).get("name")
-              or args.get("callee") or args.get("beneficiary_name") or "—")
+              or args.get("callee") or args.get("supplier") or args.get("payee_name") or "—")
         ev = self.current_event
         row = {"when": self.clock.stamp(), "received": ev.get("summary", ""), "from": ev.get("source", ""),
                "decided": d.get("decided"), "why": d.get("rule_id"), "trigger": d.get("trigger"),
@@ -232,12 +277,22 @@ class Toolbox:
         self.log.message({"at": self.clock.now().isoformat(), "to": "group", "text": text, "status": status})
         return status
 
-    def t_send_dm(self, member_id: str, text: str) -> str:
+    def _member(self, member_id: str) -> dict:
         if member_id not in self.members:
             raise ValueError(f"no member {member_id}; members: {', '.join(self.members)}")
+        return self.members[member_id]
+
+    def t_send_dm(self, member_id: str, text: str) -> str:
+        self._member(member_id)
         status = self.channel.send_dm(member_id, text)
+        self.dms.setdefault(member_id, []).append(text)
         self.log.message({"at": self.clock.now().isoformat(), "to": self.members[member_id]["name"], "text": text, "status": status})
         return status
+
+    def t_text_supplier(self, supplier: str, phone: str, text: str) -> str:
+        print(paint(C_SAY, f"→ WhatsApp {supplier} ({phone})\n") + "\n".join("   " + line for line in text.splitlines()))
+        self.log.message({"at": self.clock.now().isoformat(), "to": f"{supplier} (supplier)", "text": text, "status": "delivered"})
+        return "delivered; the supplier's reply will arrive as an event"
 
     def t_log_decision(self) -> str:
         return "logged"
@@ -247,7 +302,7 @@ class Toolbox:
         banner(f"{partner} ▸ {request}", colour=C_CALL)
         status, resp = self.curtain.answer(key, request, ctx)
         _show_response(status, resp)
-        self.log.rail({"at": self.clock.now().isoformat(), "partner": partner, "endpoint": key, "request": request,
+        self.log.rail({"at": self.clock.now().isoformat(), "initiated_by": "agent", "partner": partner, "endpoint": key, "request": request,
                        "status": status, "response": resp, "played_by": "curtain (real source)"})
         return resp
 
@@ -272,7 +327,7 @@ class Toolbox:
         _show_request("Delhivery", request)
         status, resp = self.curtain.answer(key, request, ctx)
         _show_response(status, resp)
-        self.log.rail({"at": self.clock.now().isoformat(), "partner": "Delhivery", "endpoint": f"{t['method']} {t['path']}",
+        self.log.rail({"at": self.clock.now().isoformat(), "initiated_by": "agent", "partner": "Delhivery", "endpoint": f"{t['method']} {t['path']}",
                        "request": request, "status": status, "response": resp, "played_by": "curtain (documented response)"})
         return resp
 
@@ -297,7 +352,7 @@ class Toolbox:
         self.audio[fid] = path
         resp = {"content_type": "audio/wav", "bytes": len(audio), "saved_as": path.name}
         _show_response(200, resp)
-        self.log.rail({"at": self.clock.now().isoformat(), "partner": "Gnani", "endpoint": f"POST {TTS_URL}",
+        self.log.rail({"at": self.clock.now().isoformat(), "initiated_by": "agent", "partner": "Gnani", "endpoint": f"POST {TTS_URL}",
                        "request": request, "status": 200, "response": resp, "played_by": "Gnani API (real)"})
         return {"audio_file": fid, "bytes": len(audio)}
 
@@ -307,7 +362,7 @@ class Toolbox:
         banner(f"PHONE LINE ▸ dialling {callee} ({phone}) · {p0_reason}", colour=C_CALL)
         self.player(self.audio[audio_file])
         reply = self.curtain.ask_free(f"phone line: path to {callee}'s recorded reply (wav ≤60 s), or 'none' for no answer > ")
-        self.log.rail({"at": self.clock.now().isoformat(), "partner": "Phone line", "endpoint": "dial + play",
+        self.log.rail({"at": self.clock.now().isoformat(), "initiated_by": "agent", "partner": "Phone line", "endpoint": "dial + play",
                        "request": {"callee": callee, "phone": phone, "audio": self.audio[audio_file].name, "p0_reason": p0_reason},
                        "status": 200, "response": {"reply": reply}, "played_by": "curtain (teammate plays the callee, real recorded audio)"})
         if not reply or reply.lower() in ("none", "no answer", "-"):
@@ -332,86 +387,130 @@ class Toolbox:
         transcript = self._gnani().stt(self.audio[audio_file], language_code=language)
         resp = {"success": True, "transcript": transcript}
         _show_response(200, resp)
-        self.log.rail({"at": self.clock.now().isoformat(), "partner": "Gnani", "endpoint": f"POST {STT_URL}",
+        self.log.rail({"at": self.clock.now().isoformat(), "initiated_by": "agent", "partner": "Gnani", "endpoint": f"POST {STT_URL}",
                        "request": request, "status": 200, "response": resp, "played_by": "Gnani API (real)"})
         return resp
 
     # Pine Labs -----------------------------------------------------
-    def t_pinelabs_create_payment_link(self, member_id: str, amount_inr: int, valid_hours: int, description: str) -> Any:
-        m = self.members[member_id]
+    @property
+    def ledger(self):
+        return self.pinelabs.ledger
+
+    @property
+    def pool(self) -> int:
+        """Rupees in Quorum's account (the operator's view; the agent learns it only from pinelabs_get_balance)."""
+        return self.ledger.pool_paisa // 100
+
+    def _pl(self, key: str, method: str, path: str, body: Optional[dict], expected: tuple[int, Any]) -> dict:
+        status, resp = self.pinelabs.call(key, method, path, body, expected)
+        return {"http_status": status, "response": resp}
+
+    def t_pinelabs_create_customer(self, member_id: str) -> dict:
+        m = self._member(member_id)
         first, _, last = m["name"].partition(" ")
-        ref = f"quorum-{member_id}-{uuid.uuid4().hex[:6]}"
-        expire_by = (self.clock.now() + timedelta(hours=valid_hours)).isoformat()
+        body = {"merchant_customer_reference": f"quorum_{member_id}", "first_name": first, "last_name": last or "-",
+                "country_code": "91", "mobile_number": m.get("phone", "")}
+        out = self._pl("pinelabs.create_customer", "POST", "/api/v1/customer", body, self.ledger.create_customer(member_id, body))
+        self.ledger.apply_customer(member_id, out["http_status"], out["response"])
+        return out
+
+    def t_pinelabs_create_mandate(self, member_id: str, customer_id: str, max_amount_inr: int, valid_hours: int) -> dict:
+        self._member(member_id)
+        ref = f"quorum_{member_id}_{uuid.uuid4().hex[:6]}"
+        now = self.clock.now()
+        body = {"merchant_subscription_reference": ref, "customer_id": customer_id,
+                "plan_details": {"amount": max_amount_inr * 100, "currency": "INR", "frequency": "ONE_TIME"},
+                "start_date": now.isoformat(), "end_date": (now + timedelta(hours=valid_hours)).isoformat()}
+        out = self._pl("pinelabs.create_subscription_ot", "POST", "/api/v1/public/subscriptions/ot", body,
+                       self.ledger.create_subscription(member_id, customer_id, max_amount_inr * 100, ref))
+        self.ledger.apply_subscription(member_id, customer_id, ref, out["http_status"], out["response"])
+        return out
+
+    def t_pinelabs_register_mandate(self, member_id: str, order_id: str) -> dict:
+        body = {"payments": [{"payment_method": "UPI", "payment_option": {"upi_details": {"txn_mode": "INTENT"}},
+                              "mandate_info": {"request_type": "CREATE_MANDATE"}}]}
+        out = self._pl("pinelabs.register_mandate", "POST", f"/api/pay/v1/orders/{order_id}/payments", body,
+                       self.ledger.register_mandate(order_id))
+        self.ledger.apply_register(order_id, out["http_status"], out["response"])
+        return out
+
+    def t_pinelabs_get_mandate(self, subscription_id: str) -> dict:
+        return self._pl("pinelabs.get_subscription_ot", "GET", f"/api/v1/subscriptions/ot/{subscription_id}", None,
+                        self.ledger.get_subscription(subscription_id))
+
+    def t_pinelabs_cancel_mandate(self, member_id: str, subscription_id: str) -> dict:
+        out = self._pl("pinelabs.cancel_subscription_ot", "POST", f"/api/v1/public/subscriptions/{subscription_id}/cancel",
+                       {"reason": "member dropped out"}, self.ledger.cancel_subscription(subscription_id))
+        self.ledger.apply_cancel_subscription(subscription_id, out["http_status"])
+        return out
+
+    def t_pinelabs_debit(self, member_id: str, subscription_id: str, amount_inr: int) -> dict:
+        ref = f"quorum_debit_{member_id}_{uuid.uuid4().hex[:6]}"
+        body = {"subscription_id": subscription_id, "merchant_presentation_reference": ref,
+                "amount": {"value": amount_inr * 100, "currency": "INR"}}
+        out = self._pl("pinelabs.create_presentation", "POST", "/api/v1/public/presentations", body,
+                       self.ledger.present(subscription_id, amount_inr * 100, ref))
+        if out["http_status"] < 400 and isinstance(out["response"], dict):
+            self.ledger.apply_presentation(out["response"])
+        return out
+
+    def t_pinelabs_get_debit(self, presentation_id: str) -> dict:
+        return self._pl("pinelabs.get_presentation", "GET", f"/api/v1/public/presentations/{presentation_id}", None,
+                        self.ledger.get_presentation(presentation_id))
+
+    def t_pinelabs_create_card_hold_link(self, member_id: str, amount_inr: int, valid_hours: int, description: str) -> dict:
+        m = self._member(member_id)
+        first, _, last = m["name"].partition(" ")
+        ref = f"quorum_{member_id}_{uuid.uuid4().hex[:6]}"
         body = {"amount": {"value": amount_inr * 100, "currency": "INR"}, "description": description,
-                "expire_by": expire_by, "allowed_payment_methods": ["CARD", "UPI", "BNPL"], "pre_auth": "true",
-                "merchant_payment_link_reference": ref,
+                "expire_by": (self.clock.now() + timedelta(hours=valid_hours)).isoformat(),
+                "allowed_payment_methods": ["CARD"], "pre_auth": "true", "merchant_payment_link_reference": ref,
                 "customer": {"first_name": first, "last_name": last or "-", "mobile_number": m.get("phone", ""),
-                             "country_code": "91", "email_id": m.get("email", f"{member_id}@example.invalid"),
-                             "merchant_customer_reference": f"quorum-{member_id}"},
-                "callback_url": os.environ.get("PINELABS_CALLBACK_URL", "https://<tunnel>/webhooks/pinelabs"),
-                "merchant_metadata": {"source": "quorum", "member": member_id}}
-        ctx = {"amount_paisa": amount_inr * 100, "merchant_payment_link_reference": ref, "description": description,
-               "expire_by": expire_by}
-        status, resp = self.pinelabs.call("pinelabs.create_payment_link", "POST", "/api/pay/v1/paymentlink", body, ctx)
-        d = _data(resp)
-        link_id = d.get("payment_link_id") or d.get("id")
-        if link_id:
-            self.pinelabs.links[link_id] = {"member_id": member_id, "amount_inr": amount_inr, "ref": ref, "order_id": None}
-        return {"status": status, "response": resp}
+                             "country_code": "91", "merchant_customer_reference": f"quorum_{member_id}"},
+                "callback_url": os.environ.get("PINELABS_CALLBACK_URL", "https://<tunnel>/webhooks/pinelabs")}
+        out = self._pl("pinelabs.create_payment_link", "POST", "/api/pay/v1/paymentlink", body,
+                       self.ledger.create_link(member_id, amount_inr * 100, ref))
+        self.ledger.apply_link(member_id, ref, out["http_status"], out["response"])
+        return out
 
-    def t_pinelabs_get_payment_link(self, payment_link_id: str) -> Any:
-        link = self.pinelabs.links.get(payment_link_id, {})
-        ctx = {"payment_link_id": payment_link_id, "amount_paisa": link.get("amount_inr", 0) * 100}
-        if link.get("order_id"):
-            ctx["order_id"] = link["order_id"]
-        status, resp = self.pinelabs.call("pinelabs.get_payment_link", "GET", f"/api/pay/v1/paymentlink/{payment_link_id}", None, ctx)
-        self._note_order(payment_link_id, _data(resp))
-        return {"status": status, "response": resp}
+    def t_pinelabs_get_payment_link(self, payment_link_id: str) -> dict:
+        return self._pl("pinelabs.get_payment_link", "GET", f"/api/pay/v1/paymentlink/{payment_link_id}", None,
+                        self.ledger.get_link(payment_link_id))
 
-    def _note_order(self, link_id: str, d: dict) -> None:
-        oid = d.get("order_id")
-        if oid and link_id in self.pinelabs.links:
-            self.pinelabs.links[link_id]["order_id"] = oid
-            link = self.pinelabs.links[link_id]
-            self.pinelabs.orders.setdefault(oid, {"member_id": link["member_id"], "authorised_inr": link["amount_inr"], "captured_inr": 0})
-
-    def t_pinelabs_capture(self, member_id: str, order_id: str, amount_inr: int) -> Any:
-        o = self.pinelabs.orders.get(order_id)
-        if o and o["captured_inr"] + amount_inr > o["authorised_inr"]:
-            print(paint(C_WARN, f"(operator) capture ₹{amount_inr} exceeds the ₹{o['authorised_inr']} authorised — Pine Labs would reject; consider 'x'"))
+    def t_pinelabs_capture_card_hold(self, member_id: str, order_id: str, amount_inr: int) -> dict:
         body = {"merchant_capture_reference": f"cap-{uuid.uuid4().hex[:10]}", "capture_amount": {"value": amount_inr * 100, "currency": "INR"}}
-        ctx = {"order_id": order_id, "amount_paisa": amount_inr * 100, "merchant_capture_reference": body["merchant_capture_reference"]}
         method = os.environ.get("PINELABS_CAPTURE_METHOD", "PUT")
-        status, resp = self.pinelabs.call("pinelabs.capture", method, f"/api/pay/v1/orders/{order_id}/capture", body, ctx)
-        if status < 400:
-            self.pool += amount_inr
-            if o:
-                o["captured_inr"] += amount_inr
-        return {"status": status, "response": resp}
+        out = self._pl("pinelabs.capture", method, f"/api/pay/v1/orders/{order_id}/capture", body,
+                       self.ledger.capture(order_id, amount_inr * 100))
+        self.ledger.apply_capture(order_id, out["http_status"], out["response"])
+        return out
 
-    def t_pinelabs_cancel(self, member_id: str, order_id: str) -> Any:
+    def t_pinelabs_cancel_card_hold(self, member_id: str, order_id: str) -> dict:
         method = os.environ.get("PINELABS_CANCEL_METHOD", "PUT")
-        status, resp = self.pinelabs.call("pinelabs.cancel", method, f"/api/pay/v1/orders/{order_id}/cancel", None, {"order_id": order_id})
-        return {"status": status, "response": resp}
+        out = self._pl("pinelabs.cancel", method, f"/api/pay/v1/orders/{order_id}/cancel", None, self.ledger.cancel_order(order_id))
+        self.ledger.apply_cancel_order(order_id, out["http_status"])
+        return out
 
-    def t_pinelabs_refund(self, member_id: str, order_id: str, amount_inr: int) -> Any:
+    def t_pinelabs_refund(self, member_id: str, order_id: str, amount_inr: int) -> dict:
         body = {"merchant_order_reference": f"refund-{uuid.uuid4().hex[:10]}", "order_amount": {"value": amount_inr * 100, "currency": "INR"}}
-        status, resp = self.pinelabs.call("pinelabs.refund", "POST", f"/api/pay/v1/refunds/{order_id}", body,
-                                          {"order_id": order_id, "amount_paisa": amount_inr * 100})
-        if status < 400:
-            self.pool -= amount_inr
-        return {"status": status, "response": resp}
+        out = self._pl("pinelabs.refund", "POST", f"/api/pay/v1/refunds/{order_id}", body, self.ledger.refund(order_id, amount_inr * 100))
+        self.ledger.apply_refund(order_id, out["http_status"], amount_inr * 100)
+        return out
 
-    def t_pinelabs_payout(self, beneficiary_name: str, amount_inr: int, purpose: str, reference: str) -> Any:
-        if amount_inr > self.pool:
-            print(paint(C_WARN, f"(operator) payout ₹{amount_inr} exceeds the ₹{self.pool} in the pool — Pine Labs would reject"))
-        body = {"beneficiary": {"name": beneficiary_name}, "amount": {"value": amount_inr * 100, "currency": "INR"},
-                "mode": "IMPS", "purpose": purpose, "reference": reference}
-        status, resp = self.pinelabs.call("pinelabs.payout", "POST", "/api/payouts/v1/payouts", body,
-                                          {"amount_paisa": amount_inr * 100, "beneficiary_name": beneficiary_name, "reference": reference})
-        if status < 400:
-            self.pool -= amount_inr
-        return {"status": status, "response": resp}
+    def t_pinelabs_get_balance(self) -> dict:
+        return self._pl("pinelabs.get_balance", "GET", "/payouts/v3/payments/funding-account", None, self.ledger.balance())
+
+    def t_pinelabs_payout(self, payee_name: str, account_number: str, ifsc: str, amount_inr: int, client_reference: str) -> dict:
+        body = {"clientReferenceId": client_reference, "amount": {"value": amount_inr * 100, "currency": "INR"},
+                "payeeName": payee_name, "accountNumber": account_number, "branchCode": ifsc}
+        out = self._pl("pinelabs.payout", "POST", "/payouts/v3/payments", body, self.ledger.payout(body))
+        if isinstance(out["response"], dict):
+            self.ledger.apply_payout(out["http_status"], out["response"])
+        return out
+
+    def t_pinelabs_get_payouts(self, client_reference: str = "") -> dict:
+        q = f"?clientReferenceId={client_reference}" if client_reference else ""
+        return self._pl("pinelabs.get_payouts", "GET", f"/payouts/v3/payments{q}", None, self.ledger.list_payouts(client_reference or None))
 
     # calculators ----------------------------------------------------
     def t_quote_plan(self, rate_per_twin_room_night_inr: int, nights: int, payers: list[dict], essentials_per_head_inr: int = 0) -> dict:
